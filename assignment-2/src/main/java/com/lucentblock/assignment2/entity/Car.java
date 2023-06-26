@@ -29,7 +29,7 @@ public class Car {
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="car_manufacture_id")
-    private CarManufacture carManufactureId;
+    private CarManufacturer carManufactureId;
 
     @Column(name="bought_at")
     private LocalDateTime boughtAt;
