@@ -1,10 +1,7 @@
-package com.lucentblock.assignment2.domain.entity;
+package com.lucentblock.assignment2.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,12 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="repair_shop")
+@Table(name = "repair_man")
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RepairShop {
+public class RepairMan {
 
     @Id
     private Integer id;
@@ -27,7 +24,10 @@ public class RepairShop {
     private String name;
 
     @Column(name="license_id")
-    private String location;
+    private String licenseId;
+
+    @Column(name="career_start_at")
+    private LocalDateTime careerStartAt;
 
     @Column(name="created_at")
     private LocalDateTime createdAt;

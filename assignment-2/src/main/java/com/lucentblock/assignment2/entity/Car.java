@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.domain.entity;
+package com.lucentblock.assignment2.entity;
 
 
 import jakarta.persistence.*;
