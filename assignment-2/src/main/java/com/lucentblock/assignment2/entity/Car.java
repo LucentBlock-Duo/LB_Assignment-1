@@ -28,7 +28,7 @@ public class Car {
     private User userId;
 
     @ManyToOne
-    @JoinColumn(referencedColumnName = "id",name="car_manufacture_id")
+    @JoinColumn(referencedColumnName = "id",name="car_manufacturer_id")
     private CarManufacturer carManufacturerId;
 
     @Column(name="bought_at")
