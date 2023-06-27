@@ -26,7 +26,7 @@ public class RepairShop {
     @Column
     private String name;
 
-    @Column(name="license_id")
+    @Column
     private String location;
 
     @Column(name="created_at")
