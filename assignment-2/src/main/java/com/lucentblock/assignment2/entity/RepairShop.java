@@ -34,5 +34,4 @@ public class RepairShop {
 
     @Column(name="deleted_at")
     private LocalDateTime deletedAt;
-
 }
