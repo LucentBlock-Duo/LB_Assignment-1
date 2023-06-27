@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reserve")
 public class Reserve {
-
     @Id
     private long id;
 

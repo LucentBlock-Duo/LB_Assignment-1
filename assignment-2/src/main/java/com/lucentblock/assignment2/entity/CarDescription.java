@@ -35,5 +35,4 @@ public class CarDescription {
 
     @Column(name="deleted_at")
     private LocalDateTime deletedAt;
-
 }

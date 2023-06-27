@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+
+    <changeSet id="changelog-user-1.0" author="0tae"> <!-- User -->
+        <createTable tableName="user">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(20)"/>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_fail_count" type="INT" defaultValue="0"/>
+            <column name="is_email_verified" type="BOOLEAN" defaultValue="FALSE"/>
+            <column name="recent_login_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-login_Challenge-1.0" author="0tae"> <!-- login challenge -->
+        <createTable tableName="login_challenge">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_successful" type="BOOLEAN" defaultValue="FALSE"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="login-user-fk"
+                                 baseTableName="login_challenge"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="changelog-signup_code_challenge-1.0" author="0tae"> <!-- signup_code_challenge -->
+        <createTable tableName="signup_code_challenge">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_successful" type="BOOLEAN" defaultValue="FALSE"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="verified_at" type="TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint constraintName="signup-user-fk"
+                                 baseTableName="signup_code_challenge"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="changelog-car_manufacturer-1.0" author="0tae"> <!-- car_manufacturer -->
+        <createTable tableName="car_manufacturer">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-car-1.0" author="0tae"> <!-- car -->
+        <createTable tableName="car">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="car_manufacturer_id" type="INT"/>
+            <column name="bought_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="car-user-fk"
+                                 baseTableName="car"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="car-manufacturer-fk"
+                                 baseTableName="car"
+                                 baseColumnNames="car_manufacturer_id"
+                                 referencedTableName="car_manufacturer"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet id="changelog-car_description-1.0" author="0tae"> <!-- car_description -->
+        <createTable tableName="car_description">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="car_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="VARCHAR(255)"/>
+            <column name="seats" type="INT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="description-car-fk"
+                                 baseTableName="car_description"
+                                 baseColumnNames="car_id"
+                                 referencedTableName="car"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="changelog-repair_shop-1.0" author="0tae"> <!-- repair_shop -->
+        <createTable tableName="repair_shop">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-repair_man-1.0" author="0tae"> <!-- repair_man -->
+        <createTable tableName="repair_man">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license_id" type="INT">
+                <constraints checkConstraint="license_id IN (1, 2, 3)"/>
+            </column>
+            <column name="career_start_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-maintenance_item-1.0" author="0tae"> <!-- maintenance_item -->
+        <createTable tableName="maintenance_item">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="required_license" type="INT">
+                <constraints checkConstraint="required_license IN (1, 2, 3)" nullable="false"/>
+            </column>
+            <column name="required_time" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-reserve-1.0" author="0tae"> <!-- reserve -->
+        <createTable tableName="reserve">
+            <column name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="car_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="repair_man_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="repair_shop_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="reserve-car-fk"
+                                 baseTableName="reserve"
+                                 baseColumnNames="car_id"
+                                 referencedTableName="car"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="reserve-man-fk"
+                                 baseTableName="reserve"
+                                 baseColumnNames="repair_man_id"
+                                 referencedTableName="repair_man"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="reserve-shop-fk"
+                                 baseTableName="reserve"
+                                 baseColumnNames="repair_shop_id"
+                                 referencedTableName="repair_shop"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
