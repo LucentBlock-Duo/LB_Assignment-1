@@ -16,13 +16,10 @@ import java.util.Map;
 
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
-public class PrincipalDetails implements UserDetails, OAuth2User, OidcUser {
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private User user;
     private Map<String, Object> attributes;
-    private Map<String, Object> claims;
-    private OidcUserInfo userInfo;
-    private OidcIdToken oidcIdToken;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -67,20 +64,5 @@ public class PrincipalDetails implements UserDetails, OAuth2User, OidcUser {
     @Override
     public String getName() {
         return null;
-    }
-
-    @Override
-    public Map<String, Object> getClaims() {
-        return this.claims;
-    }
-
-    @Override
-    public OidcUserInfo getUserInfo() {
-        return this.userInfo;
-    }
-
-    @Override
-    public OidcIdToken getIdToken() {
-        return this.oidcIdToken;
     }
 }

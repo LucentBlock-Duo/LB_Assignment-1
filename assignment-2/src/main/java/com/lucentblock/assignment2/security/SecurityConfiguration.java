@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.security;
 
+import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final PrincipalOAuth2UserService principalOAuth2UserService;
     private final PrincipalDetailsService principalDetailsService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -41,6 +43,7 @@ public class SecurityConfiguration {
                     oauth2Config.userInfoEndpoint( userInfoConfig -> {
                         userInfoConfig.userService(principalOAuth2UserService);
                     });
+                    oauth2Config.successHandler(oAuth2SuccessHandler);
                 })
                 .userDetailsService(principalDetailsService)
                 .formLogin(Customizer.withDefaults())
