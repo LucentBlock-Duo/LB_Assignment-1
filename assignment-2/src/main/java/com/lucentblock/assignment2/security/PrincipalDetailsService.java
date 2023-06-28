@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.entity;
+package com.lucentblock.assignment2.security;
 
 import com.lucentblock.assignment2.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

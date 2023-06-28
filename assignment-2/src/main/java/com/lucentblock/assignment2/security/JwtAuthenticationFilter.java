@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt); // 인증 인가에서 관리하는 Username 의 실체는 유저의 이메일
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) { // jwt 에 유저 이메일 정보 잘 담겨있고, 현재 Authenticated 되어있지 않다면 Jwt 를 이용해 Authenticate.
+            System.out.println(userEmail);
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

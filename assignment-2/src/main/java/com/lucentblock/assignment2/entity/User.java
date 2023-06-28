@@ -46,4 +46,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "provider") // Resource Owner 의 이름
+    private String provider;
+
+    @Column(name = "provider_id") // Resource Owner 로 접속하는 유저의 아이디
+    private String providerId;
 }

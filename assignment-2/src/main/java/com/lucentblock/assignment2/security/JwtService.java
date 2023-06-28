@@ -21,7 +21,7 @@ public class JwtService {
 //    @Value("${application.security.jwt.expiration}")
 //    private long jwtExpiration;
 
-    @Value("${application.security.jwt.secret-key}")
+    @Value("${application.security.jwt.access.secret-key}")
     private String secretKey;
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

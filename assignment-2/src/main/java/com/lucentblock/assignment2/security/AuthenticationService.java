@@ -1,6 +1,5 @@
 package com.lucentblock.assignment2.security;
 
-import com.lucentblock.assignment2.entity.PrincipalDetails;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.repository.UserRepository;
