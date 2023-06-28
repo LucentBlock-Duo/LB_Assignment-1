@@ -1,20 +1,20 @@
 package com.lucentblock.assignment2.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter @Setter
 @Entity
 @Table(name = "user")
+@ToString
 public class User {
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -42,4 +42,8 @@ public class User {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }

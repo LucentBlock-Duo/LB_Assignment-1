@@ -8,7 +8,7 @@
 
     <changeSet id="changelog-user-1.0" author="0tae"> <!-- User -->
         <createTable tableName="user">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
             <column name="email" type="VARCHAR(255)">
@@ -29,12 +29,12 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-login_Challenge-1.0" author="0tae"> <!-- login challenge -->
+    <changeSet id="changelog-login_challenge-1.0" author="0tae"> <!-- login challenge -->
         <createTable tableName="login_challenge">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="user_id" type="INT">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="is_successful" type="BOOLEAN" defaultValue="FALSE"/>
@@ -51,10 +51,10 @@
 
     <changeSet id="changelog-signup_code_challenge-1.0" author="0tae"> <!-- signup_code_challenge -->
         <createTable tableName="signup_code_challenge">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="user_id" type="INT">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="code" type="VARCHAR(255)">
@@ -74,7 +74,7 @@
 
     <changeSet id="changelog-car_manufacturer-1.0" author="0tae"> <!-- car_manufacturer -->
         <createTable tableName="car_manufacturer">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -87,16 +87,16 @@
 
     <changeSet id="changelog-car-1.0" author="0tae"> <!-- car -->
         <createTable tableName="car">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="user_id" type="INT">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="car_manufacturer_id" type="INT"/>
+            <column name="car_manufacturer_id" type="BIGINT"/>
             <column name="bought_at" type="TIMESTAMP"/>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
             <column name="deleted_at" type="TIMESTAMP"/>
@@ -119,10 +119,10 @@
 
     <changeSet id="changelog-car_description-1.0" author="0tae"> <!-- car_description -->
         <createTable tableName="car_description">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="car_id" type="INT">
+            <column name="car_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="color" type="VARCHAR(255)"/>
@@ -141,7 +141,7 @@
 
     <changeSet id="changelog-repair_shop-1.0" author="0tae"> <!-- repair_shop -->
         <createTable tableName="repair_shop">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -155,7 +155,7 @@
 
     <changeSet id="changelog-repair_man-1.0" author="0tae"> <!-- repair_man -->
         <createTable tableName="repair_man">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -172,7 +172,7 @@
 
     <changeSet id="changelog-maintenance_item-1.0" author="0tae"> <!-- maintenance_item -->
         <createTable tableName="maintenance_item">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -184,12 +184,14 @@
             <column name="required_time" type="INT">
                 <constraints nullable="false"/>
             </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
 
     <changeSet id="changelog-reserve-1.0" author="0tae"> <!-- reserve -->
         <createTable tableName="reserve">
-            <column name="id" type="INT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
             <column name="start_time" type="TIMESTAMP">
@@ -198,21 +200,22 @@
             <column name="end_time" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="car_id" type="INT">
+            <column name="car_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="repair_man_id" type="INT">
+            <column name="repair_man_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="repair_shop_id" type="INT">
+            <column name="repair_shop_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="maintenance_item_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="deleted_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
+            <column name="deleted_at" type="TIMESTAMP"/>
         </createTable>
 
         <addForeignKeyConstraint constraintName="reserve-car-fk"
@@ -230,6 +233,10 @@
                                  baseColumnNames="repair_shop_id"
                                  referencedTableName="repair_shop"
                                  referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="reserve-maintenance-fk"
+                                 baseTableName="reserve"
+                                 baseColumnNames="maintenance_item_id"
+                                 referencedTableName="maintenance_item"
+                                 referencedColumnNames="id"/>
     </changeSet>
-
 </databaseChangeLog>

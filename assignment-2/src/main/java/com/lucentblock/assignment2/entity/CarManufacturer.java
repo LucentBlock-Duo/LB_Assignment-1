@@ -6,12 +6,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter @Setter
 @Entity
 @Table(name = "car_manufacturer")
+@ToString
 public class CarManufacturer {
 
     @Id
@@ -25,4 +27,8 @@ public class CarManufacturer {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }
