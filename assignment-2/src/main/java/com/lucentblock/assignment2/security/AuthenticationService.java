@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.security;
 
+import com.lucentblock.assignment2.entity.PrincipalDetails;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.repository.UserRepository;
@@ -14,6 +15,8 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+
+    // OAuth 가 아닌 이 서비스에 직접 가입한 사람의 경우 이 컨트롤러가 작동한다.
 
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
@@ -31,7 +34,11 @@ public class AuthenticationService {
                 .build();
 
         User savedUser = userRepository.save(user);
-        String jwt = jwtService.generateToken(savedUser);
+
+        String jwt = jwtService.generateToken(
+                PrincipalDetails.builder()
+                .user(savedUser)
+                .build());
         return AuthenticationResponse.builder()
                 .accessToken(jwt)
                 .build();
@@ -41,7 +48,9 @@ public class AuthenticationService {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())); // UserDetails (DB에 있는 유저) 정보와 일치하는지 확인
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
-        String jwt = jwtService.generateToken(user);
+        String jwt = jwtService.generateToken(PrincipalDetails.builder()
+                .user(user)
+                .build());
         return AuthenticationResponse.builder()
                 .accessToken(jwt)
                 .build();
