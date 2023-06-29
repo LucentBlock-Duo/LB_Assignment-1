@@ -31,12 +31,11 @@ public class SecurityConfiguration {
                     csrf.disable();
                 })
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/").permitAll();
-                    auth.requestMatchers("/register").permitAll();
-                    auth.requestMatchers("/authenticate").permitAll();
-                    auth.requestMatchers("/refresh").permitAll();
                     auth.requestMatchers("/admin").hasRole("ADMIN");
-                    auth.anyRequest().authenticated();
+                    auth.requestMatchers("/api/reserve/**").hasAnyRole("USER", "ADMIN");
+                    auth.requestMatchers("/secured").hasAnyRole("USER", "ADMIN");
+                    auth.requestMatchers("/open").permitAll();
+                    auth.anyRequest().permitAll();
                 })
                 .sessionManagement((sessionManagement) -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -50,6 +49,10 @@ public class SecurityConfiguration {
                 })
                 .userDetailsService(principalDetailsService)
                 .formLogin(Customizer.withDefaults())
+                .exceptionHandling( exceptionConfig -> {
+                    exceptionConfig.authenticationEntryPoint(new CustomEntryPoint());
+                    exceptionConfig.accessDeniedHandler(new CustomAccessDeniedHandler());
+                })
                 .build();
     }
 }
