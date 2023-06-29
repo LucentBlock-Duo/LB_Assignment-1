@@ -1,20 +1,22 @@
 package com.lucentblock.assignment2.entity;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
-@Getter @Setter
-@Entity
+@Getter @Setter @Builder
+@Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "user")
-@ToString
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -43,7 +45,16 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "provider") // Resource Owner 의 이름
+    private String provider;
+
+    @Column(name = "provider_id") // Resource Owner 로 접속하는 유저의 아이디
+    private String providerId;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
 }
+
