@@ -1,14 +1,12 @@
 package com.lucentblock.assignment2.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter @Setter
-@Entity
+@Entity @Builder @NoArgsConstructor @AllArgsConstructor
 @Table(name = "signup_code_challenge")
 @ToString
 public class SignupCodeChallenge {

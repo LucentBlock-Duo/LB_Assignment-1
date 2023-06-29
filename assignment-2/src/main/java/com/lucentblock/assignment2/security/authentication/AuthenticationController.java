@@ -1,8 +1,10 @@
 package com.lucentblock.assignment2.security.authentication;
 
+import com.lucentblock.assignment2.model.RequestVerifySignupCodeDTO;
 import com.lucentblock.assignment2.security.model.RegisterRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationResponse;
+import com.sun.jdi.request.DuplicateRequestException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,8 +27,14 @@ public class AuthenticationController {
     private final AuthenticationService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request, HttpServletResponse response) throws IOException {
+        try {
+            return ResponseEntity.ok(authService.register(request));
+        } catch (DuplicateRequestException e) {
+            response.sendError(HttpServletResponse.SC_CONFLICT);
+        }
+
+        return null;
     }
 
     @PostMapping("/authenticate")
@@ -57,6 +65,36 @@ public class AuthenticationController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).build();
     }
+
+    @PostMapping("/request/code/signup")
+    public String generateSignupCode(@RequestBody RequestSignupCodeDTO requestSignupCodeDTO, HttpServletResponse response) throws IOException {
+        try {
+            return authService.generateSignupCode(requestSignupCodeDTO.getUserEmail());
+        } catch (UsernameNotFoundException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch (RuntimeException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        return null;
+    }
+
+    @PatchMapping("/request/code/signup")
+    public ResponseEntity verifySignupCode(@RequestBody RequestVerifySignupCodeDTO requestVerifySignupCodeDTO, HttpServletResponse response) throws IOException {
+        try {
+            return authService.verifySignupCode(requestVerifySignupCodeDTO);
+        } catch (UsernameNotFoundException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch (IllegalAccessException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (RuntimeException e) {
+            response.sendError(HttpServletResponse.SC_CONFLICT);
+            System.out.println(e.getMessage());
+        }
+
+        return null;
+    }
+
 
     @GetMapping("/admin")
     public String admin() {
