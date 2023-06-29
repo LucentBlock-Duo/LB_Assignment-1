@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.security;
 
+import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,8 +19,24 @@ import java.util.Map;
 @NoArgsConstructor @AllArgsConstructor
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private User user;
+//    private User user;
+    private String userEmail;
+    private String password;
+    private String role;
     private Map<String, Object> attributes;
+
+    public PrincipalDetails(User user) {
+        this.userEmail = user.getEmail();
+        this.password = user.getPassword();
+        this.role = user.getRole().name();
+    }
+
+    public PrincipalDetails(User user, Map<String, Object> attributes) {
+        this.userEmail = user.getEmail();
+        this.password = user.getPassword();
+        this.role = user.getRole().name();
+        this.attributes = attributes;
+    }
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -28,17 +45,17 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority(this.role));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return this.userEmail;
     }
 
     @Override

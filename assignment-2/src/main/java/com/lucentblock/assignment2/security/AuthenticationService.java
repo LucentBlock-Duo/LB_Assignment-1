@@ -34,10 +34,15 @@ public class AuthenticationService {
 
         User savedUser = userRepository.save(user);
 
+//        String jwt = jwtService.generateToken(
+//                PrincipalDetails.builder()
+//                .user(savedUser)
+//                .build());
+
         String jwt = jwtService.generateToken(
-                PrincipalDetails.builder()
-                .user(savedUser)
-                .build());
+                new PrincipalDetails(savedUser)
+        );
+
         return AuthenticationResponse.builder()
                 .accessToken(jwt)
                 .build();
@@ -47,9 +52,14 @@ public class AuthenticationService {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())); // UserDetails (DB에 있는 유저) 정보와 일치하는지 확인
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
-        String jwt = jwtService.generateToken(PrincipalDetails.builder()
-                .user(user)
-                .build());
+//        String jwt = jwtService.generateToken(PrincipalDetails.builder()
+//                .user(user)
+//                .build());
+
+        String jwt = jwtService.generateToken(
+                new PrincipalDetails(user)
+        );
+
         return AuthenticationResponse.builder()
                 .accessToken(jwt)
                 .build();

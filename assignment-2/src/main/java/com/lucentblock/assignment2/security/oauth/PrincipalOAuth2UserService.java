@@ -57,9 +57,14 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
             user = retrievedUser.get();
         }
 
-        return PrincipalDetails.builder()
-                .user(user)
-                .attributes(oAuth2User.getAttributes())
-                .build();
+//        return PrincipalDetails.builder()
+//                .user(user)
+//                .attributes(oAuth2User.getAttributes())
+//                .build();
+
+        return new PrincipalDetails(
+                user,
+                oAuth2User.getAttributes()
+        );
     }
 }
