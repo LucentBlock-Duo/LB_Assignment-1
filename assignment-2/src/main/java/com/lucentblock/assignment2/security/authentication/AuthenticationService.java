@@ -1,7 +1,9 @@
 package com.lucentblock.assignment2.security.authentication;
 
+import com.lucentblock.assignment2.entity.LoginChallenge;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
+import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
@@ -11,8 +13,12 @@ import com.lucentblock.assignment2.security.model.AuthenticationRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
 
@@ -30,6 +37,7 @@ public class AuthenticationService {
     private final JwtRefreshService jwtRefreshService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LoginChallengeRepository loginChallengeRepository;
 
 //    @PostConstruct
 //    public void adminSetup() {
@@ -77,8 +85,27 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())); // UserDetails (DB에 있는 유저) 정보와 일치하는지 확인
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+//        Authentication authenticate = authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));// UserDetails (DB에 있는 유저) 정보와 일치하는지 확인
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+
+        if (user == null) {
+            // UserNotFound
+            log.info(request.getEmail() + " doesn't exists.");
+            throw (new UsernameNotFoundException("User Not Found"));
+        } else if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            // Password is Incorrect
+            log.info("Password is Incorrect");
+
+            user.setPasswordFailCount((short) (user.getPasswordFailCount()+1));
+            userRepository.save(user);
+
+            loginChallengeRepository.save(LoginChallenge.builder()
+                    .user(user)
+                    .isSuccessful(false)
+                    .createdAt(LocalDateTime.now())
+                    .build());
+            throw new BadCredentialsException("Password is Incorrect");
+        }
 
         String accessToken = jwtService.generateToken(
                 Map.of("role", user.getRole().name()),
@@ -91,8 +118,16 @@ public class AuthenticationService {
         );
 
         user.setRefreshToken(refreshToken);
+        user.setPasswordFailCount((short) (0));
+        user.setRecentLoginAt(LocalDateTime.now());
         userRepository.save(user);
         userRepository.flush();
+
+        loginChallengeRepository.save(LoginChallenge.builder()
+                .user(user)
+                .isSuccessful(true)
+                .createdAt(LocalDateTime.now())
+                .build());
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
