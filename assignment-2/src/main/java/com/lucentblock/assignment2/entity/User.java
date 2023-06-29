@@ -53,5 +53,8 @@ public class User {
 
     @Column(name = "provider_id") // Resource Owner 로 접속하는 유저의 아이디
     private String providerId;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
 }
 

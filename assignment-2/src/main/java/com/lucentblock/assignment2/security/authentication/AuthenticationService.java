@@ -9,6 +9,7 @@ import com.lucentblock.assignment2.security.PrincipalDetails;
 import com.lucentblock.assignment2.security.model.RegisterRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationResponse;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,17 +55,20 @@ public class AuthenticationService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        User savedUser = userRepository.save(user);
 
         String accessToken = jwtService.generateToken(
                 Map.of("role", Role.ROLE_USER.name()),
-                new PrincipalDetails(savedUser)
+                new PrincipalDetails(user)
         );
 
         String refreshToken = jwtRefreshService.generateToken(
                 Map.of("role", Role.ROLE_USER.name()),
-                new PrincipalDetails(savedUser)
+                new PrincipalDetails(user)
         );
+
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        userRepository.flush();
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -86,9 +90,46 @@ public class AuthenticationService {
                 new PrincipalDetails(user)
         );
 
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        userRepository.flush();
+
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    public AuthenticationResponse refresh(String accessToken, String refreshToken) {
+        Claims claimsOfExpiredAccessToken = jwtService.extractClaimsFromExpiredToken(accessToken);
+
+        String userEmail = claimsOfExpiredAccessToken.getSubject();
+        User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow();
+
+        if (refreshToken.equals(retrievedUser.getRefreshToken())) {
+
+            if (!jwtRefreshService.isTokenExpired(refreshToken)) {
+                String newAccessToken = jwtService.generateToken(
+                        Map.of("role", retrievedUser.getRole().name()),
+                        new PrincipalDetails(retrievedUser)
+                );
+
+                String newRefreshToken = jwtRefreshService.generateToken(
+                        Map.of("role", retrievedUser.getRole().name()),
+                        new PrincipalDetails(retrievedUser)
+                );
+
+                retrievedUser.setRefreshToken(newRefreshToken);
+                userRepository.save(retrievedUser);
+                userRepository.flush();
+
+                return AuthenticationResponse.builder()
+                        .accessToken(newAccessToken)
+                        .refreshToken(newRefreshToken)
+                        .build();
+            }
+        }
+
+        return null;
     }
 }

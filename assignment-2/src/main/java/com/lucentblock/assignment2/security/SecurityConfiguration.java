@@ -1,6 +1,6 @@
 package com.lucentblock.assignment2.security;
 
-import com.lucentblock.assignment2.entity.Role;
+import com.lucentblock.assignment2.security.authentication.jwt.JwtAuthenticationFilter;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +34,7 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/").permitAll();
                     auth.requestMatchers("/register").permitAll();
                     auth.requestMatchers("/authenticate").permitAll();
+                    auth.requestMatchers("/refresh").permitAll();
                     auth.requestMatchers("/admin").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
                 })

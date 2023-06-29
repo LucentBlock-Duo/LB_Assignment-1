@@ -16,13 +16,22 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
-public class JwtService {
-
-    @Value("${application.security.jwt.access.expiration}")
+public class JwtRefreshService { // extend JwtService 로 리팩토링 고려
+    @Value("${application.security.jwt.refresh.expiration}")
     private long jwtExpiration;
 
-    @Value("${application.security.jwt.access.secret-key}")
+    @Value("${application.security.jwt.refresh.secret-key}")
     private String secretKey;
+
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
+
+        return false;
+    }
 
     public String extractRole(String token) {
         final Claims claims = extractAllClaims(token);
@@ -58,67 +67,17 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            log.info("This Access Token is Expired");
+            log.info("This Refresh Token is Expired");
         } catch (JwtException e) {
-            log.info("This Access Token is Invalid");
+            log.info("This Refresh Token is Invalid");
         }
 
         return null;
     }
 //    private Date extractExpiration(String token) { // 이 메소드 삭제여부 검토
 //        return extractClaim(token, Claims::getExpiration);
-//
+
 //    }
-
-    public Claims extractClaimsFromExpiredToken(String token) {
-        try {
-            Claims claims = Jwts
-                    .parserBuilder()
-                    .setSigningKey(getSignInKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            log.info("This Access Token is Expired");
-            return e.getClaims();
-        } catch (JwtException e) {
-            log.info("This Access Token is Invalid But Not Expired");
-            return null;
-        }
-
-        return null;
-    }
-
-    public boolean isTokenInvalid(String token) {
-        try {
-            Claims claims = Jwts
-                    .parserBuilder()
-                    .setSigningKey(getSignInKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            return false;
-        } catch (JwtException e) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isTokenExpired(String token) {
-        try {
-            Claims claims = Jwts
-                    .parserBuilder()
-                    .setSigningKey(getSignInKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            return true;
-        }
-
-        return false;
-    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
