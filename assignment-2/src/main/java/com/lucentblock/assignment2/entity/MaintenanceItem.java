@@ -6,20 +6,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-
-import java.time.LocalDateTime;
 
 @Getter @Setter
 @Entity
 @Table(name = "maintenance_item")
-@ToString
 public class MaintenanceItem {
 
     @Id
-    private Long id;
+    private long id;
 
-    @Column(name = "name")
+    @Column(name = "item_name")
     private String itemName;
 
     @Column(name = "required_license")
@@ -27,14 +23,4 @@ public class MaintenanceItem {
 
     @Column(name = "required_time")
     private int requiredTime;
-
-    @Column(name="created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name="deleted_at")
-    private LocalDateTime deletedAt;
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
 }

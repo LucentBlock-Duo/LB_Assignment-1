@@ -5,7 +5,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -15,16 +18,15 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class RepairShop {
 
     @Id
-    private Long id;
+    private Integer id;
 
     @Column
     private String name;
 
-    @Column
+    @Column(name="license_id")
     private String location;
 
     @Column(name="created_at")
@@ -33,7 +35,4 @@ public class RepairShop {
     @Column(name="deleted_at")
     private LocalDateTime deletedAt;
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
 }

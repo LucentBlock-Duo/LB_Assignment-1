@@ -2,7 +2,10 @@ package com.lucentblock.assignment2.entity;
 
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -12,11 +15,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class CarDescription {
 
     @Id
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="car_id")
@@ -34,7 +36,4 @@ public class CarDescription {
     @Column(name="deleted_at")
     private LocalDateTime deletedAt;
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
 }
