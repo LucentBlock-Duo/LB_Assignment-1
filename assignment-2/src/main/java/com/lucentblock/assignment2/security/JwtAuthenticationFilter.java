@@ -36,18 +36,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String jwt = authHeader.substring(7);
         final String userEmail = jwtService.extractUsername(jwt); // 인증 인가에서 관리하는 Username 의 실체는 유저의 이메일
+        final String userRole = jwtService.extractRole(jwt);
 
-        if (userEmail == null) {
+        if (userEmail == null || userRole == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
         } else if (SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = PrincipalDetails.builder()
                     .userEmail(userEmail)
+                    .role(userRole)
                     .build();
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
-                    List.of(new SimpleGrantedAuthority("USER")));// 권한 부분 수정 필요
+                    userDetails.getAuthorities());// 권한 부분 수정 필요
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);

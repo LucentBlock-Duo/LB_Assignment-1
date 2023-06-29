@@ -24,6 +24,20 @@ public class JwtService {
     @Value("${application.security.jwt.access.secret-key}")
     private String secretKey;
 
+    public String extractRole(String token) {
+        final Claims claims = extractAllClaims(token);
+
+        if (claims != null) {
+            return (String) claims.get("role");
+        }
+
+        return null;
+    }
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
 
@@ -51,13 +65,9 @@ public class JwtService {
 
         return null;
     }
-
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
 //    private Date extractExpiration(String token) { // 이 메소드 삭제여부 검토
 //        return extractClaim(token, Claims::getExpiration);
+
 //    }
 
     public String generateToken(UserDetails userDetails) {

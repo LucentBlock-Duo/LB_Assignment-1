@@ -46,7 +46,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
                     .name(oAuth2UserInfo.getName())
                     .password(passwordEncoder.encode(UUID.randomUUID().toString())) // 비밀번호 UUID 로 두어야함. Why? 이 사용자는 OAuth 로만 로그인 할거니까.
                     .phoneNumber("")
-                    .role(Role.USER)
+                    .role(Role.ROLE_USER)
                     .provider(provider)
                     .providerId(oAuth2UserInfo.getProviderId())
                     .createdAt(LocalDateTime.now())
@@ -56,11 +56,6 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             user = retrievedUser.get();
         }
-
-//        return PrincipalDetails.builder()
-//                .user(user)
-//                .attributes(oAuth2User.getAttributes())
-//                .build();
 
         return new PrincipalDetails(
                 user,

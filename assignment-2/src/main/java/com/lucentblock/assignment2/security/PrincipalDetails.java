@@ -18,8 +18,6 @@ import java.util.Map;
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class PrincipalDetails implements UserDetails, OAuth2User {
-
-//    private User user;
     private String userEmail;
     private String password;
     private String role;

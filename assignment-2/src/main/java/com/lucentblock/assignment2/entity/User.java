@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.entity;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,3 +54,4 @@ public class User {
     @Column(name = "provider_id") // Resource Owner 로 접속하는 유저의 아이디
     private String providerId;
 }
+
