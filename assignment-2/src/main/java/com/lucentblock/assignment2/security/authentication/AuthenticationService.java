@@ -1,9 +1,14 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.authentication;
 
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
+import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
+import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
+import com.lucentblock.assignment2.security.PrincipalDetails;
+import com.lucentblock.assignment2.security.model.RegisterRequest;
+import com.lucentblock.assignment2.security.model.AuthenticationRequest;
+import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +26,7 @@ public class AuthenticationService {
 
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final JwtRefreshService jwtRefreshService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,13 +56,19 @@ public class AuthenticationService {
 
         User savedUser = userRepository.save(user);
 
-        String jwt = jwtService.generateToken(
+        String accessToken = jwtService.generateToken(
+                Map.of("role", Role.ROLE_USER.name()),
+                new PrincipalDetails(savedUser)
+        );
+
+        String refreshToken = jwtRefreshService.generateToken(
                 Map.of("role", Role.ROLE_USER.name()),
                 new PrincipalDetails(savedUser)
         );
 
         return AuthenticationResponse.builder()
-                .accessToken(jwt)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -64,13 +76,19 @@ public class AuthenticationService {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())); // UserDetails (DB에 있는 유저) 정보와 일치하는지 확인
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
-        String jwt = jwtService.generateToken(
+        String accessToken = jwtService.generateToken(
+                Map.of("role", user.getRole().name()),
+                new PrincipalDetails(user)
+        );
+
+        String refreshToken = jwtRefreshService.generateToken(
                 Map.of("role", user.getRole().name()),
                 new PrincipalDetails(user)
         );
 
         return AuthenticationResponse.builder()
-                .accessToken(jwt)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class AuthenticationResponse {
     @JsonProperty("access_token")
     private String accessToken;
-//    @JsonProperty("refresh_token")
-//    private String refreshToken;
+    @JsonProperty("refresh_token")
+    private String refreshToken;
 }

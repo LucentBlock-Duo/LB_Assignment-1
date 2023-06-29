@@ -1,6 +1,8 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.authentication;
 
-import jakarta.annotation.PostConstruct;
+import com.lucentblock.assignment2.security.model.RegisterRequest;
+import com.lucentblock.assignment2.security.model.AuthenticationRequest;
+import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

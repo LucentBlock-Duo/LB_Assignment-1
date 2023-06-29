@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.authentication.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -67,8 +67,27 @@ public class JwtService {
     }
 //    private Date extractExpiration(String token) { // 이 메소드 삭제여부 검토
 //        return extractClaim(token, Claims::getExpiration);
-
+//
 //    }
+
+    private boolean isTokenExpired(String token) {
+        try {
+            Claims claims = Jwts
+                    .parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            log.info("This Access Token is Expired");
+            return true;
+        } catch (JwtException e) {
+            log.info("This Access Token is Invalid But Not Expired");
+            return false;
+        }
+
+        return false;
+    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);

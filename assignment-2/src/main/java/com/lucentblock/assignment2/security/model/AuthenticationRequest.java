@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
