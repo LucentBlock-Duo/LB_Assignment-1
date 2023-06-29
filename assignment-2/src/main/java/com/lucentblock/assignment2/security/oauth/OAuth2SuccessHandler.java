@@ -36,8 +36,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         retrievedUser.setRefreshToken(refreshToken);
         userRepository.save(retrievedUser);
 
-        response.addCookie(new Cookie("access_token", accessToken));
-        response.addCookie(new Cookie("refresh_token", refreshToken));
+        Cookie accessTokenCookie = new Cookie("access_token", accessToken);
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
         // 쿠키에 저장하거나
 //        response.sendRedirect("http://localhost:3000/oauth/redirect?token={access_token}"); 으로 처리
     }
