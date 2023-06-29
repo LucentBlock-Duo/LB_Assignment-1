@@ -5,11 +5,15 @@ import com.lucentblock.assignment2.security.model.AuthenticationRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,8 +30,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response) throws IOException {
+        try {
+             return ResponseEntity.ok(authService.authenticate(request));
+        } catch (UsernameNotFoundException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch (BadCredentialsException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        return null;
     }
 
     @PostMapping("/refresh")
