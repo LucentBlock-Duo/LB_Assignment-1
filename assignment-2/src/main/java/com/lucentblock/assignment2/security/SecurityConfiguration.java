@@ -10,6 +10,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -42,17 +44,24 @@ public class SecurityConfiguration {
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2Config -> {
-                    oauth2Config.userInfoEndpoint( userInfoConfig -> {
+                    oauth2Config.userInfoEndpoint(userInfoConfig -> {
                         userInfoConfig.userService(principalOAuth2UserService);
                     });
                     oauth2Config.successHandler(oAuth2SuccessHandler);
+                    oauth2Config.authorizationEndpoint(
+                            authorizationEndpointConfig -> {
+                                authorizationEndpointConfig.baseUri("/api/oauth2/authorization");
+                            }
+                    );
                 })
                 .userDetailsService(principalDetailsService)
                 .formLogin(Customizer.withDefaults())
-                .exceptionHandling( exceptionConfig -> {
+                .exceptionHandling(exceptionConfig -> {
                     exceptionConfig.authenticationEntryPoint(new CustomEntryPoint());
                     exceptionConfig.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
                 .build();
+
+        //OAuth 로그인은 localhost:8080/oauth2/authorization/{registerId}
     }
 }
