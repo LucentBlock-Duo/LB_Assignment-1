@@ -10,8 +10,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -36,6 +34,7 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/admin").hasRole("ADMIN");
                     auth.requestMatchers("/api/reserve/**").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/secured").hasAnyRole("USER", "ADMIN");
+                    auth.requestMatchers("/api/request/code/signup").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/open").permitAll();
                     auth.anyRequest().permitAll();
                 })

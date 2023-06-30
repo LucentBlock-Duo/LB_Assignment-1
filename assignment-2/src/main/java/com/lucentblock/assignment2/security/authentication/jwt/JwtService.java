@@ -49,7 +49,7 @@ public class JwtService {
     }
 
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) { // Invalid Or Expired 인 경우 null 을 반환함.
         try {
             return Jwts
                     .parserBuilder()
@@ -65,10 +65,6 @@ public class JwtService {
 
         return null;
     }
-//    private Date extractExpiration(String token) { // 이 메소드 삭제여부 검토
-//        return extractClaim(token, Claims::getExpiration);
-//
-//    }
 
     public Claims extractClaimsFromExpiredToken(String token) {
         try {
