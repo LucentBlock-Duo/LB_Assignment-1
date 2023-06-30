@@ -80,8 +80,8 @@ public class AuthenticationService {
             );
 
             user.setRefreshToken(refreshToken);
-            userRepository.save(user);
-            userRepository.flush();
+            userRepository.saveAndFlush(user);
+//            userRepository.flush();
 
             return AuthenticationResponse.builder()
                     .accessToken(accessToken)
@@ -94,13 +94,19 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+//        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
-        if (user == null) {
-            // UserNotFound
+//        if (user == null) {
+//            // UserNotFound
+//            log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
+//            throw (new UsernameNotFoundException(request.getEmail()));
+//        } else
+
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
             log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
-            throw (new UsernameNotFoundException(request.getEmail()));
-        } else if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new UsernameNotFoundException(request.getEmail());
+        });
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             // Password is Incorrect
             log.info("Password is Incorrect");
 
@@ -128,8 +134,8 @@ public class AuthenticationService {
         user.setRefreshToken(refreshToken);
         user.setPasswordFailCount((short) (0));
         user.setRecentLoginAt(LocalDateTime.now());
-        userRepository.save(user);
-        userRepository.flush();
+        userRepository.saveAndFlush(user);
+        // userRepository.flush();
 
         loginChallengeRepository.save(LoginChallenge.builder()
                 .user(user)
@@ -154,11 +160,15 @@ public class AuthenticationService {
         //신규 코드
         if (!jwtService.isTokenInvalid(accessToken)) { // Token 이 Invalid 하지 않으면서
             if (jwtService.isTokenExpired(accessToken)) { // Expired 되었을 때
-                Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
-                String userEmail = claimsFromExpiredToken.getSubject();
-                User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+//                Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
+//                String userEmail = claimsFromExpiredToken.getSubject();
+//                User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
 
                 if (!jwtRefreshService.isTokenInvalid(refreshToken) && !jwtRefreshService.isTokenExpired(refreshToken)) {
+                    Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
+                    String userEmail = claimsFromExpiredToken.getSubject();
+                    User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+
                     if (refreshToken.equals(retrievedUser.getRefreshToken())) {
                         String newAccessToken = jwtService.generateToken(
                                 Map.of("role", retrievedUser.getRole().name()),
