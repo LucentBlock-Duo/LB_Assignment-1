@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
