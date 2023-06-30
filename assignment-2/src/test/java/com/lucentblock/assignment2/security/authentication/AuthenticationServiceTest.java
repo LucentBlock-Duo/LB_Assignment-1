@@ -20,8 +20,14 @@ import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
 import org.junit.platform.commons.util.StringUtils;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
@@ -38,28 +44,28 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
 
-    @MockBean
+    @Mock
     private LoginChallengeRepository loginChallengeRepository;
 
-    @MockBean
+    @Mock
     private SignupCodeChallengeRepository signupCodeChallengeRepository;
 
-    @MockBean
+    @Mock
     private JwtService jwtService;
 
-    @MockBean
+    @Mock
     private JwtRefreshService jwtRefreshService;
 
-    @MockBean
+    @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @InjectMocks
     private AuthenticationService authService;
 
     private User user;
@@ -172,7 +178,7 @@ class AuthenticationServiceTest {
     void refresh() {
         // given
         given(jwtService.isTokenExpired(anyString())).willReturn(true);
-        given(jwtRefreshService.isTokenInvalid("access_token")).willReturn(false);
+        given(jwtService.isTokenInvalid("access_token")).willReturn(false);
         given(jwtRefreshService.isTokenExpired("refresh_token")).willReturn(false);
         given(jwtService.extractClaimsFromExpiredToken("access_token")).willReturn(Jwts.claims().setSubject("testUser"));
         given(userRepository.findByEmail("testUser")).willReturn(Optional.of(user));
@@ -188,13 +194,11 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("유효하면서 만료되지 않은 Access Token 과 Refresh Token 을 제시할 경우 Refresh Token 유효성과 상관없이 토큰의 재발급이 Reject")
+    @DisplayName("유효하면서 만료되지 않은 Access Token 을 제시할 경우 Refresh Token 유효성과 상관없이 토큰의 재발급이 Reject")
     void refreshRequestWithNotExpiredAccessToken() {
         // given
         given(jwtService.isTokenInvalid("access_token")).willReturn(false);
         given(jwtService.isTokenExpired("access_token")).willReturn(false);
-        given(jwtRefreshService.isTokenInvalid("refresh_token")).willReturn(false);
-        given(jwtRefreshService.isTokenExpired("refresh_token")).willReturn(false);
 
         // when & then
         assertThrows(AccessTokenIsNotExpired.class, () -> authService.refresh("access_token", "refresh_token"));
