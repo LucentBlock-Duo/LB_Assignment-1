@@ -1,5 +1,7 @@
 package com.lucentblock.assignment2.security.oauth;
 
+import com.lucentblock.assignment2.entity.LoginChallenge;
+import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.security.PrincipalDetails;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
@@ -23,6 +25,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
+    private final LoginChallengeRepository loginChallengeRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -47,6 +50,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
                     .password(passwordEncoder.encode(UUID.randomUUID().toString())) // 비밀번호 UUID 로 두어야함. Why? 이 사용자는 OAuth 로만 로그인 할거니까.
                     .phoneNumber("")
                     .role(Role.ROLE_USER)
+                    .isEmailVerified(false)
                     .provider(provider)
                     .providerId(oAuth2UserInfo.getProviderId())
                     .createdAt(LocalDateTime.now())
@@ -55,6 +59,15 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
             userRepository.save(user);
         } else {
             user = retrievedUser.get();
+            user.setRecentLoginAt(LocalDateTime.now());
+            userRepository.save(user);
+
+            loginChallengeRepository.save(LoginChallenge.builder()
+                    .user(user)
+                    .isSuccessful(true)
+                    .createdAt(LocalDateTime.now())
+                    .build()
+            );
         }
 
         return new PrincipalDetails(

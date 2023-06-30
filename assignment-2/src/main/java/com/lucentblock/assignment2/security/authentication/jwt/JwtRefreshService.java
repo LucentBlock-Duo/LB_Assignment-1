@@ -23,6 +23,22 @@ public class JwtRefreshService { // extend JwtService 로 리팩토링 고려
     @Value("${application.security.jwt.refresh.secret-key}")
     private String secretKey;
 
+    public boolean isTokenInvalid(String token) {
+        try {
+            Claims claims = Jwts
+                    .parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return false;
+        } catch (JwtException e) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isTokenExpired(String token) {
         try {
             Claims claims = extractAllClaims(token);
@@ -74,10 +90,6 @@ public class JwtRefreshService { // extend JwtService 로 리팩토링 고려
 
         return null;
     }
-//    private Date extractExpiration(String token) { // 이 메소드 삭제여부 검토
-//        return extractClaim(token, Claims::getExpiration);
-
-//    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);

@@ -33,7 +33,7 @@ public class User{
     @Column(name = "password_fail_count")
     private short passwordFailCount;
 
-    @Column(name = "is_email_verified")
+    @Column(name = "is_email_verified", nullable = false)
     private Boolean isEmailVerified;
 
     @Column(name = "recent_login_at")
@@ -57,4 +57,3 @@ public class User{
     @Column(name = "refresh_token")
     private String refreshToken;
 }
-
