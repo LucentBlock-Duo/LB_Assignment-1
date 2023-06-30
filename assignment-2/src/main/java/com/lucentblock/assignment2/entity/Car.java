@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Car {
+public class Car implements SoftDeletable {
 
     @Id
     private Long id;
@@ -37,7 +37,6 @@ public class Car {
 
     @Column(name="deleted_at")
     private LocalDateTime deletedAt;
-
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }

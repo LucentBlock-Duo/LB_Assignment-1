@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "maintenance_item")
 @ToString
-public class MaintenanceItem {
+public class MaintenanceItem implements SoftDeletable {
 
     @Id
     private Long id;

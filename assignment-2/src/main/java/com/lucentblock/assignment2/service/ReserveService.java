@@ -46,8 +46,19 @@ public class ReserveService {
                 plusMinutes(foreignKeySet.getMaintenanceItem().getRequiredTime()));
         // Transaction을 적용해야 set이 반영 안되려나?
 
-        return foreignKeySet.isValidate() && ableToReserve(reserve) // set의 Null checking, Time Conflict Checking
-                ? reserveRepository.save(reserve).toDto() : null;
+        if(foreignKeySet.isValidate())
+            return reserve.toFailureDto(101);
+        else if(ableToReserve(reserve))
+            return reserve.toFailureDto(103);
+        else if(ableToRepair(reserve))
+            return reserve.toFailureDto(102);
+
+        return reserveRepository.save(reserve).toSuccessDto();
+    }
+
+    private boolean ableToRepair(Reserve reserve){
+        return reserve.getRepairMan().getLicenseId()
+                >= reserve.getMaintenanceItem().getRequiredLicense();
     }
 
     private ForeignKeySetForReserve getForeignKeySet(RequestReserveDTO dto){
@@ -55,7 +66,6 @@ public class ReserveService {
         RepairMan repairMan = em.find(RepairMan.class, dto.getRepair_man_id());
         RepairShop repairShop = em.find(RepairShop.class, dto.getRepair_shop_id());
         MaintenanceItem maintenanceItem = em.find(MaintenanceItem.class, dto.getMaintenance_item_id());
-
 
         return ForeignKeySetForReserve.builder().car(car).
                                                 repairMan(repairMan).
@@ -67,21 +77,21 @@ public class ReserveService {
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
         Reserve reserve = dto.toEntity(foreignKeySet);
 
-        return foreignKeySet.isValidate() && ableToReserve(reserve) // set의 Null checking, Time Conflict Checking
-                ? reserveRepository.save(reserve).toDto() : null;
+        if(foreignKeySet.isValidate())
+            return reserve.toFailureDto(101);
+        else if(ableToReserve(reserve))
+            return reserve.toFailureDto(103);
+        else if(ableToRepair(reserve))
+            return reserve.toFailureDto(102);
+
+        return reserveRepository.save(reserve).toSuccessDto();
     }
 
 
     private boolean ableToReserve(Reserve givenReserve) {
-        for (Reserve reserve : reserveRepository.findReservesByRepairMan(givenReserve.getRepairMan())) {
-            log.info("outer : {}\n inner : {}",reserve,givenReserve);
+        for (Reserve reserve : reserveRepository.findAbleReserves(givenReserve.getRepairMan(),givenReserve.getCar())) {
             if (isTimeConflict(reserve, givenReserve)) return false;
-        } // 정비공에 대한 스케줄 충돌 확인
-
-        for (Reserve reserve : reserveRepository.findReservesByCar(givenReserve.getCar())) {
-            log.info("outer : {}\n inner : {}",reserve,givenReserve);
-            if (isTimeConflict(reserve, givenReserve)) return false;
-        } // 차에 대한 스케줄 충돌 확인
+        } // 차와 정비공에 대한 스케줄 충돌 확인
 
         return true;
     }
@@ -105,7 +115,7 @@ public class ReserveService {
         Reserve reserve = reserveRepository.findById(reserveId).orElse(null);
 
         if(reserve!=null){
-            reserve.setDeletedAt(LocalDateTime.now());
+            reserve.delete();
             reserveRepository.save(reserve);
         }
 

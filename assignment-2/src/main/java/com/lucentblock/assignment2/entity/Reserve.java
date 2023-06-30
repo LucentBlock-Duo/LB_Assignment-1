@@ -1,5 +1,7 @@
 package com.lucentblock.assignment2.entity;
 
+import com.lucentblock.assignment2.model.RESERVE_ERROR;
+import com.lucentblock.assignment2.model.ResponseCode;
 import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Reserve {
+public class Reserve implements SoftDeletable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,13 +51,18 @@ public class Reserve {
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
-
-    public ResponseReserveDTO toDto(){
+    public ResponseReserveDTO toSuccessDto(){
         return ResponseReserveDTO.builder().car_name(car.getName()).
                                             repair_man_id(repairMan.getName()).
                                             repair_shop_name(repairShop.getName()).
                                             maintenance_item_name(maintenanceItem.getItemName()).
                                             start_time(startTime).
-                                            end_time(endTime).build();
+                                            end_time(endTime).
+                                            responseCode(ResponseCode.data("success",0)).build();
+    }
+
+    public ResponseReserveDTO toFailureDto(int code){
+        return ResponseReserveDTO.builder()
+                .responseCode(ResponseCode.data(RESERVE_ERROR.find(code).msg(),code)).build();
     }
 }

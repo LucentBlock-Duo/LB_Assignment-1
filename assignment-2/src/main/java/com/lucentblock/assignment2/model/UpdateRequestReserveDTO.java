@@ -21,6 +21,11 @@ public class UpdateRequestReserveDTO implements RequestReserveDTO{
     Long maintenance_item_id; // 정비항목
     LocalDateTime start_time; // 예약시작
 
+    public boolean isValidate(){
+        return reserve_id!=null && car_id!=null && repair_shop_id!=null && repair_man_id!=null &&
+                maintenance_item_id !=null && start_time!=null;
+    }
+
     public Reserve toEntity(Car car, RepairMan repairMan, RepairShop repairShop,MaintenanceItem maintenanceItem){
         return Reserve.builder().
                 car(car).

@@ -20,6 +20,10 @@ public class CreateRequestReserveDTO implements RequestReserveDTO {
     Long maintenance_item_id; // 정비항목
     LocalDateTime start_time; // 예약시작
 
+    public boolean isValidate(){
+        return car_id!=null && repair_shop_id!=null && repair_man_id!=null && maintenance_item_id!=null &&
+                start_time!=null;
+    }
     public Reserve toEntity(ForeignKeySetForReserve set){
         return Reserve.builder().
                 car(set.getCar()).

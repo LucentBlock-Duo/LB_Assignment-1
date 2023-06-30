@@ -9,5 +9,5 @@ spring:
   profiles:
     include: security
   liquibase:
-    change-log: classpath:/db/changelog/db.changelog-master.xml
+    change-log: classpath:/db/changelog/db.changelog-1.0.sql
     enabled: true

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class RepairShop {
+public class RepairShop implements SoftDeletable{
 
     @Id
     private Long id;

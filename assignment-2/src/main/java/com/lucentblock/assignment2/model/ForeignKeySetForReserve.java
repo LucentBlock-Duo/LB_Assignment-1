@@ -18,7 +18,6 @@ public class ForeignKeySetForReserve {
     MaintenanceItem maintenanceItem;
 
     public boolean isValidate(){
-        System.out.println(this);
         return car!=null && repairMan!=null && repairShop!=null && maintenanceItem!=null;
     }
 }

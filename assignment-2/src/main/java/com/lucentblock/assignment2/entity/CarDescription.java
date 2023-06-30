@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class CarDescription {
+public class CarDescription  implements SoftDeletable {
 
     @Id
     private Long id;

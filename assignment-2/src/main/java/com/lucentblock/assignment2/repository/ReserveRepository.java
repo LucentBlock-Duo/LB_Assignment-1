@@ -15,6 +15,9 @@ public interface ReserveRepository extends JpaRepository<Reserve,Long> {
     List<Reserve> findReservesByCarAndDeletedAtIsNull(Car car); // Car에 대한 예약 리스트 가져오기
     List<Reserve> findReservesByRepairManAndDeletedAtIsNull(RepairMan repairMan); // RepairMan에 대한 대한 예약 리스트 가져오기
 
+    default List<Reserve> findAbleReserves(RepairMan repairMan, Car car){
+        return findReservesByRepairManOrCarAndDeletedAtIsNull(repairMan,car);
+    }
     default List<Reserve> findReservesByRepairMan(RepairMan repairMan){
         return findReservesByRepairManAndDeletedAtIsNull(repairMan);
     } // deleted At Null Checking
