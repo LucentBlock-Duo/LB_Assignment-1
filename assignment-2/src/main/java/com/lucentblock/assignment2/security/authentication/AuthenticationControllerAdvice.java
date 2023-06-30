@@ -1,6 +1,6 @@
-package com.lucentblock.assignment2.controller;
+package com.lucentblock.assignment2.security.authentication;
 
-import com.lucentblock.assignment2.exception.*;
+import com.lucentblock.assignment2.security.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class ApiControllerAdvice {
+public class AuthenticationControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex){

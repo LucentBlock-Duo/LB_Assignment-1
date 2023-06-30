@@ -1,14 +1,12 @@
-package com.lucentblock.assignment2.model;
+package com.lucentblock.assignment2.security.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class RequestVerifySignupCodeDTO {
+public class RequestSignupCodeDTO {
     @NotEmpty
-    private String code;
     @Email
-    @NotEmpty
     private String userEmail;
 }

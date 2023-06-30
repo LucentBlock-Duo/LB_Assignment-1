@@ -1,9 +1,10 @@
 package com.lucentblock.assignment2.security.authentication;
 
-import com.lucentblock.assignment2.model.RequestVerifySignupCodeDTO;
+import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
 import com.lucentblock.assignment2.security.model.RegisterRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationResponse;
+import com.lucentblock.assignment2.security.model.RequestSignupCodeDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

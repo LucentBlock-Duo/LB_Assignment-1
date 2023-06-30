@@ -1,5 +1,6 @@
-package com.lucentblock.assignment2.security;
+package com.lucentblock.assignment2.security.config;
 
+import com.lucentblock.assignment2.security.PrincipalDetailsService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtAuthenticationFilter;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
