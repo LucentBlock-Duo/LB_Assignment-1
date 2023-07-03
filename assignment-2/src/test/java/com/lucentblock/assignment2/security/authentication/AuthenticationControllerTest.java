@@ -16,7 +16,6 @@ import com.lucentblock.assignment2.security.model.*;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
 import jakarta.servlet.http.Cookie;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -295,7 +294,7 @@ class AuthenticationControllerTest {
     @DisplayName("이메일 인증을 완료하지 않은 사용자는 이메일 인증 코드를 요청할 수 있다.") // 이메일 인증 코드 요청이 유효한지, 유저가 이미 이메일 인증된 유저인지는 서비스에서 검증
     void generateSignupCodeWithUser() throws Exception {
         // given
-        given(authService.generateSignupCode("test@test.com")).willReturn("code");
+        given(authService.generateSignupCode("test@test.com")).willReturn(ResponseEntity.ok().build());
 
         // when & then
         this.mockMvc.perform(post("/api/request/code/signup")

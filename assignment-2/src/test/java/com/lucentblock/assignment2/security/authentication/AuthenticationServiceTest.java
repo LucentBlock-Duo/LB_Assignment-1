@@ -22,18 +22,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.platform.commons.util.StringUtils;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -67,6 +61,9 @@ class AuthenticationServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JavaMailSender javaMailSender;
 
     @InjectMocks
     private AuthenticationService authService;
@@ -250,10 +247,10 @@ class AuthenticationServiceTest {
                         .build());
 
         // when
-        String signupCode = authService.generateSignupCode(user.getEmail());
+        ResponseEntity responseEntity = authService.generateSignupCode(user.getEmail());
 
         // then
-        assertTrue(StringUtils.isNotBlank(signupCode));
+        assertEquals(HttpStatusCode.valueOf(200), responseEntity.getStatusCode());
     }
 
     @Test
