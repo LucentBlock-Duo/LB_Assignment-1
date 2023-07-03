@@ -39,6 +39,8 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
             oAuth2UserInfo = new GoogleOAuth2UserInfo(oAuth2User.getAttributes());
         } else if (provider.equals("naver")) {
             oAuth2UserInfo = new NaverOAuth2UserInfo((Map<String, Object>)oAuth2User.getAttributes().get("response"));
+        } else if (provider.equals("kakao")) {
+            oAuth2UserInfo = new KakaoOAuth2UserInfo(oAuth2User.getAttributes());
         }
 
         Optional<User> retrievedUser = userRepository.findByEmail(oAuth2UserInfo.getEmail());
