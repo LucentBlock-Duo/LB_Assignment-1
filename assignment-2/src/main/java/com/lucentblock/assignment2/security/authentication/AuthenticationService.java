@@ -21,6 +21,9 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,8 +42,9 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
     private final JwtRefreshService jwtRefreshService;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender javaMailSender;
+    private final UserRepository userRepository;
     private final LoginChallengeRepository loginChallengeRepository;
     private final SignupCodeChallengeRepository signupCodeChallengeRepository;
 
@@ -147,7 +151,7 @@ public class AuthenticationService {
         throw new AccessTokenIsInvalid("Access Token is invalid");
     }
 
-    public String generateSignupCode(String userEmail) {
+    public ResponseEntity generateSignupCode(String userEmail) {
         User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
 
         if (!retrievedUser.getIsEmailVerified()) {
@@ -163,7 +167,10 @@ public class AuthenticationService {
                             .build()
             );
 
-            return signupCodeChallenge.getCode();
+            SimpleMailMessage message = generateVerificationMailText(code);
+            javaMailSender.send(message); // 이메일 전송 실패에 대한 오류처리가 필요할까? 그냥 Internal Server Error 로 둘까?
+
+            return ResponseEntity.ok().build();
         }
 
         throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
@@ -214,6 +221,16 @@ public class AuthenticationService {
 
         return new PairOfToken(accessToken, refreshToken);
     }
+
+    private SimpleMailMessage generateVerificationMailText(String code) {
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo("rkddlfah02@naver.com");  // Should be changed to {user.getEmail()}
+        simpleMailMessage.setFrom("LB-Assignment");
+        simpleMailMessage.setSubject("[LB-Assignment] Email Authentication");
+        simpleMailMessage.setText("Your email verification code is " + code);
+        return simpleMailMessage;
+    }
+
 
     //    @PostConstruct
 //    public void adminSetup() {

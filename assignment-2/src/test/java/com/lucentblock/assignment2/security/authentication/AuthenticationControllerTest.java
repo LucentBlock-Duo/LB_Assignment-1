@@ -295,7 +295,7 @@ class AuthenticationControllerTest {
     @DisplayName("이메일 인증을 완료하지 않은 사용자는 이메일 인증 코드를 요청할 수 있다.") // 이메일 인증 코드 요청이 유효한지, 유저가 이미 이메일 인증된 유저인지는 서비스에서 검증
     void generateSignupCodeWithUser() throws Exception {
         // given
-        given(authService.generateSignupCode("test@test.com")).willReturn("code");
+        given(authService.generateSignupCode("test@test.com")).willReturn(ResponseEntity.ok().build());
 
         // when & then
         this.mockMvc.perform(post("/api/request/code/signup")

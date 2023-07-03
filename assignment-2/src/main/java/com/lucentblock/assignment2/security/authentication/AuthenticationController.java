@@ -36,7 +36,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/request/code/signup")
-    public String generateSignupCode(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
+    public ResponseEntity generateSignupCode(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
         return authService.generateSignupCode(requestSignupCodeDTO.getUserEmail());
     }
 
