@@ -32,6 +32,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -178,7 +180,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("만료된 Access Token 과 함께 유효한 Refresh Token 을 제시할 경우, 새로운 토큰을 발급받을 수 있다.")
+    @DisplayName("만료된 Access Token 과, 유효한 Refresh Token 을 제시한다면, 새로운 Access Token & Refresh Token 을 발급받으며, 새로운 Refresh Token 이 반영되어 User Entity 가 업데이트 된다.")
     void refresh() {
         // given
         given(jwtService.isTokenExpired(anyString())).willReturn(true);
@@ -195,6 +197,7 @@ class AuthenticationServiceTest {
         // then
         assertEquals("new_access_token", response.getAccessToken());
         assertEquals("new_refresh_token", response.getRefreshToken());
+        verify(userRepository, times(1)).saveAndFlush(any(User.class));
     }
 
     @Test
