@@ -91,4 +91,12 @@ public class AuthenticationControllerAdvice {
 
         return ResponseEntity.status(HttpServletResponse.SC_CONFLICT).body(error);
     }
+
+    @ExceptionHandler(CodeDoesNotMatchException.class)
+    public ResponseEntity<Map<String, String>> handleCodeDoesNotMatchException(CodeDoesNotMatchException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body(error);
+    }
 }
