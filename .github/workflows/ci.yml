@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Generate application.yml
+        run: echo "${{ secrets.APPLICATION }}" > ./assignment-2/src/main/resources/application.yml
       - name: Generate application-security.yml
         run: echo "${{ secrets.APPLICATION_SECURITY }}" > ./assignment-2/src/main/resources/application-security.yml
       - name: Generate application-mail.yml
@@ -36,6 +38,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Generate application.yml
+        run: echo "${{ secrets.APPLICATION }}" > ./assignment-2/src/main/resources/application.yml
       - name: Generate application-security.yml
         run: echo "${{ secrets.APPLICATION_SECURITY }}" > ./assignment-2/src/main/resources/application-security.yml
       - name: Generate application-mail.yml
