@@ -16,6 +16,8 @@ import com.lucentblock.assignment2.security.model.RegisterRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationRequest;
 import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import io.jsonwebtoken.Claims;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -42,19 +44,12 @@ public class AuthenticationService {
     private final LoginChallengeRepository loginChallengeRepository;
     private final SignupCodeChallengeRepository signupCodeChallengeRepository;
 
-//    @PostConstruct
-//    public void adminSetup() {
-//        User adminUser = User.builder()
-//                .name("moil")
-//                .email("admin@gmail.com")
-//                .password(passwordEncoder.encode("admin"))
-//                .phoneNumber("01012345678")
-//                .role(Role.ROLE_ADMIN)
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//
-//        userRepository.save(adminUser);
-//    }
+    @Data
+    @AllArgsConstructor
+    private class PairOfToken {
+        private String accessToken;
+        private String refreshToken;
+    }
 
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
@@ -69,23 +64,14 @@ public class AuthenticationService {
                     .build();
 
 
-            String accessToken = jwtService.generateToken(
-                    Map.of("role", Role.ROLE_USER.name()),
-                    new PrincipalDetails(user)
-            );
+            PairOfToken newTokens = makeNewTokens(user);
 
-            String refreshToken = jwtRefreshService.generateToken(
-                    Map.of("role", Role.ROLE_USER.name()),
-                    new PrincipalDetails(user)
-            );
-
-            user.setRefreshToken(refreshToken);
+            user.setRefreshToken(newTokens.getRefreshToken());
             userRepository.saveAndFlush(user);
-//            userRepository.flush();
 
             return AuthenticationResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
+                    .accessToken(newTokens.getAccessToken())
+                    .refreshToken(newTokens.getRefreshToken())
                     .build();
         }
 
@@ -94,14 +80,6 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-//        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
-
-//        if (user == null) {
-//            // UserNotFound
-//            log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
-//            throw (new UsernameNotFoundException(request.getEmail()));
-//        } else
-
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
             log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
             return new UsernameNotFoundException(request.getEmail());
@@ -110,42 +88,25 @@ public class AuthenticationService {
             // Password is Incorrect
             log.info("Password is Incorrect");
 
-            user.setPasswordFailCount((short) (user.getPasswordFailCount() + 1));
+            user.setPasswordFailCount((short) (user.getPasswordFailCount() + 1)); // 로그인 실패 시, PasswordFailCount 를 증가시킨다.
             userRepository.save(user);
 
-            loginChallengeRepository.save(LoginChallenge.builder()
-                    .user(user)
-                    .isSuccessful(false)
-                    .createdAt(LocalDateTime.now())
-                    .build());
+            makeLoginChallenge(user, false);
             throw new BadCredentialsException("Password is Incorrect");
         }
 
-        String accessToken = jwtService.generateToken(
-                Map.of("role", user.getRole().name()),
-                new PrincipalDetails(user)
-        );
+        PairOfToken newTokens = makeNewTokens(user);  // 로그인 성공 시, 새로운 Access Token 과 Refresh Token 발급
 
-        String refreshToken = jwtRefreshService.generateToken(
-                Map.of("role", user.getRole().name()),
-                new PrincipalDetails(user)
-        );
-
-        user.setRefreshToken(refreshToken);
+        user.setRefreshToken(newTokens.getRefreshToken());  // 로그인 성공 시, DB 의 User-RefreshToken 쌍 및 최근 로그인 일자를 업데이트하고, PasswordFailCount 를 0 으로 초기화 시킨다.
         user.setPasswordFailCount((short) (0));
         user.setRecentLoginAt(LocalDateTime.now());
         userRepository.saveAndFlush(user);
-        // userRepository.flush();
 
-        loginChallengeRepository.save(LoginChallenge.builder()
-                .user(user)
-                .isSuccessful(true)
-                .createdAt(LocalDateTime.now())
-                .build());
+        makeLoginChallenge(user, true);
 
         return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(newTokens.getAccessToken())
+                .refreshToken(newTokens.getRefreshToken())
                 .build();
     }
 
@@ -158,39 +119,27 @@ public class AuthenticationService {
          */
 
         //신규 코드
-        if (!jwtService.isTokenInvalid(accessToken)) { // Token 이 Invalid 하지 않으면서
-            if (jwtService.isTokenExpired(accessToken)) { // Expired 되었을 때
-//                Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
-//                String userEmail = claimsFromExpiredToken.getSubject();
-//                User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
-
-                if (!jwtRefreshService.isTokenInvalid(refreshToken) && !jwtRefreshService.isTokenExpired(refreshToken)) {
+        if (!jwtService.isTokenInvalid(accessToken)) { // Access Token 이 Invalid 하지 않으면서
+            if (jwtService.isTokenExpired(accessToken)) { // Access Token 이 Expired 되었을 때
+                if (!jwtRefreshService.isTokenInvalid(refreshToken) && !jwtRefreshService.isTokenExpired(refreshToken)) { // Refresh Token 이 Not Expired and Not Invalid 할 때
                     Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
                     String userEmail = claimsFromExpiredToken.getSubject();
-                    User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+                    User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail)); // DB 에서 User-Refresh Token 을 꺼내온다.
 
-                    if (refreshToken.equals(retrievedUser.getRefreshToken())) {
-                        String newAccessToken = jwtService.generateToken(
-                                Map.of("role", retrievedUser.getRole().name()),
-                                new PrincipalDetails(retrievedUser)
-                        );
+                    if (refreshToken.equals(retrievedUser.getRefreshToken())) { // DB 에 기록된 User-Refresh Token 쌍과 제시된 Refresh Token 이 일치하다면
+                        PairOfToken newTokens = makeNewTokens(retrievedUser); // 새로운 Access Token 과 Refresh Token 발급
 
-                        String newRefreshToken = jwtRefreshService.generateToken(
-                                Map.of("role", retrievedUser.getRole().name()),
-                                new PrincipalDetails(retrievedUser)
-                        );
-
-                        retrievedUser.setRefreshToken(newRefreshToken);
-                        userRepository.save(retrievedUser);
-                        userRepository.flush();
+                        retrievedUser.setRefreshToken(newTokens.getRefreshToken()); // DB 에 USER-REFRESH TOKEN 쌍 업데이트
+                        userRepository.saveAndFlush(retrievedUser);
 
                         return AuthenticationResponse.builder()
-                                .accessToken(newAccessToken)
-                                .refreshToken(newRefreshToken)
+                                .accessToken(newTokens.getAccessToken())
+                                .refreshToken(newTokens.getRefreshToken())
                                 .build();
                     }
-                    throw new RefreshTokenDoesNotMatchException(userEmail); // Client 가 보내온 Refresh Token 이 DB 에 기록된 유저의 Refresh Token 과 다를 때 Refresh Token Expired 도 그냥 여기서 처리.
+                    throw new RefreshTokenDoesNotMatchException(userEmail);
                 }
+                // Refresh Token 이 만료됐다면, 더이상 유저가 제시한 토큰 쌍은 이용할 수 없으므로, Refresh Token Expired 또한 Invalid 로 처리
                 throw new RefreshTokenInvalidException("Refresh Token is invalid");
             }
             throw new AccessTokenIsNotExpired("Access Token is not expired");
@@ -237,10 +186,46 @@ public class AuthenticationService {
             retrievedUser.setIsEmailVerified(true);
             userRepository.save(retrievedUser);
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().build(); // 정상적으로 인증되었다면, 200 코드와 함께 Return
         }
 
         log.info("This User is already verified");
         throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
     }
+
+    private void makeLoginChallenge(User user, boolean isSuccessful) {
+        loginChallengeRepository.save(LoginChallenge.builder()
+                .user(user)
+                .isSuccessful(isSuccessful)
+                .createdAt(LocalDateTime.now())
+                .build());
+    }
+
+    private PairOfToken makeNewTokens(User user) {
+        String accessToken = jwtService.generateToken(
+                Map.of("role", Role.ROLE_USER.name()),
+                new PrincipalDetails(user)
+        );
+
+        String refreshToken = jwtRefreshService.generateToken(
+                Map.of("role", Role.ROLE_USER.name()),
+                new PrincipalDetails(user)
+        );
+
+        return new PairOfToken(accessToken, refreshToken);
+    }
+
+    //    @PostConstruct
+//    public void adminSetup() {
+//        User adminUser = User.builder()
+//                .name("moil")
+//                .email("admin@gmail.com")
+//                .password(passwordEncoder.encode("admin"))
+//                .phoneNumber("01012345678")
+//                .role(Role.ROLE_ADMIN)
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//
+//        userRepository.save(adminUser);
+//    }
 }

@@ -7,7 +7,7 @@ spring:
   jpa:
     show-sql: true
   profiles:
-    include: security
+    include: security, mail
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-1.0.sql
     enabled: true
