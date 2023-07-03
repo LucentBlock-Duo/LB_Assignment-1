@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.security.authentication;
 
+import com.lucentblock.assignment2.entity.LoginChallenge;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.SignupCodeChallenge;
 import com.lucentblock.assignment2.entity.User;
@@ -124,7 +125,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있다.")
+    @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있으며 로그인 시도 기록이 DB에 저장된다.")
     void authenticate() {
         //given
         AuthenticationRequest testRequest = AuthenticationRequest.builder()
@@ -140,12 +141,13 @@ class AuthenticationServiceTest {
         AuthenticationResponse response = authService.authenticate(testRequest);
 
         //then
+        verify(loginChallengeRepository, times(1)).save(any(LoginChallenge.class));
         assertEquals("access_token", response.getAccessToken());
         assertEquals("refresh_token", response.getRefreshToken());
     }
 
     @Test
-    @DisplayName("존재하는 이메일이지만 비밀번호가 틀린 경우, 로그인 할 수 없다.")
+    @DisplayName("존재하는 이메일이지만 비밀번호가 틀린 경우, 로그인 할 수 없으며 로그인 실패 기록이 DB 에 저장된다.")
     void authenticateWithEmailExistsButIncorrectPassword() {
         // given
         AuthenticationRequest testRequest = AuthenticationRequest.builder()
@@ -157,6 +159,7 @@ class AuthenticationServiceTest {
 
         // when & then
         assertThrows(BadCredentialsException.class, () -> authService.authenticate(testRequest));
+        verify(loginChallengeRepository, times(1)).save(any(LoginChallenge.class));
     }
 
     @Test
@@ -171,6 +174,7 @@ class AuthenticationServiceTest {
 
         //when & then
         assertThrows(UsernameNotFoundException.class, () -> authService.authenticate(testRequest));
+        verify(loginChallengeRepository, times(0)).save(any(LoginChallenge.class));
     }
 
     @Test
@@ -275,8 +279,7 @@ class AuthenticationServiceTest {
     void verifySignupCode() {
         // given
         given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
-        given(signupCodeChallengeRepository
-                .findByUser_IdAndCodeAndIsSuccessful(user.getId(), "code", false))
+        given(signupCodeChallengeRepository.findByUser_IdAndCodeAndIsSuccessful(user.getId(), "code", false)) // Client 가 보내온 Email & SignupCode 를 갖는 유저가 있는지 판단.
                 .willReturn(Optional.of(SignupCodeChallenge.builder()
                         .code("code")
                         .user(user)
