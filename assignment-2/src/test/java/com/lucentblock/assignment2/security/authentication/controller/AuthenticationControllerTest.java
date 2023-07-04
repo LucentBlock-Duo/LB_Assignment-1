@@ -1,8 +1,6 @@
 package com.lucentblock.assignment2.security.authentication.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lucentblock.assignment2.controller.UserController;
-import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
@@ -19,6 +17,7 @@ import com.lucentblock.assignment2.security.exception.*;
 import com.lucentblock.assignment2.security.model.*;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
+import com.lucentblock.assignment2.service.SignupCodeService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,16 +27,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -70,6 +64,9 @@ class AuthenticationControllerTest {
 
     @MockBean
     AuthenticationService authService;
+
+    @MockBean
+    SignupCodeService signupCodeService;
 
     @Autowired
     MockMvc mockMvc;
@@ -298,166 +295,6 @@ class AuthenticationControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").value("Refresh Token does not match with Database"))
                 .andExpect(jsonPath("user_email").hasJsonPath());
-    }
-
-    @Test
-    @WithAnonymousUser
-    @DisplayName("로그인하지 않은 사용자는 이메일 인증 코드를 요청하면 Unauthorized Error 를 받는다.")
-    void generateSignupCodeWithAnonymousUser() throws Exception {
-        // given
-        // @WithAnonymousUser (Has no authority)
-
-        // when & then
-        this.mockMvc.perform(post("/api/email-verification"))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료하지 않은 사용자는 이메일 인증 코드를 요청할 수 있다.") // 이메일 인증 코드 요청이 유효한지, 유저가 이미 이메일 인증된 유저인지는 서비스에서 검증
-    void generateSignupCodeWithUser() throws Exception {
-        // given
-        given(authService.generateSignupCode("test@test.com")).willReturn(ResponseEntity.ok().build());
-
-        // when & then
-        this.mockMvc.perform(post("/api/email-verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(
-                                UserEmailDTO.builder()
-                                .userEmail("test@test.com")
-                                .build()
-                        ))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료한 회원의 경우, 이메일 인증코드를 요청할 시, BadRequest Error 를 받는다.")
-    void generateSignupCodeWithUserWhoVerifiedEmail() throws Exception {
-        // given
-        given(authService.generateSignupCode("alreadyVerified@test.com"))
-                .willThrow(new AlreadyVerifiedUserException("alreadyVerified@test.com"));
-
-        // when & then
-        this.mockMvc.perform(post("/api/email-verification")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(
-                        UserEmailDTO.builder()
-                                .userEmail("alreadyVerified@test.com")
-                                .build())))
-                .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_email").value("alreadyVerified@test.com"));
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("존재하지 않은 회원에 대해 이메일 인증 코드를 요청하면, UserNotFound Error 를 받는다.")
-    void generateSignupCodeWithUserNotExists() throws Exception {
-        // given
-        given(authService.generateSignupCode("DoesNotExist@test.com")).willThrow(new UsernameNotFoundException("DoesNotExist@test.com"));
-
-        // when & then
-        this.mockMvc.perform(post("/api/email-verification")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(UserEmailDTO.builder()
-                        .userEmail("DoesNotExist@test.com")
-                        .build())))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_email").value("DoesNotExist@test.com"));
-    }
-
-    @Test
-    @WithAnonymousUser
-    @DisplayName("로그인하지 않은 사용자의 경우, 이메일 인증 요청조차 할 수 없다. (Unauthorized)")
-    void verifySignupCodeWithAnonymousUser() throws Exception {
-        // given
-        // @WithAnonymousUser
-
-        // when & then
-        this.mockMvc.perform(patch("/api/email-verification")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(
-                        VerifySignupCodeRequestDTO.builder()
-                                .code("code")
-                                .userEmail("any@test.com")
-                                .build())))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료하지 않은 회원의 경우, 올바른 인증코드와 인증 요청 시 인증이 완료된다.")
-    void verifySignupCodeWithUserWhoIsNotVerifiedAndSignupCodeMatched() throws Exception {
-        // given
-        given(authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
-                .code("correctCode")
-                .userEmail("test@test.com")
-                .build()))
-                .willReturn(ResponseEntity.ok().build());
-
-        // when & then
-        this.mockMvc.perform(patch("/api/email-verification")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
-                    .code("correctCode")
-                    .userEmail("test@test.com")
-                    .build())))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료하지 않은 회원의 경우, 올바르지 않은 인증코드와 인증 요청시 인증이 실패한다. Unauthorized Error 를 받는다.")
-    void verifySignupCodeWithUserWhoIsNotVerifiedAndSignupCodeDoesNotMatched() throws Exception {
-        // given
-        given(authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
-                .code("incorrectCode")
-                .userEmail("test@test.com")
-                .build()))
-                .willThrow(CodeDoesNotMatchException.class);
-
-        // when & then
-        this.mockMvc.perform(patch("/api/email-verification")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
-                        .code("incorrectCode")
-                        .userEmail("test@test.com")
-                        .build())))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료한 회원의 경우, 이미 인증이 완료된 사용자기 때문에 CONFLICT Error 를 받는다.")
-    void verifySignupCodeWithUserWhoIsAlreadyVerified() throws Exception {
-        // given
-        given(authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
-                .code("code")
-                .userEmail("test@test.com")
-                .build()))
-                .willThrow(new AlreadyVerifiedUserException("test@test.com"));
-
-        // when & then
-        this.mockMvc.perform(patch("/api/email-verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
-                                .code("code")
-                                .userEmail("test@test.com")
-                                .build())))
-                .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_email").value("test@test.com"));
     }
 
     @Test

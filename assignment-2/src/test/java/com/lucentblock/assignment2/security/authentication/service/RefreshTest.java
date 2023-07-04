@@ -2,8 +2,6 @@ package com.lucentblock.assignment2.security.authentication.service;
 
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
-import com.lucentblock.assignment2.repository.LoginChallengeRepository;
-import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.authentication.AuthenticationService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
@@ -20,9 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

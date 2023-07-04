@@ -3,13 +3,10 @@ package com.lucentblock.assignment2.security.authentication.service;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.SignupCodeChallenge;
 import com.lucentblock.assignment2.entity.User;
-import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
-import com.lucentblock.assignment2.security.authentication.AuthenticationService;
-import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
-import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
 import com.lucentblock.assignment2.security.exception.AlreadyVerifiedUserException;
+import com.lucentblock.assignment2.service.SignupCodeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +18,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -43,7 +39,7 @@ public class GenerateSignupCodeTest {
     private SignupCodeChallengeRepository signupCodeChallengeRepository;
 
     @InjectMocks
-    private AuthenticationService authService;
+    private SignupCodeService signupCodeService;
 
     private User user;
 
@@ -74,7 +70,7 @@ public class GenerateSignupCodeTest {
                         .build());
 
         // when
-        ResponseEntity responseEntity = authService.generateSignupCode(user.getEmail());
+        ResponseEntity responseEntity = signupCodeService.generateSignupCode(user.getEmail());
 
         // then
         assertEquals(HttpStatusCode.valueOf(200), responseEntity.getStatusCode());
@@ -87,7 +83,7 @@ public class GenerateSignupCodeTest {
         given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(UsernameNotFoundException.class, () -> authService.generateSignupCode(user.getEmail()));
+        assertThrows(UsernameNotFoundException.class, () -> signupCodeService.generateSignupCode(user.getEmail()));
     }
 
     @Test
@@ -98,7 +94,7 @@ public class GenerateSignupCodeTest {
         given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
 
         // when & then
-        assertThrows(AlreadyVerifiedUserException.class, () -> authService.generateSignupCode(user.getEmail()));
+        assertThrows(AlreadyVerifiedUserException.class, () -> signupCodeService.generateSignupCode(user.getEmail()));
     }
 
 }

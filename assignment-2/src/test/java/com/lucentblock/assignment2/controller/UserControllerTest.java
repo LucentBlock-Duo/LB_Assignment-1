@@ -6,7 +6,6 @@ import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.PrincipalDetailsService;
-import com.lucentblock.assignment2.security.authentication.AuthenticationService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtAuthenticationFilter;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;

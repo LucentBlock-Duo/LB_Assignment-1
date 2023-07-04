@@ -3,14 +3,11 @@ package com.lucentblock.assignment2.security.authentication.service;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.SignupCodeChallenge;
 import com.lucentblock.assignment2.entity.User;
-import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
-import com.lucentblock.assignment2.security.authentication.AuthenticationService;
-import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
-import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
 import com.lucentblock.assignment2.security.exception.AlreadyVerifiedUserException;
 import com.lucentblock.assignment2.security.model.VerifySignupCodeRequestDTO;
+import com.lucentblock.assignment2.service.SignupCodeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,9 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -39,7 +34,7 @@ public class VerifySignupCodeTest {
     private SignupCodeChallengeRepository signupCodeChallengeRepository;
 
     @InjectMocks
-    private AuthenticationService authService;
+    private SignupCodeService signupCodeService;
 
     private User user;
 
@@ -71,7 +66,7 @@ public class VerifySignupCodeTest {
                         .build()));
 
         // when
-        ResponseEntity response = authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
+        ResponseEntity response = signupCodeService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                 .code("code")
                 .userEmail(user.getEmail())
                 .build());
@@ -89,7 +84,7 @@ public class VerifySignupCodeTest {
 
         // when & then
         assertThrows(AlreadyVerifiedUserException.class,
-                () -> authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
+                () -> signupCodeService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                         .code("code")
                         .userEmail(user.getEmail())
                         .build()));
@@ -103,7 +98,7 @@ public class VerifySignupCodeTest {
 
         // when & then
         assertThrows(UsernameNotFoundException.class,
-                () -> authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
+                () -> signupCodeService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                         .userEmail(user.getEmail())
                         .code("code")
                         .build()));
