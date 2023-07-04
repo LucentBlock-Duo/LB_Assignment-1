@@ -149,7 +149,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_name").exists());
+                .andExpect(jsonPath("user_email").exists());
     }
 
     @Test
@@ -203,7 +203,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_name").exists());
+                .andExpect(jsonPath("user_email").exists());
     }
 
     /*
@@ -297,7 +297,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").value("Refresh Token does not match with Database"))
-                .andExpect(jsonPath("user_name").hasJsonPath());
+                .andExpect(jsonPath("user_email").hasJsonPath());
     }
 
     @Test
@@ -351,7 +351,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_name").value("alreadyVerified@test.com"));
+                .andExpect(jsonPath("user_email").value("alreadyVerified@test.com"));
     }
 
     @Test
@@ -370,7 +370,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_name").value("DoesNotExist@test.com"));
+                .andExpect(jsonPath("user_email").value("DoesNotExist@test.com"));
     }
 
     @Test
@@ -457,7 +457,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("user_name").value("test@test.com"));
+                .andExpect(jsonPath("user_email").value("test@test.com"));
     }
 
     @Test
