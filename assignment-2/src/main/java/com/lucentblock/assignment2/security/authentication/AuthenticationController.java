@@ -1,13 +1,16 @@
 package com.lucentblock.assignment2.security.authentication;
 
 import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
-import com.lucentblock.assignment2.security.model.RegisterRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationResponse;
+import com.lucentblock.assignment2.security.model.RegisterRequestDTO;
+import com.lucentblock.assignment2.security.model.AuthenticationRequestDTO;
+import com.lucentblock.assignment2.security.model.AuthenticationResponseDTO;
 import com.lucentblock.assignment2.security.model.RequestSignupCodeDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,17 +22,17 @@ public class AuthenticationController {
     private final AuthenticationService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@Validated @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponseDTO> register(@Validated @RequestBody RegisterRequestDTO request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@Validated @RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponseDTO> authenticate(@Validated @RequestBody AuthenticationRequestDTO request) {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(HttpServletRequest request, @CookieValue("refresh_token") String refreshToken) {
+    public ResponseEntity<AuthenticationResponseDTO> refresh(HttpServletRequest request, @CookieValue("refresh_token") String refreshToken) {
         String authHeader = request.getHeader("Authorization");
         String accessToken = authHeader.substring(7);
         return ResponseEntity.ok(authService.refresh(accessToken, refreshToken));
@@ -43,6 +46,20 @@ public class AuthenticationController {
     @PatchMapping("/request/code/signup")
     public ResponseEntity verifySignupCode(@Validated @RequestBody RequestVerifySignupCodeDTO requestVerifySignupCodeDTO) {
         return authService.verifySignupCode(requestVerifySignupCodeDTO);
+    }
+
+    @DeleteMapping("/delete/user")
+    public ResponseEntity deleteUser(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getAuthorities().stream().anyMatch(
+                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
+            if (!authentication.getName().equals(requestSignupCodeDTO.getUserEmail())) {
+                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
+            }
+        }
+
+        return authService.deleteUser(requestSignupCodeDTO.getUserEmail());
     }
 
 

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Data @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class RegisterRequest {
+public class RegisterRequestDTO {
     @NotEmpty(message = "이름은 필수 항목입니다.")
     private String name;
     @NotEmpty(message = "이메일은 필수 항목입니다.")

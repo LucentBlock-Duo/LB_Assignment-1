@@ -13,9 +13,9 @@ import com.lucentblock.assignment2.security.exception.AccessTokenIsNotExpired;
 import com.lucentblock.assignment2.security.exception.AlreadyVerifiedUserException;
 import com.lucentblock.assignment2.security.exception.RefreshTokenInvalidException;
 import com.lucentblock.assignment2.security.exception.UserDuplicateException;
-import com.lucentblock.assignment2.security.model.AuthenticationRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationResponse;
-import com.lucentblock.assignment2.security.model.RegisterRequest;
+import com.lucentblock.assignment2.security.model.AuthenticationRequestDTO;
+import com.lucentblock.assignment2.security.model.AuthenticationResponseDTO;
+import com.lucentblock.assignment2.security.model.RegisterRequestDTO;
 import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,18 +88,18 @@ class AuthenticationServiceTest {
     @DisplayName("중복되지 않는 이메일로 가입을 시도하는 경우, 정상적으로 가입이 된다.")
     void register() {
         //given
-        RegisterRequest testRequest = RegisterRequest.builder()
+        RegisterRequestDTO testRequest = RegisterRequestDTO.builder()
                 .name("testName")
                 .email("test@test.com")
                 .password("password")
                 .phoneNumber("01012345678")
                 .build();
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.empty());
         given(jwtService.generateToken(any(Map.class), any(UserDetails.class))).willReturn("access_token");
         given(jwtRefreshService.generateToken(any(Map.class), any(UserDetails.class))).willReturn("refresh_token");
 
         //when
-        AuthenticationResponse response = authService.register(testRequest);
+        AuthenticationResponseDTO response = authService.register(testRequest);
 
         //then
         assertEquals("access_token", response.getAccessToken());
@@ -110,14 +110,14 @@ class AuthenticationServiceTest {
     @DisplayName("중복되는 이메일로 가입을 시도하는 경우, 회원가입이 실패한다.")
     void registerWithDuplicatedEmail() {
         //given
-        RegisterRequest testRequest = RegisterRequest.builder()
+        RegisterRequestDTO testRequest = RegisterRequestDTO.builder()
                 .name("testName")
                 .email("test@test.com")
                 .password("password")
                 .phoneNumber("01012345678")
                 .build();
 
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.of(user));
 
         //when & then
         assertThrows(UserDuplicateException.class, () -> authService.register(testRequest));
@@ -127,17 +127,17 @@ class AuthenticationServiceTest {
     @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있으며 로그인 시도 기록이 DB에 저장된다.")
     void authenticate() {
         //given
-        AuthenticationRequest testRequest = AuthenticationRequest.builder()
+        AuthenticationRequestDTO testRequest = AuthenticationRequestDTO.builder()
                 .email("test@test.com")
                 .password("testPassword")
                 .build();
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
         given(jwtService.generateToken(any(Map.class), any(UserDetails.class))).willReturn("access_token");
         given(jwtRefreshService.generateToken(any(Map.class), any(UserDetails.class))).willReturn("refresh_token");
 
         //when
-        AuthenticationResponse response = authService.authenticate(testRequest);
+        AuthenticationResponseDTO response = authService.authenticate(testRequest);
 
         //then
         verify(loginChallengeRepository, times(1)).save(any(LoginChallenge.class));
@@ -149,11 +149,11 @@ class AuthenticationServiceTest {
     @DisplayName("존재하는 이메일이지만 비밀번호가 틀린 경우, 로그인 할 수 없으며 로그인 실패 기록이 DB 에 저장된다.")
     void authenticateWithEmailExistsButIncorrectPassword() {
         // given
-        AuthenticationRequest testRequest = AuthenticationRequest.builder()
+        AuthenticationRequestDTO testRequest = AuthenticationRequestDTO.builder()
                 .email("test@test.com")
                 .password("incorrectPassword")
                 .build();
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(anyString(), any())).willReturn(false);
 
         // when & then
@@ -165,11 +165,11 @@ class AuthenticationServiceTest {
     @DisplayName("존재하지 않는 이메일로는 로그인 할 수 없다.")
     void authenticateWithEmailDoesNotExist() {
         // given
-        AuthenticationRequest testRequest = AuthenticationRequest.builder()
+        AuthenticationRequestDTO testRequest = AuthenticationRequestDTO.builder()
                 .email("EmailDoesNotExist@test.com")
                 .password("testPassword")
                 .build();
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.empty());
 
         //when & then
         assertThrows(UsernameNotFoundException.class, () -> authService.authenticate(testRequest));
@@ -184,12 +184,12 @@ class AuthenticationServiceTest {
         given(jwtService.isTokenInvalid("access_token")).willReturn(false);
         given(jwtRefreshService.isTokenExpired("refresh_token")).willReturn(false);
         given(jwtService.extractClaimsFromExpiredToken("access_token")).willReturn(Jwts.claims().setSubject("testUser"));
-        given(userRepository.findByEmail("testUser")).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull("testUser")).willReturn(Optional.of(user));
         given(jwtService.generateToken(anyMap(), any(UserDetails.class))).willReturn("new_access_token");
         given(jwtRefreshService.generateToken(anyMap(), any(UserDetails.class))).willReturn("new_refresh_token");
 
         // when
-        AuthenticationResponse response = authService.refresh("access_token", "refresh_token");
+        AuthenticationResponseDTO response = authService.refresh("access_token", "refresh_token");
 
         // then
         assertEquals("new_access_token", response.getAccessToken());
@@ -237,7 +237,7 @@ class AuthenticationServiceTest {
     @DisplayName("존재하면서 이메일 인증을 받지 않은 유저가 이메일 인증 코드를 요청하면, 인증 코드가 발급된다.")
     void generateSignupCode() {
         // given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
         given(signupCodeChallengeRepository.save(any(SignupCodeChallenge.class)))
                 .willReturn(SignupCodeChallenge.builder()
                         .user(user)
@@ -257,7 +257,7 @@ class AuthenticationServiceTest {
     @DisplayName("존재하지 않은 회원에 대해 이메일 인증 코드를 요청하면, 인증 코드 발급이 Reject. (UsernameNotFound)")
     void generateSignupCodeWithUserDoesNotExist() {
         // given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.empty());
 
         // when & then
         assertThrows(UsernameNotFoundException.class, () -> authService.generateSignupCode(user.getEmail()));
@@ -268,7 +268,7 @@ class AuthenticationServiceTest {
     void generateSignupCodeWithUserAlreadyVerified() {
         // given
         user.setIsEmailVerified(true);
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
 
         // when & then
         assertThrows(AlreadyVerifiedUserException.class, () -> authService.generateSignupCode(user.getEmail()));
@@ -278,7 +278,7 @@ class AuthenticationServiceTest {
     @DisplayName("존재하면서 이메일 인증을 완료하지 않은 유저는, 인증 코드를 통해 이메일 인증을 완료할 수 있다.")
     void verifySignupCode() {
         // given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
         given(signupCodeChallengeRepository.findByUser_IdAndCodeAndIsSuccessful(user.getId(), "code", false)) // Client 가 보내온 Email & SignupCode 를 갖는 유저가 있는지 판단.
                 .willReturn(Optional.of(SignupCodeChallenge.builder()
                         .code("code")
@@ -302,7 +302,7 @@ class AuthenticationServiceTest {
     void verifyRequestWithUserAlreadyVerified() {
         // given
         user.setIsEmailVerified(true);
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
 
         // when & then
         assertThrows(AlreadyVerifiedUserException.class,
@@ -316,7 +316,7 @@ class AuthenticationServiceTest {
     @DisplayName("존재하지 않는 회원의 경우, 이메일 인증 완료 요청시 Reject (UsernameNotFound)")
     void verifyRequestWithUserDoesNotExist() {
         // given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.empty());
 
         // when & then
         assertThrows(UsernameNotFoundException.class,
@@ -324,5 +324,28 @@ class AuthenticationServiceTest {
                         .userEmail(user.getEmail())
                         .code("code")
                         .build()));
+    }
+
+    @Test
+    @DisplayName("존재하는 회원에 대해 삭제를 수행할 수 있다.")
+    void deleteUser() {
+        // given
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
+
+        // when
+        ResponseEntity response = authService.deleteUser(user.getEmail());
+
+        // then
+        assertEquals(true, response.getStatusCode().is2xxSuccessful());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원에 대해 삭제를 요청할 경우 UsernameNotFound Exception 이 발생한다.")
+    void deleteUserDoesNotExist() {
+        // given
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willThrow(new UsernameNotFoundException(user.getEmail()));
+
+        // when & then
+        assertThrows(UsernameNotFoundException.class, () -> authService.deleteUser(user.getEmail()));
     }
 }

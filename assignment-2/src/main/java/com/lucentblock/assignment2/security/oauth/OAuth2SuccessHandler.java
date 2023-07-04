@@ -32,7 +32,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = jwtService.generateToken(Map.of("role", principal.getRole()), principal);
         String refreshToken = jwtRefreshService.generateToken(Map.of("role:", principal.getRole()), principal);
 
-        User retrievedUser = userRepository.findByEmail(principal.getUserEmail()).orElseThrow();
+        User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(principal.getUserEmail()).orElseThrow();
         retrievedUser.setRefreshToken(refreshToken);
         userRepository.save(retrievedUser);
 

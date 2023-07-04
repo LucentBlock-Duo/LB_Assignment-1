@@ -5,16 +5,13 @@ import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.SignupCodeChallenge;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.security.exception.*;
-import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
+import com.lucentblock.assignment2.security.model.*;
 import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
 import com.lucentblock.assignment2.security.PrincipalDetails;
-import com.lucentblock.assignment2.security.model.RegisterRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,8 +52,8 @@ public class AuthenticationService {
         private String refreshToken;
     }
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
+    public AuthenticationResponseDTO register(RegisterRequestDTO request) {
+        if (userRepository.findByEmailAndDeletedAtIsNull(request.getEmail()).isEmpty()) {
             User user = User.builder()
                     .email(request.getEmail())
                     .name(request.getName())
@@ -73,7 +70,7 @@ public class AuthenticationService {
             user.setRefreshToken(newTokens.getRefreshToken());
             userRepository.saveAndFlush(user);
 
-            return AuthenticationResponse.builder()
+            return AuthenticationResponseDTO.builder()
                     .accessToken(newTokens.getAccessToken())
                     .refreshToken(newTokens.getRefreshToken())
                     .build();
@@ -83,8 +80,8 @@ public class AuthenticationService {
         throw new UserDuplicateException(request.getEmail());
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
+    public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail()).orElseThrow(() -> {
             log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
             return new UsernameNotFoundException(request.getEmail());
         });
@@ -108,13 +105,13 @@ public class AuthenticationService {
 
         makeLoginChallenge(user, true);
 
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDTO.builder()
                 .accessToken(newTokens.getAccessToken())
                 .refreshToken(newTokens.getRefreshToken())
                 .build();
     }
 
-    public AuthenticationResponse refresh(String accessToken, String refreshToken) {
+    public AuthenticationResponseDTO refresh(String accessToken, String refreshToken) {
         /*
             1. Access Token 이 Expired 되었는지 확인
             2. Refresh Token 이 유효한지 확인
@@ -128,7 +125,7 @@ public class AuthenticationService {
                 if (!jwtRefreshService.isTokenInvalid(refreshToken) && !jwtRefreshService.isTokenExpired(refreshToken)) { // Refresh Token 이 Not Expired and Not Invalid 할 때
                     Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
                     String userEmail = claimsFromExpiredToken.getSubject();
-                    User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail)); // DB 에서 User-Refresh Token 을 꺼내온다.
+                    User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail)); // DB 에서 User-Refresh Token 을 꺼내온다.
 
                     if (refreshToken.equals(retrievedUser.getRefreshToken())) { // DB 에 기록된 User-Refresh Token 쌍과 제시된 Refresh Token 이 일치하다면
                         PairOfToken newTokens = makeNewTokens(retrievedUser); // 새로운 Access Token 과 Refresh Token 발급
@@ -136,7 +133,7 @@ public class AuthenticationService {
                         retrievedUser.setRefreshToken(newTokens.getRefreshToken()); // DB 에 USER-REFRESH TOKEN 쌍 업데이트
                         userRepository.saveAndFlush(retrievedUser);
 
-                        return AuthenticationResponse.builder()
+                        return AuthenticationResponseDTO.builder()
                                 .accessToken(newTokens.getAccessToken())
                                 .refreshToken(newTokens.getRefreshToken())
                                 .build();
@@ -152,7 +149,7 @@ public class AuthenticationService {
     }
 
     public ResponseEntity generateSignupCode(String userEmail) {
-        User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+        User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
 
         if (!retrievedUser.getIsEmailVerified()) {
             Random random = new Random();
@@ -180,7 +177,7 @@ public class AuthenticationService {
         String code = requestVerifySignupCodeDTO.getCode();
         String userEmail = requestVerifySignupCodeDTO.getUserEmail();
 
-        User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+        User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
 
         if (!retrievedUser.getIsEmailVerified()) {
             SignupCodeChallenge signupCodeChallenge = signupCodeChallengeRepository.findByUser_IdAndCodeAndIsSuccessful(retrievedUser.getId(), code, false)
@@ -198,6 +195,20 @@ public class AuthenticationService {
 
         log.info("This User is already verified");
         throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
+    }
+
+    public UserInfoDTO fetchUserInfo(String userEmail) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+
+        return UserInfoDTO.UserEntityToUserInfoDTO(user);
+    }
+
+    public ResponseEntity deleteUser(String userEmail) {
+        User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
+        retrievedUser.setDeletedAt(LocalDateTime.now());
+        userRepository.saveAndFlush(retrievedUser);
+
+        return ResponseEntity.ok().build();
     }
 
     private void makeLoginChallenge(User user, boolean isSuccessful) {

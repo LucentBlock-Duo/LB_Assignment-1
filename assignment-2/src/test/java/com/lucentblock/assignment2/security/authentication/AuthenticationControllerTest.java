@@ -1,6 +1,7 @@
 package com.lucentblock.assignment2.security.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
@@ -31,6 +32,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -68,19 +72,19 @@ class AuthenticationControllerTest {
     MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private RegisterRequest registerRequest;
-    private AuthenticationRequest authenticationRequest;
+    private RegisterRequestDTO registerRequestDTO;
+    private AuthenticationRequestDTO authenticationRequestDTO;
 
     @BeforeEach
     void setup() {
-        registerRequest = RegisterRequest.builder()
+        registerRequestDTO = RegisterRequestDTO.builder()
                 .name("testName")
                 .email("test@test.com")
                 .password("testPasswrod")
                 .phoneNumber("testPhoneNumber")
                 .build();
 
-        authenticationRequest = AuthenticationRequest.builder()
+        authenticationRequestDTO = AuthenticationRequestDTO.builder()
                 .email("test@test.com")
                 .password("testPassword")
                 .build();
@@ -91,8 +95,8 @@ class AuthenticationControllerTest {
     @DisplayName("올바른 RequestRegister 양식을 통해 회원가입을 할 수 있다.")
     void register() throws Exception {
         // given
-        given(authService.register(registerRequest))
-                .willReturn(AuthenticationResponse.builder()
+        given(authService.register(registerRequestDTO))
+                .willReturn(AuthenticationResponseDTO.builder()
                         .accessToken("access_token")
                         .refreshToken("refresh_token")
                         .build());
@@ -100,7 +104,7 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerRequest)))
+                .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
@@ -112,15 +116,15 @@ class AuthenticationControllerTest {
     @DisplayName("올바르지 않은 RequestRegister 양식으로는 회원가입을 할 수 없다. (403 BadRequest)")
     void registerWithInvalidRegisterRequest() throws Exception {
         // given
-        registerRequest.setEmail(null);
-        registerRequest.setName(null);
-        registerRequest.setPassword(null);
-        registerRequest.setPhoneNumber(null); // phoneNumber 는 nullable
+        registerRequestDTO.setEmail(null);
+        registerRequestDTO.setName(null);
+        registerRequestDTO.setPassword(null);
+        registerRequestDTO.setPhoneNumber(null); // phoneNumber 는 nullable
 
         // when & then
         this.mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerRequest)))
+                .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("email").exists())
@@ -134,12 +138,12 @@ class AuthenticationControllerTest {
     @DisplayName("기존 회원들과 중복된 이메일로는 가입할 수 없다. (UserDuplicate Exception)")
     void registerWithDuplicatedEmail() throws Exception {
         // given
-        given(authService.register(registerRequest)).willThrow(new UserDuplicateException("DuplicatedUsername"));
+        given(authService.register(registerRequestDTO)).willThrow(new UserDuplicateException("DuplicatedUsername"));
 
         // when & then
         this.mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerRequest)))
+                .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
@@ -151,8 +155,8 @@ class AuthenticationControllerTest {
     @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있다.")
     void authenticate() throws Exception {
         // given
-        given(authService.authenticate(authenticationRequest))
-                .willReturn(AuthenticationResponse.builder()
+        given(authService.authenticate(authenticationRequestDTO))
+                .willReturn(AuthenticationResponseDTO.builder()
                         .accessToken("access_token")
                         .refreshToken("refresh_token")
                         .build());
@@ -160,7 +164,7 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(authenticationRequest)))
+                .content(objectMapper.writeValueAsBytes(authenticationRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
@@ -172,12 +176,12 @@ class AuthenticationControllerTest {
     @DisplayName("존재하는 아이디이지만, 올바르지 않은 패스워드를 입력할 경우 BadRequest Error 를 받는다.")
     void authenticateWithIncorrectPassword() throws Exception {
         // given
-        given(authService.authenticate(authenticationRequest)).willThrow(BadCredentialsException.class);
+        given(authService.authenticate(authenticationRequestDTO)).willThrow(BadCredentialsException.class);
 
         // when & then
         this.mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(authenticationRequest)))
+                .content(objectMapper.writeValueAsBytes(authenticationRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").exists());
@@ -188,12 +192,12 @@ class AuthenticationControllerTest {
     @DisplayName("존재하지 않는 회원 아이디로 로그인 시도시, UserNotFound Error 를 받는다.")
     void authenticateWithDoesNotExistUser() throws Exception {
         // given
-        given(authService.authenticate(authenticationRequest)).willThrow(new UsernameNotFoundException("notFoundUsername"));
+        given(authService.authenticate(authenticationRequestDTO)).willThrow(new UsernameNotFoundException("notFoundUsername"));
 
         // when & then
         this.mockMvc.perform(post("/api/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(authenticationRequest)))
+                        .content(objectMapper.writeValueAsBytes(authenticationRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").exists())
@@ -244,7 +248,7 @@ class AuthenticationControllerTest {
     void refresh() throws Exception {
         // given
         given(authService.refresh("expired_access_token", "valid_refresh_token"))
-                .willReturn(AuthenticationResponse.builder()
+                .willReturn(AuthenticationResponseDTO.builder()
                         .accessToken("new_access_token")
                         .refreshToken("new_refresh_token")
                         .build());
@@ -434,6 +438,76 @@ class AuthenticationControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
                 .andExpect(jsonPath("username").value("test@test.com"));
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("로그인하지 않은 유저는 유저를 삭제 요청을 할 수 없다.")
+    void deleteUserRequestWithAnonymousUser() throws Exception {
+        // given
+        // @WithAnonymousUser
+
+        // when & then
+        this.mockMvc.perform(delete("/api/delete/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(
+                        RequestSignupCodeDTO.builder()
+                                .userEmail("test@test.com")
+                                .build())))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", authorities = {"ROLE_USER"})
+    @DisplayName("로그인 한 유저가 본인이 맞다면, 유저 정보 삭제를 요청할 수 있다.")
+    void deleteUserRequestWithUser() throws Exception {
+        // given
+        User user = User.builder()
+                .name("testName")
+                .email("test@test.com")
+                .password("testPassword")
+                .createdAt(LocalDateTime.now())
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull("test@test.com")).willReturn(
+                Optional.of(user));
+        given(authService.deleteUser(user.getEmail())).willReturn(ResponseEntity.ok().build());
+
+        // when & then
+        this.mockMvc.perform(delete("/api/delete/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(
+                        RequestSignupCodeDTO.builder()
+                                .userEmail(user.getEmail())
+                                .build())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "DoesNotMatch@test.com", authorities = {"ROLE_USER"})
+    @DisplayName("로그인 한 유저가 본인이 맞지 않으면, 유저 정보 삭제 요청 시 403 Forbidden 를 받는다.")
+    void deleteUserWithDoesNotMatchUser() throws Exception {
+        // given
+        User user = User.builder()
+                .name("testName")
+                .email("test@test.com")
+                .password("testPassword")
+                .createdAt(LocalDateTime.now())
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull("test@test.com")).willReturn(
+                Optional.of(user));
+        given(authService.deleteUser(user.getEmail())).willReturn(ResponseEntity.ok().build());
+
+        // when & then
+        this.mockMvc.perform(delete("/api/delete/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                RequestSignupCodeDTO.builder()
+                                        .userEmail(user.getEmail())
+                                        .build())))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test

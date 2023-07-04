@@ -35,6 +35,7 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/admin").hasRole("ADMIN");
                     auth.requestMatchers("/api/reserve/**").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/secured").hasAnyRole("USER", "ADMIN");
+                    auth.requestMatchers("/api/delete/user").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/api/request/code/signup").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/open").permitAll();
                     auth.anyRequest().permitAll();
