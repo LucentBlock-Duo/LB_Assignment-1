@@ -3,6 +3,7 @@ package com.lucentblock.assignment2.service;
 
 import com.lucentblock.assignment2.entity.Reserve;
 import com.lucentblock.assignment2.model.*;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,17 +20,13 @@ public class ReserveController {
     }
 
     @PostMapping("/api/reserve/create")
-    private ResponseReserveDTO create(@RequestBody CreateRequestReserveDTO dto){
-        if(!dto.isValidate())
-            return ResponseReserveDTO.builder()
-                    .responseCode(ResponseCode.data(RESERVE_ERROR.find(101).msg(),101)).build();
-
+    private ResponseReserveDTO create(@Valid @RequestBody CreateRequestReserveDTO dto){
         return reserveService.createReserve(dto);
     }
 
     @GetMapping("/api/reserve/read") // 검증완료
-    private List<ResponseReserveDTO> read(@RequestParam Long carId){ // 현재 고객 ID 기반으로 모든 Car 가져오기 or 그냥 car 가져오기
-        return reserveService.findReserveByCarId(carId).stream().map(Reserve::toSuccessDto).toList();
+    private List<ResponseReserveDTO> read(@RequestParam Long carId){
+        return reserveService.findReserveByCarId(carId).stream().map(Reserve::toDto).toList();
     }
 
     @PostMapping("/api/reserve/update") // 검증완료

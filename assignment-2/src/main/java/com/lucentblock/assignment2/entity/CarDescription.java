@@ -20,7 +20,7 @@ public class CarDescription  implements SoftDeletable {
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="car_id")
-    private Car carId;
+    private Car car;
 
     @Column
     private String color;

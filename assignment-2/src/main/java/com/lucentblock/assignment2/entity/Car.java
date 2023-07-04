@@ -27,7 +27,7 @@ public class Car implements SoftDeletable {
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="car_manufacturer_id")
-    private CarManufacturer carManufacturerId;
+    private CarManufacturer carManufacturer;
 
     @Column(name="bought_at")
     private LocalDateTime boughtAt;

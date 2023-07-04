@@ -2,6 +2,10 @@ package com.lucentblock.assignment2.service;
 
 
 import com.lucentblock.assignment2.entity.*;
+import com.lucentblock.assignment2.exception.ReserveErrorCode;
+import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
+import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
+import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.repository.ReserveRepository;
 import jakarta.persistence.EntityManager;
@@ -44,16 +48,16 @@ public class ReserveService {
         reserve.setStartTime(dto.getStart_time());
         reserve.setEndTime(dto.getStart_time().
                 plusMinutes(foreignKeySet.getMaintenanceItem().getRequiredTime()));
-        // Transaction을 적용해야 set이 반영 안되려나?
 
-        if(foreignKeySet.isValidate())
-            return reserve.toFailureDto(101);
-        else if(ableToReserve(reserve))
-            return reserve.toFailureDto(103);
-        else if(ableToRepair(reserve))
-            return reserve.toFailureDto(102);
+        if(!ableToReserve(reserve)){
+            throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
+        }else if(!ableToRepair(reserve)){
+            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
+        }else if(!foreignKeySet.isValidate()){
+            throw new ReservedWithNoMatchValueException(ReserveErrorCode.ERROR_103,foreignKeySet);
+        }
 
-        return reserveRepository.save(reserve).toSuccessDto();
+        return reserveRepository.save(reserve).toDto();
     }
 
     private boolean ableToRepair(Reserve reserve){
@@ -77,14 +81,17 @@ public class ReserveService {
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
         Reserve reserve = dto.toEntity(foreignKeySet);
 
-        if(foreignKeySet.isValidate())
-            return reserve.toFailureDto(101);
-        else if(ableToReserve(reserve))
-            return reserve.toFailureDto(103);
-        else if(ableToRepair(reserve))
-            return reserve.toFailureDto(102);
 
-        return reserveRepository.save(reserve).toSuccessDto();
+        if(!ableToReserve(reserve)){
+            throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
+        }else if(!ableToRepair(reserve)){
+            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
+        }else if(!foreignKeySet.isValidate()){
+            throw new ReservedWithNoMatchValueException(ReserveErrorCode.ERROR_103,foreignKeySet);
+        }
+
+
+        return reserveRepository.save(reserve).toDto();
     }
 
 

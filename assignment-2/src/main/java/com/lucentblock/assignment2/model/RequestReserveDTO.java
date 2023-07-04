@@ -13,5 +13,5 @@ public interface RequestReserveDTO {
     Long getRepair_man_id(); // 정비공
     Long getMaintenance_item_id(); // 정비항목
     LocalDateTime getStart_time(); // 예약시작
-    boolean isValidate();
+    boolean isValid();
 }
