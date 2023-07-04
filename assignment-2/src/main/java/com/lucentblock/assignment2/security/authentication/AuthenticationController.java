@@ -44,48 +44,6 @@ public class AuthenticationController {
         return authService.verifySignupCode(verifySignupCodeRequestDTO);
     }
 
-    @GetMapping("/fetch/user")
-    public ResponseEntity fetchUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
-        }
-
-        return ResponseEntity.ok(authService.fetchUserInfo(userEmailDTO.getUserEmail()));
-    }
-
-    @PatchMapping("/update/user")
-    public ResponseEntity updateUser(@Validated @RequestBody UserInfoDTO userInfoDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userInfoDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
-        }
-
-        return ResponseEntity.ok(authService.updateUserInfo(userInfoDTO));
-    }
-
-    @DeleteMapping("/delete/user")
-    public ResponseEntity deleteUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
-        }
-
-        return authService.deleteUser(userEmailDTO.getUserEmail());
-    }
-
 
     @GetMapping("/admin")
     public String admin() {
