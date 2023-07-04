@@ -347,6 +347,30 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    @DisplayName("존재하는 회원에 대해 업데이트를 수행하면, 회원의 닉네임 (Name 필드) 과 휴대폰 번호를 변경할 수 있다.")
+    void updateUserInfo() {
+        // given
+        UserInfoDTO userInfoDTO = UserInfoDTO.builder()
+                .userEmail(user.getEmail())
+                .username("changedName")
+                .isEmailVerified(true)
+                .phoneNumber("changedPN")
+                .provider("changedProvider")
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.saveAndFlush(any(User.class))).willReturn(user.UpdateUserBasedOnUserInfoDTO(userInfoDTO));
+
+        // when
+        UserInfoDTO updatedUserInfoDTO = authService.updateUserInfo(userInfoDTO);
+
+        // then
+        assertEquals(user.getEmail(), updatedUserInfoDTO.getUserEmail()); // Email 은 변하지 않았다.
+        assertEquals(user.getProvider(), updatedUserInfoDTO.getProvider()); // Provider 는 변하지 않았다.
+        assertEquals("changedName", updatedUserInfoDTO.getUsername());
+        assertEquals("changedPN", updatedUserInfoDTO.getPhoneNumber());
+    }
+
+    @Test
     @DisplayName("존재하는 회원에 대해 삭제를 수행할 수 있다.")
     void deleteUser() {
         // given

@@ -546,6 +546,111 @@ class AuthenticationControllerTest {
 
     @Test
     @WithAnonymousUser
+    @DisplayName("로그인하지 않은 사용자는 유저 정보를 변경할 수 없다.")
+    void updateUserInfoWithAnonymousUser() throws Exception {
+        // given
+        // @WithAnonymousUser
+
+        // when & then
+        this.mockMvc.perform(patch("/api/update/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                UserInfoDTO.builder()
+                                        .userEmail("test@test.com")
+                                        .username("changedName")
+                                        .phoneNumber("changedPN")
+                                        .isEmailVerified(true)
+                                        .provider("changedProvider")
+                                        .build())))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "DoesNotMatch@test.com", authorities = {"ROLE_USER"})
+    @DisplayName("자신의 정보가 아니라면, 유저 정보 업데이트 요청을 할 수 없다.")
+    void updateUserInfoWithDoesNotMatchUser() throws Exception {
+        // given
+
+        UserInfoDTO userInfoDTO = UserInfoDTO.builder()
+                .userEmail("anotherUser@test.com")
+                .username("changedName")
+                .isEmailVerified(true)
+                .provider("changedProvider")
+                .phoneNumber("changedPN")
+                .build();
+
+        User user = User.builder()
+                .name("changedName")
+                .email("anotherUser@test.com")
+                .password("testPassword")
+                .phoneNumber("changedPN")
+                .createdAt(LocalDateTime.now())
+                .provider("changedProvider")
+                .build();
+
+        given(authService.updateUserInfo(userInfoDTO)).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user)); // 만약 변경이 된다면 이렇게 될 것.
+
+        // when & then
+        this.mockMvc.perform(patch("/api/update/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                userInfoDTO
+                                )
+                        )
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", authorities = "ROLE_USER")
+    @DisplayName("자신의 정보라면, 유저 정보 변경 요청을 할 수 있다.")
+    void updateUserInfo() throws Exception {
+        // given
+
+        UserInfoDTO userInfoDTO = UserInfoDTO.builder()
+                .userEmail("test@test.com")
+                .username("changedName")
+                .isEmailVerified(true)
+                .provider("changedProvider")
+                .phoneNumber("changedPN")
+                .build();
+
+        User user = User.builder()
+                .name("changedName")
+                .email("test@test.com")
+                .password("testPassword")
+                .phoneNumber("changedPN")
+                .createdAt(LocalDateTime.now())
+                .provider("changedProvider")
+                .build();
+
+        given(authService.updateUserInfo(userInfoDTO)).willReturn(
+                UserInfoDTO.UserEntityToUserInfoDTO(
+                        user.UpdateUserBasedOnUserInfoDTO(userInfoDTO)
+                )
+        );
+
+        // when & then
+        this.mockMvc.perform(patch("/api/update/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                userInfoDTO
+                            )
+                        )
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("user_name").hasJsonPath())
+                .andExpect(jsonPath("user_email").hasJsonPath())
+                .andExpect(jsonPath("phone_number").hasJsonPath())
+                .andExpect(jsonPath("provider").hasJsonPath())
+                .andExpect(jsonPath("is_email_verified").hasJsonPath());
+    }
+
+    @Test
+    @WithAnonymousUser
     @DisplayName("로그인하지 않은 유저는 유저를 삭제 요청을 할 수 없다.")
     void deleteUserRequestWithAnonymousUser() throws Exception {
         // given

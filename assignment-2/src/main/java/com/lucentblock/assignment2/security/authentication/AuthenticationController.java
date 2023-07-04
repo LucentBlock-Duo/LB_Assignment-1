@@ -1,10 +1,6 @@
 package com.lucentblock.assignment2.security.authentication;
 
-import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
-import com.lucentblock.assignment2.security.model.RegisterRequestDTO;
-import com.lucentblock.assignment2.security.model.AuthenticationRequestDTO;
-import com.lucentblock.assignment2.security.model.AuthenticationResponseDTO;
-import com.lucentblock.assignment2.security.model.RequestSignupCodeDTO;
+import com.lucentblock.assignment2.security.model.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -60,6 +56,20 @@ public class AuthenticationController {
         }
 
         return ResponseEntity.ok(authService.fetchUserInfo(requestSignupCodeDTO.getUserEmail()));
+    }
+
+    @PatchMapping("/update/user")
+    public ResponseEntity updateUser(@Validated @RequestBody UserInfoDTO userInfoDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getAuthorities().stream().anyMatch(
+                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
+            if (!authentication.getName().equals(userInfoDTO.getUserEmail())) {
+                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
+            }
+        }
+
+        return ResponseEntity.ok(authService.updateUserInfo(userInfoDTO));
     }
 
     @DeleteMapping("/delete/user")

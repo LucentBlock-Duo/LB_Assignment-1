@@ -203,6 +203,14 @@ public class AuthenticationService {
         return UserInfoDTO.UserEntityToUserInfoDTO(user);
     }
 
+    public UserInfoDTO updateUserInfo(UserInfoDTO userInfoDTO) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(userInfoDTO.getUserEmail())
+                .orElseThrow(() -> new UsernameNotFoundException(userInfoDTO.getUserEmail()));
+
+        User savedUser = userRepository.saveAndFlush(user.UpdateUserBasedOnUserInfoDTO(userInfoDTO));
+        return UserInfoDTO.UserEntityToUserInfoDTO(savedUser);
+    }
+
     public ResponseEntity deleteUser(String userEmail) {
         User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
         retrievedUser.setDeletedAt(LocalDateTime.now());
