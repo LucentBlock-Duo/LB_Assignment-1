@@ -5,4 +5,4 @@ application-security.yml
 PrincipalOidcUserService.java
 application-mail.yml
 docker-compose.yml
-
+AuthenticationServiceTest.java
