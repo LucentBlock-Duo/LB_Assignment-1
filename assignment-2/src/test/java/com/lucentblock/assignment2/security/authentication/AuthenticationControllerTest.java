@@ -442,6 +442,110 @@ class AuthenticationControllerTest {
 
     @Test
     @WithAnonymousUser
+    @DisplayName("로그인하지 않은 유저는 유저 정보 조회를 요청할 수 없다.")
+    void fetchUserInfoWithAnonymousUser() throws Exception {
+        // given
+        // @WithAnonymousUser
+
+        // when & then
+        this.mockMvc.perform(get("/api/fetch/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                RequestSignupCodeDTO.builder()
+                                        .userEmail("test@test.com")
+                                        .build())))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ROLE_ADMIN"})
+    @DisplayName("Admin 유저는 모든 유저 정보를 조회할 수 있다.")
+    void fetchUserInfoWithAdminUser() throws Exception {
+        // given
+        // With Admin User
+        User user = User.builder()
+                .name("testName")
+                .email("test@test.com")
+                .password("testPassword")
+                .createdAt(LocalDateTime.now())
+                .build();
+        given(authService.fetchUserInfo("test@test.com")).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user));
+
+        // when & then
+        this.mockMvc.perform(get("/api/fetch/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                RequestSignupCodeDTO.builder()
+                                        .userEmail(user.getEmail())
+                                        .build())))
+                .andDo(print())
+                .andExpect(jsonPath("user_name").hasJsonPath())
+                .andExpect(jsonPath("user_email").hasJsonPath())
+                .andExpect(jsonPath("phone_number").hasJsonPath())
+                .andExpect(jsonPath("provider").hasJsonPath())
+                .andExpect(jsonPath("is_email_verified").hasJsonPath());
+    }
+
+    @Test
+    @WithMockUser(username = "DoesNotMatch@test.com", authorities = {"ROLE_USER"})
+    @DisplayName("자신의 정보가 아니라면, 유저 정보 조회를 요청할 수 없다.")
+    void fetchUserInfoWithUserDoesNotMatch() throws Exception {
+        // given
+        User user = User.builder()
+                .name("testName")
+                .email("test@test.com")
+                .password("testPassword")
+                .createdAt(LocalDateTime.now())
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull("test@test.com")).willReturn(
+                Optional.of(user));
+        given(authService.fetchUserInfo(user.getEmail())).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user));
+
+        // when & then
+        this.mockMvc.perform(get("/api/fetch/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                RequestSignupCodeDTO.builder()
+                                        .userEmail(user.getEmail())
+                                        .build())))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.com", authorities = "ROLE_USER")
+    @DisplayName("자신의 유저 정보를 조회할 수 있다.")
+    void fetchUser() throws Exception {
+        // given
+        User user = User.builder()
+                .name("testName")
+                .email("test@test.com")
+                .password("testPassword")
+                .phoneNumber("testPN")
+                .createdAt(LocalDateTime.now())
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull("test@test.com")).willReturn(
+                Optional.of(user));
+        given(authService.fetchUserInfo(user.getEmail())).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user));
+
+        // when & then
+        this.mockMvc.perform(get("/api/fetch/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                RequestSignupCodeDTO.builder()
+                                        .userEmail(user.getEmail())
+                                        .build())))
+                .andDo(print())
+                .andExpect(jsonPath("user_name").hasJsonPath())
+                .andExpect(jsonPath("user_email").hasJsonPath())
+                .andExpect(jsonPath("phone_number").hasJsonPath())
+                .andExpect(jsonPath("provider").hasJsonPath())
+                .andExpect(jsonPath("is_email_verified").hasJsonPath());
+    }
+
+    @Test
+    @WithAnonymousUser
     @DisplayName("로그인하지 않은 유저는 유저를 삭제 요청을 할 수 없다.")
     void deleteUserRequestWithAnonymousUser() throws Exception {
         // given
@@ -508,6 +612,32 @@ class AuthenticationControllerTest {
                                         .build())))
                 .andDo(print())
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ROLE_ADMIN"})
+    @DisplayName("Admin 유저는 모든 회원 정보를 삭제할 수 있다.")
+    void deleteUserRequestWithAdminUser() throws Exception {
+        // given
+        User user = User.builder()
+                .name("testName")
+                .email("test@test.com")
+                .password("testPassword")
+                .createdAt(LocalDateTime.now())
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull("test@test.com")).willReturn(
+                Optional.of(user));
+        given(authService.deleteUser(user.getEmail())).willReturn(ResponseEntity.ok().build());
+
+        // when & then
+        this.mockMvc.perform(delete("/api/delete/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(
+                                RequestSignupCodeDTO.builder()
+                                        .userEmail(user.getEmail())
+                                        .build())))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -13,10 +13,7 @@ import com.lucentblock.assignment2.security.exception.AccessTokenIsNotExpired;
 import com.lucentblock.assignment2.security.exception.AlreadyVerifiedUserException;
 import com.lucentblock.assignment2.security.exception.RefreshTokenInvalidException;
 import com.lucentblock.assignment2.security.exception.UserDuplicateException;
-import com.lucentblock.assignment2.security.model.AuthenticationRequestDTO;
-import com.lucentblock.assignment2.security.model.AuthenticationResponseDTO;
-import com.lucentblock.assignment2.security.model.RegisterRequestDTO;
-import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
+import com.lucentblock.assignment2.security.model.*;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -324,6 +321,29 @@ class AuthenticationServiceTest {
                         .userEmail(user.getEmail())
                         .code("code")
                         .build()));
+    }
+
+    @Test
+    @DisplayName("존재하는 회원에 대해 회원 정보 조회를 수행할 수 있다.")
+    void fetchUser() {
+        // given
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
+
+        // when
+        UserInfoDTO userInfoDTO = authService.fetchUserInfo(user.getEmail());
+
+        // then
+        assertEquals(UserInfoDTO.UserEntityToUserInfoDTO(user), userInfoDTO);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원에 대한 회원 정보를 요청할 경우 UsernameNotFound Exception 이 발생한다.")
+    void fetchDoesNotExistUser() {
+        // given
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(UsernameNotFoundException.class, () -> authService.fetchUserInfo(user.getEmail()));
     }
 
     @Test

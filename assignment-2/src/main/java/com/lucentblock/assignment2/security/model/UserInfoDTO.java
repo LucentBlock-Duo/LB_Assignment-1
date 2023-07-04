@@ -14,14 +14,14 @@ public class UserInfoDTO {
     @JsonProperty(value = "user_email")
     private String userEmail;
 
-    @JsonProperty(value = "username")
+    @JsonProperty(value = "user_name")
     private String username;
 
     @JsonProperty(value = "phone_number")
     private String phoneNumber;
 
     @JsonProperty(value = "is_email_verified")
-    private boolean isEmailVerified;
+    private Boolean isEmailVerified;
 
     @JsonProperty(value = "provider") // OAuth 로 가입한 사용자이면 not null
     private String provider;

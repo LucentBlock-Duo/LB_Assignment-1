@@ -48,6 +48,20 @@ public class AuthenticationController {
         return authService.verifySignupCode(requestVerifySignupCodeDTO);
     }
 
+    @GetMapping("/fetch/user")
+    public ResponseEntity fetchUser(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getAuthorities().stream().anyMatch(
+                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
+            if (!authentication.getName().equals(requestSignupCodeDTO.getUserEmail())) {
+                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
+            }
+        }
+
+        return ResponseEntity.ok(authService.fetchUserInfo(requestSignupCodeDTO.getUserEmail()));
+    }
+
     @DeleteMapping("/delete/user")
     public ResponseEntity deleteUser(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
