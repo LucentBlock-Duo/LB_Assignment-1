@@ -32,10 +32,12 @@ public class SecurityConfiguration {
                     csrf.disable();
                 })
                 .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api/register").permitAll();
+                    auth.requestMatchers("/api/authenticate").permitAll();
+                    auth.requestMatchers("/api/refresh").permitAll();
+                    auth.requestMatchers("/api/**").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/admin").hasRole("ADMIN");
-                    auth.requestMatchers("/api/reserve/**").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/secured").hasAnyRole("USER", "ADMIN");
-                    auth.requestMatchers("/api/request/code/signup").hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers("/open").permitAll();
                     auth.anyRequest().permitAll();
                 })

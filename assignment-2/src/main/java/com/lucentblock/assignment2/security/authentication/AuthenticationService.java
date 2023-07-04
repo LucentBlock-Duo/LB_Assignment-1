@@ -2,28 +2,19 @@ package com.lucentblock.assignment2.security.authentication;
 
 import com.lucentblock.assignment2.entity.LoginChallenge;
 import com.lucentblock.assignment2.entity.Role;
-import com.lucentblock.assignment2.entity.SignupCodeChallenge;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.security.exception.*;
-import com.lucentblock.assignment2.security.model.RequestVerifySignupCodeDTO;
+import com.lucentblock.assignment2.security.model.*;
 import com.lucentblock.assignment2.repository.LoginChallengeRepository;
-import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
 import com.lucentblock.assignment2.security.PrincipalDetails;
-import com.lucentblock.assignment2.security.model.RegisterRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationRequest;
-import com.lucentblock.assignment2.security.model.AuthenticationResponse;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Random;
 
 @Service
 @Slf4j
@@ -43,10 +33,8 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final JwtRefreshService jwtRefreshService;
     private final PasswordEncoder passwordEncoder;
-    private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
     private final LoginChallengeRepository loginChallengeRepository;
-    private final SignupCodeChallengeRepository signupCodeChallengeRepository;
 
     @Data
     @AllArgsConstructor
@@ -55,11 +43,11 @@ public class AuthenticationService {
         private String refreshToken;
     }
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
+    public AuthenticationResponseDTO register(RegisterRequestDTO request) {
+        if (userRepository.findByEmailAndDeletedAtIsNull(request.getUserEmail()).isEmpty()) {
             User user = User.builder()
-                    .email(request.getEmail())
-                    .name(request.getName())
+                    .email(request.getUserEmail())
+                    .name(request.getUserName())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .phoneNumber(request.getPhoneNumber())
                     .role(Role.ROLE_USER)
@@ -73,20 +61,20 @@ public class AuthenticationService {
             user.setRefreshToken(newTokens.getRefreshToken());
             userRepository.saveAndFlush(user);
 
-            return AuthenticationResponse.builder()
+            return AuthenticationResponseDTO.builder()
                     .accessToken(newTokens.getAccessToken())
                     .refreshToken(newTokens.getRefreshToken())
                     .build();
         }
 
-        log.info(request.getEmail() + " already exists.");
-        throw new UserDuplicateException(request.getEmail());
+        log.info(request.getUserEmail() + " already exists.");
+        throw new UserDuplicateException(request.getUserEmail());
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
-            log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
-            return new UsernameNotFoundException(request.getEmail());
+    public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(request.getUserEmail()).orElseThrow(() -> {
+            log.info("UsernameNotFoundException Occurred " + "Username : " + request.getUserEmail());
+            return new UsernameNotFoundException(request.getUserEmail());
         });
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             // Password is Incorrect
@@ -108,13 +96,13 @@ public class AuthenticationService {
 
         makeLoginChallenge(user, true);
 
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDTO.builder()
                 .accessToken(newTokens.getAccessToken())
                 .refreshToken(newTokens.getRefreshToken())
                 .build();
     }
 
-    public AuthenticationResponse refresh(String accessToken, String refreshToken) {
+    public AuthenticationResponseDTO refresh(String accessToken, String refreshToken) {
         /*
             1. Access Token 이 Expired 되었는지 확인
             2. Refresh Token 이 유효한지 확인
@@ -128,7 +116,7 @@ public class AuthenticationService {
                 if (!jwtRefreshService.isTokenInvalid(refreshToken) && !jwtRefreshService.isTokenExpired(refreshToken)) { // Refresh Token 이 Not Expired and Not Invalid 할 때
                     Claims claimsFromExpiredToken = jwtService.extractClaimsFromExpiredToken(accessToken);
                     String userEmail = claimsFromExpiredToken.getSubject();
-                    User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail)); // DB 에서 User-Refresh Token 을 꺼내온다.
+                    User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail)); // DB 에서 User-Refresh Token 을 꺼내온다.
 
                     if (refreshToken.equals(retrievedUser.getRefreshToken())) { // DB 에 기록된 User-Refresh Token 쌍과 제시된 Refresh Token 이 일치하다면
                         PairOfToken newTokens = makeNewTokens(retrievedUser); // 새로운 Access Token 과 Refresh Token 발급
@@ -136,7 +124,7 @@ public class AuthenticationService {
                         retrievedUser.setRefreshToken(newTokens.getRefreshToken()); // DB 에 USER-REFRESH TOKEN 쌍 업데이트
                         userRepository.saveAndFlush(retrievedUser);
 
-                        return AuthenticationResponse.builder()
+                        return AuthenticationResponseDTO.builder()
                                 .accessToken(newTokens.getAccessToken())
                                 .refreshToken(newTokens.getRefreshToken())
                                 .build();
@@ -149,55 +137,6 @@ public class AuthenticationService {
             throw new AccessTokenIsNotExpired("Access Token is not expired");
         }
         throw new AccessTokenIsInvalid("Access Token is invalid");
-    }
-
-    public ResponseEntity generateSignupCode(String userEmail) {
-        User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
-
-        if (!retrievedUser.getIsEmailVerified()) {
-            Random random = new Random();
-            String code = String.valueOf(random.nextInt(1000, 10000));
-
-            SignupCodeChallenge signupCodeChallenge = signupCodeChallengeRepository.save(
-                    SignupCodeChallenge.builder()
-                            .user(retrievedUser)
-                            .code(code)
-                            .createdAt(LocalDateTime.now())
-                            .isSuccessful(false)
-                            .build()
-            );
-
-            SimpleMailMessage message = generateVerificationMailText(code);
-            javaMailSender.send(message); // 이메일 전송 실패에 대한 오류처리가 필요할까? 그냥 Internal Server Error 로 둘까?
-
-            return ResponseEntity.ok().build();
-        }
-
-        throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
-    }
-
-    public ResponseEntity verifySignupCode(RequestVerifySignupCodeDTO requestVerifySignupCodeDTO) {
-        String code = requestVerifySignupCodeDTO.getCode();
-        String userEmail = requestVerifySignupCodeDTO.getUserEmail();
-
-        User retrievedUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
-
-        if (!retrievedUser.getIsEmailVerified()) {
-            SignupCodeChallenge signupCodeChallenge = signupCodeChallengeRepository.findByUser_IdAndCodeAndIsSuccessful(retrievedUser.getId(), code, false)
-                    .orElseThrow(() -> new CodeDoesNotMatchException("Code Does Not Match"));
-
-            signupCodeChallenge.setIsSuccessful(true);
-            signupCodeChallenge.setVerifiedAt(LocalDateTime.now());
-            signupCodeChallengeRepository.save(signupCodeChallenge);
-
-            retrievedUser.setIsEmailVerified(true);
-            userRepository.save(retrievedUser);
-
-            return ResponseEntity.ok().build(); // 정상적으로 인증되었다면, 200 코드와 함께 Return
-        }
-
-        log.info("This User is already verified");
-        throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
     }
 
     private void makeLoginChallenge(User user, boolean isSuccessful) {
@@ -220,15 +159,6 @@ public class AuthenticationService {
         );
 
         return new PairOfToken(accessToken, refreshToken);
-    }
-
-    private SimpleMailMessage generateVerificationMailText(String code) {
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setTo("rkddlfah02@naver.com");  // Should be changed to {user.getEmail()}
-        simpleMailMessage.setFrom("LB-Assignment");
-        simpleMailMessage.setSubject("[LB-Assignment] Email Authentication");
-        simpleMailMessage.setText("Your email verification code is " + code);
-        return simpleMailMessage;
     }
 
 

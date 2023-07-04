@@ -1,10 +1,12 @@
-package com.lucentblock.assignment2.security.authentication;
+package com.lucentblock.assignment2.security.authentication.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.PrincipalDetailsService;
+import com.lucentblock.assignment2.security.authentication.AuthenticationController;
+import com.lucentblock.assignment2.security.authentication.AuthenticationService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtAuthenticationFilter;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
@@ -15,6 +17,7 @@ import com.lucentblock.assignment2.security.exception.*;
 import com.lucentblock.assignment2.security.model.*;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
+import com.lucentblock.assignment2.service.SignupCodeService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,12 +27,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.*;
@@ -46,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         PrincipalDetailsService.class,
         OAuth2SuccessHandler.class,
         PrincipalOAuth2UserService.class})
-@WebMvcTest(AuthenticationController.class)
+@WebMvcTest(controllers = {AuthenticationController.class})
 class AuthenticationControllerTest {
 
     @MockBean
@@ -64,24 +65,27 @@ class AuthenticationControllerTest {
     @MockBean
     AuthenticationService authService;
 
+    @MockBean
+    SignupCodeService signupCodeService;
+
     @Autowired
     MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private RegisterRequest registerRequest;
-    private AuthenticationRequest authenticationRequest;
+    private RegisterRequestDTO registerRequestDTO;
+    private AuthenticationRequestDTO authenticationRequestDTO;
 
     @BeforeEach
     void setup() {
-        registerRequest = RegisterRequest.builder()
-                .name("testName")
-                .email("test@test.com")
+        registerRequestDTO = RegisterRequestDTO.builder()
+                .userName("testName")
+                .userEmail("test@test.com")
                 .password("testPasswrod")
                 .phoneNumber("testPhoneNumber")
                 .build();
 
-        authenticationRequest = AuthenticationRequest.builder()
-                .email("test@test.com")
+        authenticationRequestDTO = AuthenticationRequestDTO.builder()
+                .userEmail("test@test.com")
                 .password("testPassword")
                 .build();
     }
@@ -91,8 +95,8 @@ class AuthenticationControllerTest {
     @DisplayName("올바른 RequestRegister 양식을 통해 회원가입을 할 수 있다.")
     void register() throws Exception {
         // given
-        given(authService.register(registerRequest))
-                .willReturn(AuthenticationResponse.builder()
+        given(authService.register(registerRequestDTO))
+                .willReturn(AuthenticationResponseDTO.builder()
                         .accessToken("access_token")
                         .refreshToken("refresh_token")
                         .build());
@@ -100,7 +104,7 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerRequest)))
+                .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
@@ -112,21 +116,20 @@ class AuthenticationControllerTest {
     @DisplayName("올바르지 않은 RequestRegister 양식으로는 회원가입을 할 수 없다. (403 BadRequest)")
     void registerWithInvalidRegisterRequest() throws Exception {
         // given
-        registerRequest.setEmail(null);
-        registerRequest.setName(null);
-        registerRequest.setPassword(null);
-        registerRequest.setPhoneNumber(null); // phoneNumber 는 nullable
+        registerRequestDTO.setUserEmail(null);
+        registerRequestDTO.setUserName(null);
+        registerRequestDTO.setPassword(null);
+        registerRequestDTO.setPhoneNumber(null); // phoneNumber 는 nullable
 
         // when & then
         this.mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerRequest)))
+                .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("email").exists())
-                .andExpect(jsonPath("name").exists())
-                .andExpect(jsonPath("password").exists())
-                .andExpect(jsonPath("phoneNumber").doesNotExist());
+                .andExpect(jsonPath("user_email").hasJsonPath())
+                .andExpect(jsonPath("user_name").hasJsonPath())
+                .andExpect(jsonPath("password").hasJsonPath());
     }
 
     @Test
@@ -134,16 +137,16 @@ class AuthenticationControllerTest {
     @DisplayName("기존 회원들과 중복된 이메일로는 가입할 수 없다. (UserDuplicate Exception)")
     void registerWithDuplicatedEmail() throws Exception {
         // given
-        given(authService.register(registerRequest)).willThrow(new UserDuplicateException("DuplicatedUsername"));
+        given(authService.register(registerRequestDTO)).willThrow(new UserDuplicateException("DuplicatedUsername"));
 
         // when & then
         this.mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerRequest)))
+                .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").exists());
+                .andExpect(jsonPath("user_email").exists());
     }
 
     @Test
@@ -151,8 +154,8 @@ class AuthenticationControllerTest {
     @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있다.")
     void authenticate() throws Exception {
         // given
-        given(authService.authenticate(authenticationRequest))
-                .willReturn(AuthenticationResponse.builder()
+        given(authService.authenticate(authenticationRequestDTO))
+                .willReturn(AuthenticationResponseDTO.builder()
                         .accessToken("access_token")
                         .refreshToken("refresh_token")
                         .build());
@@ -160,7 +163,7 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(authenticationRequest)))
+                .content(objectMapper.writeValueAsBytes(authenticationRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
@@ -172,12 +175,12 @@ class AuthenticationControllerTest {
     @DisplayName("존재하는 아이디이지만, 올바르지 않은 패스워드를 입력할 경우 BadRequest Error 를 받는다.")
     void authenticateWithIncorrectPassword() throws Exception {
         // given
-        given(authService.authenticate(authenticationRequest)).willThrow(BadCredentialsException.class);
+        given(authService.authenticate(authenticationRequestDTO)).willThrow(BadCredentialsException.class);
 
         // when & then
         this.mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(authenticationRequest)))
+                .content(objectMapper.writeValueAsBytes(authenticationRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").exists());
@@ -188,16 +191,16 @@ class AuthenticationControllerTest {
     @DisplayName("존재하지 않는 회원 아이디로 로그인 시도시, UserNotFound Error 를 받는다.")
     void authenticateWithDoesNotExistUser() throws Exception {
         // given
-        given(authService.authenticate(authenticationRequest)).willThrow(new UsernameNotFoundException("notFoundUsername"));
+        given(authService.authenticate(authenticationRequestDTO)).willThrow(new UsernameNotFoundException("notFoundUsername"));
 
         // when & then
         this.mockMvc.perform(post("/api/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(authenticationRequest)))
+                        .content(objectMapper.writeValueAsBytes(authenticationRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").exists());
+                .andExpect(jsonPath("user_email").exists());
     }
 
     /*
@@ -244,7 +247,7 @@ class AuthenticationControllerTest {
     void refresh() throws Exception {
         // given
         given(authService.refresh("expired_access_token", "valid_refresh_token"))
-                .willReturn(AuthenticationResponse.builder()
+                .willReturn(AuthenticationResponseDTO.builder()
                         .accessToken("new_access_token")
                         .refreshToken("new_refresh_token")
                         .build());
@@ -278,162 +281,20 @@ class AuthenticationControllerTest {
 
     @Test
     @WithAnonymousUser
-    @DisplayName("로그인하지 않은 사용자는 이메일 인증 코드를 요청하면 Unauthorized Error 를 받는다.")
-    void generateSignupCodeWithAnonymousUser() throws Exception {
+    @DisplayName("Refresh Token 이 DB 의 것과 일치하지 않다면 RefreshTokenDoesNotMatch UnAuthorized")
+    void refreshWithDoesNotMatchRefreshToken() throws Exception {
         // given
-        // @WithAnonymousUser (Has no authority)
+        given(authService.refresh("access_token", "does_not_match_refresh_token"))
+                .willThrow(RefreshTokenDoesNotMatchException.class);
 
         // when & then
-        this.mockMvc.perform(post("/api/request/code/signup"))
+        this.mockMvc.perform(get("/api/refresh")
+                        .header("Authorization", "Bearer access_token")
+                        .cookie(new Cookie("refresh_token", "does_not_match_refresh_token")))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료하지 않은 사용자는 이메일 인증 코드를 요청할 수 있다.") // 이메일 인증 코드 요청이 유효한지, 유저가 이미 이메일 인증된 유저인지는 서비스에서 검증
-    void generateSignupCodeWithUser() throws Exception {
-        // given
-        given(authService.generateSignupCode("test@test.com")).willReturn(ResponseEntity.ok().build());
-
-        // when & then
-        this.mockMvc.perform(post("/api/request/code/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
-                                .userEmail("test@test.com")
-                                .build()
-                        ))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료한 회원의 경우, 이메일 인증코드를 요청할 시, BadRequest Error 를 받는다.")
-    void generateSignupCodeWithUserWhoVerifiedEmail() throws Exception {
-        // given
-        given(authService.generateSignupCode("alreadyVerified@test.com"))
-                .willThrow(new AlreadyVerifiedUserException("alreadyVerified@test.com"));
-
-        // when & then
-        this.mockMvc.perform(post("/api/request/code/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(
-                        RequestSignupCodeDTO.builder()
-                                .userEmail("alreadyVerified@test.com")
-                                .build())))
-                .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").value("alreadyVerified@test.com"));
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("존재하지 않은 회원에 대해 이메일 인증 코드를 요청하면, UserNotFound Error 를 받는다.")
-    void generateSignupCodeWithUserNotExists() throws Exception {
-        // given
-        given(authService.generateSignupCode("DoesNotExist@test.com")).willThrow(new UsernameNotFoundException("DoesNotExist@test.com"));
-
-        // when & then
-        this.mockMvc.perform(post("/api/request/code/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(RequestSignupCodeDTO.builder()
-                        .userEmail("DoesNotExist@test.com")
-                        .build())))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").value("DoesNotExist@test.com"));
-    }
-
-    @Test
-    @WithAnonymousUser
-    @DisplayName("로그인하지 않은 사용자의 경우, 이메일 인증 요청조차 할 수 없다. (Unauthorized)")
-    void verifySignupCodeWithAnonymousUser() throws Exception {
-        // given
-        // @WithAnonymousUser
-
-        // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(
-                        RequestVerifySignupCodeDTO.builder()
-                                .code("code")
-                                .userEmail("any@test.com")
-                                .build())))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료하지 않은 회원의 경우, 올바른 인증코드와 인증 요청 시 인증이 완료된다.")
-    void verifySignupCodeWithUserWhoIsNotVerifiedAndSignupCodeMatched() throws Exception {
-        // given
-        given(authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
-                .code("correctCode")
-                .userEmail("test@test.com")
-                .build()))
-                .willReturn(ResponseEntity.ok().build());
-
-        // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(RequestVerifySignupCodeDTO.builder()
-                    .code("correctCode")
-                    .userEmail("test@test.com")
-                    .build())))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료하지 않은 회원의 경우, 올바르지 않은 인증코드와 인증 요청시 인증이 실패한다. Unauthorized Error 를 받는다.")
-    void verifySignupCodeWithUserWhoIsNotVerifiedAndSignupCodeDoesNotMatched() throws Exception {
-        // given
-        given(authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
-                .code("incorrectCode")
-                .userEmail("test@test.com")
-                .build()))
-                .willThrow(CodeDoesNotMatchException.class);
-
-        // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(RequestVerifySignupCodeDTO.builder()
-                        .code("incorrectCode")
-                        .userEmail("test@test.com")
-                        .build())))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_USER"})
-    @DisplayName("이메일 인증을 완료한 회원의 경우, 이미 인증이 완료된 사용자기 때문에 CONFLICT Error 를 받는다.")
-    void verifySignupCodeWithUserWhoIsAlreadyVerified() throws Exception {
-        // given
-        given(authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
-                .code("code")
-                .userEmail("test@test.com")
-                .build()))
-                .willThrow(new AlreadyVerifiedUserException("test@test.com"));
-
-        // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(RequestVerifySignupCodeDTO.builder()
-                                .code("code")
-                                .userEmail("test@test.com")
-                                .build())))
-                .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").value("test@test.com"));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("message").value("Refresh Token does not match with Database"))
+                .andExpect(jsonPath("user_email").hasJsonPath());
     }
 
     @Test

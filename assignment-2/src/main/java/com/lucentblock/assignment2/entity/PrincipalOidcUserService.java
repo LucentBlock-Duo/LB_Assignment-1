@@ -34,7 +34,7 @@
 //        String providerId = oidcUser.getAttribute("sub");
 //        String userEmail = oidcUser.getAttribute("email");
 //
-//        Optional<User> retrievedUser = userRepository.findByEmail(userEmail);
+//        Optional<User> retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail);
 //        User user;
 //        if (retrievedUser.isEmpty()) { // OAuth 가입 후, 서비스 DB에 저장되어있지 않다면, 최조 회원가입
 //            user = User.builder()

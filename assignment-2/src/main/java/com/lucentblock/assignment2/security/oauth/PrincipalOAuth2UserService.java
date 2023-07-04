@@ -43,7 +43,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
             oAuth2UserInfo = new KakaoOAuth2UserInfo(oAuth2User.getAttributes());
         }
 
-        Optional<User> retrievedUser = userRepository.findByEmail(oAuth2UserInfo.getEmail());
+        Optional<User> retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(oAuth2UserInfo.getEmail());
         User user;
         if (retrievedUser.isEmpty()) { // OAuth 가입 후, 서비스 DB에 저장되어있지 않다면, 최조 회원가입
             user = User.builder()

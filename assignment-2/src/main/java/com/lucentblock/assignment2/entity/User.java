@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.entity;
 
+import com.lucentblock.assignment2.security.model.UserInfoDTO;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,4 +57,11 @@ public class User{
 
     @Column(name = "refresh_token")
     private String refreshToken;
+
+    public User UpdateUserBasedOnUserInfoDTO(UserInfoDTO userInfoDTO) {
+        this.name = userInfoDTO.getUsername();
+        this.phoneNumber = userInfoDTO.getPhoneNumber();
+
+        return this;
+    }
 }
