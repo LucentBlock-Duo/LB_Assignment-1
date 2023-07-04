@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/reserve")
 @Slf4j
 public class ReserveController {
 
@@ -20,22 +21,22 @@ public class ReserveController {
         this.reserveService = reserveService;
     }
 
-    @PostMapping("/api/reserve")
+    @PostMapping
     private ResponseReserveDTO create(@Valid @RequestBody CreateRequestReserveDTO dto){
         return reserveService.createReserve(dto);
     }
 
-    @GetMapping("/api/reserve") // 검증완료
+    @GetMapping
     private List<ResponseReserveDTO> read(@RequestParam Long carId){
         return reserveService.findReserveByCarId(carId).stream().map(Reserve::toDto).toList();
     }
 
-    @PutMapping("/api/reserve") // 검증완료
+    @PutMapping
     private ResponseReserveDTO update(@RequestBody UpdateRequestReserveDTO dto){
         return reserveService.updateReserve(dto);
     }
 
-    @DeleteMapping("/api/reserve") // 검증완료
+    @DeleteMapping
     private Reserve delete(@RequestBody Long reserveId){
         return reserveService.deleteReserve(reserveId);
     }
