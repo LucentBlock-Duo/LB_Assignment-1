@@ -16,11 +16,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class AuthenticationControllerAdvice {
 
+    public static String toSnakeCase(String str) {
+        return str.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex){
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors()
-                .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
+                .forEach(c -> errors.put( toSnakeCase(((FieldError) c).getField()), c.getDefaultMessage()));
+
         return ResponseEntity.badRequest().body(errors);
     }
 
@@ -28,7 +33,7 @@ public class AuthenticationControllerAdvice {
     public ResponseEntity<Map<String, String>> handleDuplicateUserException(UserDuplicateException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("message", ex.getMessage());
-        error.put("username", ex.getUsername());
+        error.put("user_name", ex.getUsername());
 
         return ResponseEntity.status(HttpServletResponse.SC_CONFLICT).body(error);
     }
@@ -37,7 +42,7 @@ public class AuthenticationControllerAdvice {
     public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("message", "User Not Found");
-        error.put("username", ex.getMessage()); // getUsername from exception object.
+        error.put("user_name", ex.getMessage()); // getUsername from exception object.
 
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
     }
@@ -78,7 +83,7 @@ public class AuthenticationControllerAdvice {
     public ResponseEntity<Map<String, String>> handleRefreshTokenDoesNotMatchException(RefreshTokenDoesNotMatchException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("message", "Refresh Token does not match with Database");
-        error.put("username", ex.getUsername());
+        error.put("user_name", ex.getUsername());
 
         return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body(error);
     }
@@ -87,7 +92,7 @@ public class AuthenticationControllerAdvice {
     public ResponseEntity<Map<String, String>> handleAlreadyVerifiedUserException(AlreadyVerifiedUserException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("message", ex.getMessage());
-        error.put("username", ex.getUsername());
+        error.put("user_name", ex.getUsername());
 
         return ResponseEntity.status(HttpServletResponse.SC_CONFLICT).body(error);
     }

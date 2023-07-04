@@ -2,6 +2,7 @@ package com.lucentblock.assignment2.security.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lucentblock.assignment2.entity.User;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor @AllArgsConstructor
 public class UserInfoDTO {
     @JsonProperty(value = "user_email")
+    @Email
     private String userEmail;
 
     @JsonProperty(value = "user_name")

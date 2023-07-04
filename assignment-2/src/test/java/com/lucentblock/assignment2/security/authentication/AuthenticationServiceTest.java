@@ -9,10 +9,7 @@ import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService;
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
-import com.lucentblock.assignment2.security.exception.AccessTokenIsNotExpired;
-import com.lucentblock.assignment2.security.exception.AlreadyVerifiedUserException;
-import com.lucentblock.assignment2.security.exception.RefreshTokenInvalidException;
-import com.lucentblock.assignment2.security.exception.UserDuplicateException;
+import com.lucentblock.assignment2.security.exception.*;
 import com.lucentblock.assignment2.security.model.*;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,8 +83,8 @@ class AuthenticationServiceTest {
     void register() {
         //given
         RegisterRequestDTO testRequest = RegisterRequestDTO.builder()
-                .name("testName")
-                .email("test@test.com")
+                .userName("testName")
+                .userEmail("test@test.com")
                 .password("password")
                 .phoneNumber("01012345678")
                 .build();
@@ -108,8 +105,8 @@ class AuthenticationServiceTest {
     void registerWithDuplicatedEmail() {
         //given
         RegisterRequestDTO testRequest = RegisterRequestDTO.builder()
-                .name("testName")
-                .email("test@test.com")
+                .userName("testName")
+                .userEmail("test@test.com")
                 .password("password")
                 .phoneNumber("01012345678")
                 .build();
@@ -125,7 +122,7 @@ class AuthenticationServiceTest {
     void authenticate() {
         //given
         AuthenticationRequestDTO testRequest = AuthenticationRequestDTO.builder()
-                .email("test@test.com")
+                .userEmail("test@test.com")
                 .password("testPassword")
                 .build();
         given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.of(user));
@@ -147,7 +144,7 @@ class AuthenticationServiceTest {
     void authenticateWithEmailExistsButIncorrectPassword() {
         // given
         AuthenticationRequestDTO testRequest = AuthenticationRequestDTO.builder()
-                .email("test@test.com")
+                .userEmail("test@test.com")
                 .password("incorrectPassword")
                 .build();
         given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.of(user));
@@ -163,7 +160,7 @@ class AuthenticationServiceTest {
     void authenticateWithEmailDoesNotExist() {
         // given
         AuthenticationRequestDTO testRequest = AuthenticationRequestDTO.builder()
-                .email("EmailDoesNotExist@test.com")
+                .userEmail("EmailDoesNotExist@test.com")
                 .password("testPassword")
                 .build();
         given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.empty());
@@ -231,6 +228,21 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    @DisplayName("제시한 Refresh Token 이 DB 의 것과 일치하지 않는다면 RefreshTokenDoesNotMatch Exception")
+    void refreshWithDoesNotMatchToke() {
+        // given
+        given(jwtService.isTokenInvalid("access_token")).willReturn(false);
+        given(jwtService.isTokenExpired("access_token")).willReturn(true);
+        given(jwtRefreshService.isTokenInvalid("does_not_match_refresh_token")).willReturn(false);
+        given(jwtRefreshService.isTokenExpired("does_not_match_refresh_token")).willReturn(false);
+        given(jwtService.extractClaimsFromExpiredToken("access_token")).willReturn(Jwts.claims().setSubject("test@test.com"));
+        given(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).willReturn(Optional.of(user));
+
+        //when
+        assertThrows(RefreshTokenDoesNotMatchException.class, () -> authService.refresh("access_token", "does_not_match_refresh_token"));
+    }
+
+    @Test
     @DisplayName("존재하면서 이메일 인증을 받지 않은 유저가 이메일 인증 코드를 요청하면, 인증 코드가 발급된다.")
     void generateSignupCode() {
         // given
@@ -285,7 +297,7 @@ class AuthenticationServiceTest {
                         .build()));
 
         // when
-        ResponseEntity response = authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
+        ResponseEntity response = authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                 .code("code")
                 .userEmail(user.getEmail())
                 .build());
@@ -303,7 +315,7 @@ class AuthenticationServiceTest {
 
         // when & then
         assertThrows(AlreadyVerifiedUserException.class,
-                () -> authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
+                () -> authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                         .code("code")
                         .userEmail(user.getEmail())
                         .build()));
@@ -317,7 +329,7 @@ class AuthenticationServiceTest {
 
         // when & then
         assertThrows(UsernameNotFoundException.class,
-                () -> authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
+                () -> authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                         .userEmail(user.getEmail())
                         .code("code")
                         .build()));

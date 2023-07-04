@@ -18,7 +18,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -53,10 +52,10 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponseDTO register(RegisterRequestDTO request) {
-        if (userRepository.findByEmailAndDeletedAtIsNull(request.getEmail()).isEmpty()) {
+        if (userRepository.findByEmailAndDeletedAtIsNull(request.getUserEmail()).isEmpty()) {
             User user = User.builder()
-                    .email(request.getEmail())
-                    .name(request.getName())
+                    .email(request.getUserEmail())
+                    .name(request.getUserName())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .phoneNumber(request.getPhoneNumber())
                     .role(Role.ROLE_USER)
@@ -76,14 +75,14 @@ public class AuthenticationService {
                     .build();
         }
 
-        log.info(request.getEmail() + " already exists.");
-        throw new UserDuplicateException(request.getEmail());
+        log.info(request.getUserEmail() + " already exists.");
+        throw new UserDuplicateException(request.getUserEmail());
     }
 
     public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
-        User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail()).orElseThrow(() -> {
-            log.info("UsernameNotFoundException Occurred " + "Username : " + request.getEmail());
-            return new UsernameNotFoundException(request.getEmail());
+        User user = userRepository.findByEmailAndDeletedAtIsNull(request.getUserEmail()).orElseThrow(() -> {
+            log.info("UsernameNotFoundException Occurred " + "Username : " + request.getUserEmail());
+            return new UsernameNotFoundException(request.getUserEmail());
         });
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             // Password is Incorrect
@@ -173,9 +172,9 @@ public class AuthenticationService {
         throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
     }
 
-    public ResponseEntity verifySignupCode(RequestVerifySignupCodeDTO requestVerifySignupCodeDTO) {
-        String code = requestVerifySignupCodeDTO.getCode();
-        String userEmail = requestVerifySignupCodeDTO.getUserEmail();
+    public ResponseEntity verifySignupCode(VerifySignupCodeRequestDTO verifySignupCodeRequestDTO) {
+        String code = verifySignupCodeRequestDTO.getCode();
+        String userEmail = verifySignupCodeRequestDTO.getUserEmail();
 
         User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
 

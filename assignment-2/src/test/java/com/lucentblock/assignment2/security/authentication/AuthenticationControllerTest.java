@@ -78,14 +78,14 @@ class AuthenticationControllerTest {
     @BeforeEach
     void setup() {
         registerRequestDTO = RegisterRequestDTO.builder()
-                .name("testName")
-                .email("test@test.com")
+                .userName("testName")
+                .userEmail("test@test.com")
                 .password("testPasswrod")
                 .phoneNumber("testPhoneNumber")
                 .build();
 
         authenticationRequestDTO = AuthenticationRequestDTO.builder()
-                .email("test@test.com")
+                .userEmail("test@test.com")
                 .password("testPassword")
                 .build();
     }
@@ -116,8 +116,8 @@ class AuthenticationControllerTest {
     @DisplayName("올바르지 않은 RequestRegister 양식으로는 회원가입을 할 수 없다. (403 BadRequest)")
     void registerWithInvalidRegisterRequest() throws Exception {
         // given
-        registerRequestDTO.setEmail(null);
-        registerRequestDTO.setName(null);
+        registerRequestDTO.setUserEmail(null);
+        registerRequestDTO.setUserName(null);
         registerRequestDTO.setPassword(null);
         registerRequestDTO.setPhoneNumber(null); // phoneNumber 는 nullable
 
@@ -127,10 +127,9 @@ class AuthenticationControllerTest {
                 .content(objectMapper.writeValueAsBytes(registerRequestDTO)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("email").exists())
-                .andExpect(jsonPath("name").exists())
-                .andExpect(jsonPath("password").exists())
-                .andExpect(jsonPath("phoneNumber").doesNotExist());
+                .andExpect(jsonPath("user_email").hasJsonPath())
+                .andExpect(jsonPath("user_name").hasJsonPath())
+                .andExpect(jsonPath("password").hasJsonPath());
     }
 
     @Test
@@ -147,7 +146,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").exists());
+                .andExpect(jsonPath("user_name").exists());
     }
 
     @Test
@@ -201,7 +200,7 @@ class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").exists());
+                .andExpect(jsonPath("user_name").exists());
     }
 
     /*
@@ -282,6 +281,24 @@ class AuthenticationControllerTest {
 
     @Test
     @WithAnonymousUser
+    @DisplayName("Refresh Token 이 DB 의 것과 일치하지 않다면 RefreshTokenDoesNotMatch UnAuthorized")
+    void refreshWithDoesNotMatchRefreshToken() throws Exception {
+        // given
+        given(authService.refresh("access_token", "does_not_match_refresh_token"))
+                .willThrow(RefreshTokenDoesNotMatchException.class);
+
+        // when & then
+        this.mockMvc.perform(get("/api/refresh")
+                        .header("Authorization", "Bearer access_token")
+                        .cookie(new Cookie("refresh_token", "does_not_match_refresh_token")))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("message").value("Refresh Token does not match with Database"))
+                .andExpect(jsonPath("user_name").hasJsonPath());
+    }
+
+    @Test
+    @WithAnonymousUser
     @DisplayName("로그인하지 않은 사용자는 이메일 인증 코드를 요청하면 Unauthorized Error 를 받는다.")
     void generateSignupCodeWithAnonymousUser() throws Exception {
         // given
@@ -304,7 +321,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(post("/api/request/code/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                 .userEmail("test@test.com")
                                 .build()
                         ))
@@ -325,13 +342,13 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(post("/api/request/code/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(
-                        RequestSignupCodeDTO.builder()
+                        UserEmailDTO.builder()
                                 .userEmail("alreadyVerified@test.com")
                                 .build())))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").value("alreadyVerified@test.com"));
+                .andExpect(jsonPath("user_name").value("alreadyVerified@test.com"));
     }
 
     @Test
@@ -344,13 +361,13 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(post("/api/request/code/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(RequestSignupCodeDTO.builder()
+                .content(objectMapper.writeValueAsBytes(UserEmailDTO.builder()
                         .userEmail("DoesNotExist@test.com")
                         .build())))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").value("DoesNotExist@test.com"));
+                .andExpect(jsonPath("user_name").value("DoesNotExist@test.com"));
     }
 
     @Test
@@ -364,7 +381,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(patch("/api/request/code/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
-                        RequestVerifySignupCodeDTO.builder()
+                        VerifySignupCodeRequestDTO.builder()
                                 .code("code")
                                 .userEmail("any@test.com")
                                 .build())))
@@ -377,7 +394,7 @@ class AuthenticationControllerTest {
     @DisplayName("이메일 인증을 완료하지 않은 회원의 경우, 올바른 인증코드와 인증 요청 시 인증이 완료된다.")
     void verifySignupCodeWithUserWhoIsNotVerifiedAndSignupCodeMatched() throws Exception {
         // given
-        given(authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
+        given(authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                 .code("correctCode")
                 .userEmail("test@test.com")
                 .build()))
@@ -386,7 +403,7 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(patch("/api/request/code/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(RequestVerifySignupCodeDTO.builder()
+                .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
                     .code("correctCode")
                     .userEmail("test@test.com")
                     .build())))
@@ -399,7 +416,7 @@ class AuthenticationControllerTest {
     @DisplayName("이메일 인증을 완료하지 않은 회원의 경우, 올바르지 않은 인증코드와 인증 요청시 인증이 실패한다. Unauthorized Error 를 받는다.")
     void verifySignupCodeWithUserWhoIsNotVerifiedAndSignupCodeDoesNotMatched() throws Exception {
         // given
-        given(authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
+        given(authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                 .code("incorrectCode")
                 .userEmail("test@test.com")
                 .build()))
@@ -408,7 +425,7 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(patch("/api/request/code/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(RequestVerifySignupCodeDTO.builder()
+                .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
                         .code("incorrectCode")
                         .userEmail("test@test.com")
                         .build())))
@@ -421,7 +438,7 @@ class AuthenticationControllerTest {
     @DisplayName("이메일 인증을 완료한 회원의 경우, 이미 인증이 완료된 사용자기 때문에 CONFLICT Error 를 받는다.")
     void verifySignupCodeWithUserWhoIsAlreadyVerified() throws Exception {
         // given
-        given(authService.verifySignupCode(RequestVerifySignupCodeDTO.builder()
+        given(authService.verifySignupCode(VerifySignupCodeRequestDTO.builder()
                 .code("code")
                 .userEmail("test@test.com")
                 .build()))
@@ -430,14 +447,14 @@ class AuthenticationControllerTest {
         // when & then
         this.mockMvc.perform(patch("/api/request/code/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(RequestVerifySignupCodeDTO.builder()
+                        .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
                                 .code("code")
                                 .userEmail("test@test.com")
                                 .build())))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("username").value("test@test.com"));
+                .andExpect(jsonPath("user_name").value("test@test.com"));
     }
 
     @Test
@@ -451,7 +468,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(get("/api/fetch/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                         .userEmail("test@test.com")
                                         .build())))
                 .andDo(print())
@@ -476,7 +493,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(get("/api/fetch/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                         .userEmail(user.getEmail())
                                         .build())))
                 .andDo(print())
@@ -506,7 +523,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(get("/api/fetch/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                         .userEmail(user.getEmail())
                                         .build())))
                 .andDo(print())
@@ -533,7 +550,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(get("/api/fetch/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                         .userEmail(user.getEmail())
                                         .build())))
                 .andDo(print())
@@ -660,7 +677,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(delete("/api/delete/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(
-                        RequestSignupCodeDTO.builder()
+                        UserEmailDTO.builder()
                                 .userEmail("test@test.com")
                                 .build())))
                 .andDo(print())
@@ -686,7 +703,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(delete("/api/delete/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(
-                        RequestSignupCodeDTO.builder()
+                        UserEmailDTO.builder()
                                 .userEmail(user.getEmail())
                                 .build())))
                 .andDo(print())
@@ -712,7 +729,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(delete("/api/delete/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                         .userEmail(user.getEmail())
                                         .build())))
                 .andDo(print())
@@ -738,7 +755,7 @@ class AuthenticationControllerTest {
         this.mockMvc.perform(delete("/api/delete/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
-                                RequestSignupCodeDTO.builder()
+                                UserEmailDTO.builder()
                                         .userEmail(user.getEmail())
                                         .build())))
                 .andDo(print())

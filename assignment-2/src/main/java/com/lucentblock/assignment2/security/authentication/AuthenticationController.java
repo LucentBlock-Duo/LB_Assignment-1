@@ -35,27 +35,27 @@ public class AuthenticationController {
     }
 
     @PostMapping("/request/code/signup")
-    public ResponseEntity generateSignupCode(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
-        return authService.generateSignupCode(requestSignupCodeDTO.getUserEmail());
+    public ResponseEntity generateSignupCode(@Validated @RequestBody UserEmailDTO userEmailDTO) {
+        return authService.generateSignupCode(userEmailDTO.getUserEmail());
     }
 
     @PatchMapping("/request/code/signup")
-    public ResponseEntity verifySignupCode(@Validated @RequestBody RequestVerifySignupCodeDTO requestVerifySignupCodeDTO) {
-        return authService.verifySignupCode(requestVerifySignupCodeDTO);
+    public ResponseEntity verifySignupCode(@Validated @RequestBody VerifySignupCodeRequestDTO verifySignupCodeRequestDTO) {
+        return authService.verifySignupCode(verifySignupCodeRequestDTO);
     }
 
     @GetMapping("/fetch/user")
-    public ResponseEntity fetchUser(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
+    public ResponseEntity fetchUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication.getAuthorities().stream().anyMatch(
                 grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(requestSignupCodeDTO.getUserEmail())) {
+            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
                 return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
             }
         }
 
-        return ResponseEntity.ok(authService.fetchUserInfo(requestSignupCodeDTO.getUserEmail()));
+        return ResponseEntity.ok(authService.fetchUserInfo(userEmailDTO.getUserEmail()));
     }
 
     @PatchMapping("/update/user")
@@ -73,17 +73,17 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("/delete/user")
-    public ResponseEntity deleteUser(@Validated @RequestBody RequestSignupCodeDTO requestSignupCodeDTO) {
+    public ResponseEntity deleteUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication.getAuthorities().stream().anyMatch(
                 grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(requestSignupCodeDTO.getUserEmail())) {
+            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
                 return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
             }
         }
 
-        return authService.deleteUser(requestSignupCodeDTO.getUserEmail());
+        return authService.deleteUser(userEmailDTO.getUserEmail());
     }
 
 
