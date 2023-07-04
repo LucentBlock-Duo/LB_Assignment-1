@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.security.authentication;
 
+import com.lucentblock.assignment2.entity.LoginChallenge;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.SignupCodeChallenge;
 import com.lucentblock.assignment2.entity.User;
@@ -21,16 +22,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.platform.commons.util.StringUtils;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -64,6 +61,9 @@ class AuthenticationServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JavaMailSender javaMailSender;
 
     @InjectMocks
     private AuthenticationService authService;
@@ -124,7 +124,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있다.")
+    @DisplayName("존재하는 아이디와 올바른 패스워드를 입력할 경우 로그인할 수 있으며 로그인 시도 기록이 DB에 저장된다.")
     void authenticate() {
         //given
         AuthenticationRequest testRequest = AuthenticationRequest.builder()
@@ -140,12 +140,13 @@ class AuthenticationServiceTest {
         AuthenticationResponse response = authService.authenticate(testRequest);
 
         //then
+        verify(loginChallengeRepository, times(1)).save(any(LoginChallenge.class));
         assertEquals("access_token", response.getAccessToken());
         assertEquals("refresh_token", response.getRefreshToken());
     }
 
     @Test
-    @DisplayName("존재하는 이메일이지만 비밀번호가 틀린 경우, 로그인 할 수 없다.")
+    @DisplayName("존재하는 이메일이지만 비밀번호가 틀린 경우, 로그인 할 수 없으며 로그인 실패 기록이 DB 에 저장된다.")
     void authenticateWithEmailExistsButIncorrectPassword() {
         // given
         AuthenticationRequest testRequest = AuthenticationRequest.builder()
@@ -157,6 +158,7 @@ class AuthenticationServiceTest {
 
         // when & then
         assertThrows(BadCredentialsException.class, () -> authService.authenticate(testRequest));
+        verify(loginChallengeRepository, times(1)).save(any(LoginChallenge.class));
     }
 
     @Test
@@ -171,10 +173,11 @@ class AuthenticationServiceTest {
 
         //when & then
         assertThrows(UsernameNotFoundException.class, () -> authService.authenticate(testRequest));
+        verify(loginChallengeRepository, times(0)).save(any(LoginChallenge.class));
     }
 
     @Test
-    @DisplayName("만료된 Access Token 과 함께 유효한 Refresh Token 을 제시할 경우, 새로운 토큰을 발급받을 수 있다.")
+    @DisplayName("만료된 Access Token 과, 유효한 Refresh Token 을 제시한다면, 새로운 Access Token & Refresh Token 을 발급받으며, 새로운 Refresh Token 이 반영되어 User Entity 가 업데이트 된다.")
     void refresh() {
         // given
         given(jwtService.isTokenExpired(anyString())).willReturn(true);
@@ -191,6 +194,7 @@ class AuthenticationServiceTest {
         // then
         assertEquals("new_access_token", response.getAccessToken());
         assertEquals("new_refresh_token", response.getRefreshToken());
+        verify(userRepository, times(1)).saveAndFlush(any(User.class));
     }
 
     @Test
@@ -243,10 +247,10 @@ class AuthenticationServiceTest {
                         .build());
 
         // when
-        String signupCode = authService.generateSignupCode(user.getEmail());
+        ResponseEntity responseEntity = authService.generateSignupCode(user.getEmail());
 
         // then
-        assertTrue(StringUtils.isNotBlank(signupCode));
+        assertEquals(HttpStatusCode.valueOf(200), responseEntity.getStatusCode());
     }
 
     @Test
@@ -275,8 +279,7 @@ class AuthenticationServiceTest {
     void verifySignupCode() {
         // given
         given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
-        given(signupCodeChallengeRepository
-                .findByUser_IdAndCodeAndIsSuccessful(user.getId(), "code", false))
+        given(signupCodeChallengeRepository.findByUser_IdAndCodeAndIsSuccessful(user.getId(), "code", false)) // Client 가 보내온 Email & SignupCode 를 갖는 유저가 있는지 판단.
                 .willReturn(Optional.of(SignupCodeChallenge.builder()
                         .code("code")
                         .user(user)
