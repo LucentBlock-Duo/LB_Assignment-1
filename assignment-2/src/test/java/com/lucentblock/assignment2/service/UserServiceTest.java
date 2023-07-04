@@ -94,6 +94,23 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 회원에 대해 업데이트를 수행하면, UsernameNotFound Exception 이 발생한다.") // 컨트롤러 단에서 본인의 것이 아니면 변경 못하는데 굳이 필요한가?
+    void updateDoesNotExistUserInfo() {
+        // given
+        UserInfoDTO userInfoDTO = UserInfoDTO.builder()
+                .userEmail("DoesNotExist@test.com")
+                .username("changedName")
+                .isEmailVerified(true)
+                .phoneNumber("changedPN")
+                .provider("changedProvider")
+                .build();
+        given(userRepository.findByEmailAndDeletedAtIsNull(userInfoDTO.getUserEmail())).willThrow(UsernameNotFoundException.class);
+
+        // when & then
+        assertThrows(UsernameNotFoundException.class, () -> userService.updateUserInfo(userInfoDTO));
+    }
+
+    @Test
     @DisplayName("존재하는 회원에 대해 삭제를 수행할 수 있다.")
     void deleteUser() {
         // given

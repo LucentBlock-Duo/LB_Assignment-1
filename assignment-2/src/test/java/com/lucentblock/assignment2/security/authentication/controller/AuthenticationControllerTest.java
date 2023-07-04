@@ -308,7 +308,7 @@ class AuthenticationControllerTest {
         // @WithAnonymousUser (Has no authority)
 
         // when & then
-        this.mockMvc.perform(post("/api/request/code/signup"))
+        this.mockMvc.perform(post("/api/email-verification"))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -321,7 +321,7 @@ class AuthenticationControllerTest {
         given(authService.generateSignupCode("test@test.com")).willReturn(ResponseEntity.ok().build());
 
         // when & then
-        this.mockMvc.perform(post("/api/request/code/signup")
+        this.mockMvc.perform(post("/api/email-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -342,7 +342,7 @@ class AuthenticationControllerTest {
                 .willThrow(new AlreadyVerifiedUserException("alreadyVerified@test.com"));
 
         // when & then
-        this.mockMvc.perform(post("/api/request/code/signup")
+        this.mockMvc.perform(post("/api/email-verification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(
                         UserEmailDTO.builder()
@@ -362,7 +362,7 @@ class AuthenticationControllerTest {
         given(authService.generateSignupCode("DoesNotExist@test.com")).willThrow(new UsernameNotFoundException("DoesNotExist@test.com"));
 
         // when & then
-        this.mockMvc.perform(post("/api/request/code/signup")
+        this.mockMvc.perform(post("/api/email-verification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(UserEmailDTO.builder()
                         .userEmail("DoesNotExist@test.com")
@@ -381,7 +381,7 @@ class AuthenticationControllerTest {
         // @WithAnonymousUser
 
         // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
+        this.mockMvc.perform(patch("/api/email-verification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
                         VerifySignupCodeRequestDTO.builder()
@@ -404,7 +404,7 @@ class AuthenticationControllerTest {
                 .willReturn(ResponseEntity.ok().build());
 
         // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
+        this.mockMvc.perform(patch("/api/email-verification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
                     .code("correctCode")
@@ -426,7 +426,7 @@ class AuthenticationControllerTest {
                 .willThrow(CodeDoesNotMatchException.class);
 
         // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
+        this.mockMvc.perform(patch("/api/email-verification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
                         .code("incorrectCode")
@@ -448,7 +448,7 @@ class AuthenticationControllerTest {
                 .willThrow(new AlreadyVerifiedUserException("test@test.com"));
 
         // when & then
-        this.mockMvc.perform(patch("/api/request/code/signup")
+        this.mockMvc.perform(patch("/api/email-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(VerifySignupCodeRequestDTO.builder()
                                 .code("code")

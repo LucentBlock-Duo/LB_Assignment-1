@@ -34,12 +34,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(authService.refresh(accessToken, refreshToken));
     }
 
-    @PostMapping("/request/code/signup")
+    @PostMapping("/email-verification")
     public ResponseEntity generateSignupCode(@Validated @RequestBody UserEmailDTO userEmailDTO) {
         return authService.generateSignupCode(userEmailDTO.getUserEmail());
     }
 
-    @PatchMapping("/request/code/signup")
+    @PatchMapping("/email-verification")
     public ResponseEntity verifySignupCode(@Validated @RequestBody VerifySignupCodeRequestDTO verifySignupCodeRequestDTO) {
         return authService.verifySignupCode(verifySignupCodeRequestDTO);
     }

@@ -80,7 +80,7 @@ public class UserControllerTest {
         // @WithAnonymousUser
 
         // when & then
-        this.mockMvc.perform(get("/api/fetch/user")
+        this.mockMvc.perform(get("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -105,7 +105,7 @@ public class UserControllerTest {
         given(userService.fetchUserInfo("test@test.com")).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user));
 
         // when & then
-        this.mockMvc.perform(get("/api/fetch/user")
+        this.mockMvc.perform(get("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -135,7 +135,7 @@ public class UserControllerTest {
         given(userService.fetchUserInfo(user.getEmail())).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user));
 
         // when & then
-        this.mockMvc.perform(get("/api/fetch/user")
+        this.mockMvc.perform(get("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -162,7 +162,7 @@ public class UserControllerTest {
         given(userService.fetchUserInfo(user.getEmail())).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user));
 
         // when & then
-        this.mockMvc.perform(get("/api/fetch/user")
+        this.mockMvc.perform(get("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -184,7 +184,7 @@ public class UserControllerTest {
         // @WithAnonymousUser
 
         // when & then
-        this.mockMvc.perform(patch("/api/update/user")
+        this.mockMvc.perform(patch("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserInfoDTO.builder()
@@ -224,7 +224,7 @@ public class UserControllerTest {
         given(userService.updateUserInfo(userInfoDTO)).willReturn(UserInfoDTO.UserEntityToUserInfoDTO(user)); // 만약 변경이 된다면 이렇게 될 것.
 
         // when & then
-        this.mockMvc.perform(patch("/api/update/user")
+        this.mockMvc.perform(patch("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                         userInfoDTO
@@ -265,7 +265,7 @@ public class UserControllerTest {
         );
 
         // when & then
-        this.mockMvc.perform(patch("/api/update/user")
+        this.mockMvc.perform(patch("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                         userInfoDTO
@@ -289,7 +289,7 @@ public class UserControllerTest {
         // @WithAnonymousUser
 
         // when & then
-        this.mockMvc.perform(delete("/api/delete/user")
+        this.mockMvc.perform(delete("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -315,7 +315,7 @@ public class UserControllerTest {
         given(userService.deleteUserInfo(user.getEmail())).willReturn(ResponseEntity.ok().build());
 
         // when & then
-        this.mockMvc.perform(delete("/api/delete/user")
+        this.mockMvc.perform(delete("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -341,7 +341,7 @@ public class UserControllerTest {
         given(userService.deleteUserInfo(user.getEmail())).willReturn(ResponseEntity.ok().build());
 
         // when & then
-        this.mockMvc.perform(delete("/api/delete/user")
+        this.mockMvc.perform(delete("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()
@@ -367,7 +367,7 @@ public class UserControllerTest {
         given(userService.deleteUserInfo(user.getEmail())).willReturn(ResponseEntity.ok().build());
 
         // when & then
-        this.mockMvc.perform(delete("/api/delete/user")
+        this.mockMvc.perform(delete("/api/user-info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(
                                 UserEmailDTO.builder()

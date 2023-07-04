@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/fetch/user")
+    @GetMapping("/user-info")
     public ResponseEntity fetchUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -31,7 +31,7 @@ public class UserController {
         return ResponseEntity.ok(userService.fetchUserInfo(userEmailDTO.getUserEmail()));
     }
 
-    @PatchMapping("/update/user")
+    @PatchMapping("/user-info")
     public ResponseEntity updateUser(@Validated @RequestBody UserInfoDTO userInfoDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -45,7 +45,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserInfo(userInfoDTO));
     }
 
-    @DeleteMapping("/delete/user")
+    @DeleteMapping("/user-info")
     public ResponseEntity deleteUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
