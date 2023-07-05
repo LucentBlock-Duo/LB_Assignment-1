@@ -243,6 +243,8 @@ public class CarServiceTest {
     @DisplayName("자신의 자동차 정보를 삭제할 수 있다.")
     void deleteCarInfo() {
         // given
+        Car mockCar = mock(Car.class);
+        given(mockCar.getUser()).willReturn(user);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
         given(securityContext.getAuthentication()).willReturn(authentication);
@@ -251,12 +253,13 @@ public class CarServiceTest {
                 .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
 
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
-                .willReturn(Optional.of(car));
+                .willReturn(Optional.of(mockCar));
 
         // when
         carService.deleteCar(car.getLicensePlateNo());
 
         // then
+        verify(mockCar, times(1)).delete();
         verify(carRepository, times(1)).saveAndFlush(any(Car.class));
     }
 
@@ -264,6 +267,8 @@ public class CarServiceTest {
     @DisplayName("자신의 차량이 아닌 차량 정보는 삭제할 수 없다.")
     void deleteCarInfoOfSomeoneElse() {
         // given
+        Car mockCar = mock(Car.class);
+        given(mockCar.getUser()).willReturn(user);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
         given(securityContext.getAuthentication()).willReturn(authentication);
@@ -272,9 +277,11 @@ public class CarServiceTest {
                 .willReturn(new UsernamePasswordAuthenticationToken("DoesNotMatch@test.com", null));
 
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
-                .willReturn(Optional.of(car));
+                .willReturn(Optional.of(mockCar));
 
         // when & then
         assertThrows(AccessDeniedException.class, () -> carService.deleteCar(car.getLicensePlateNo()));
+        verify(mockCar, times(0)).delete();
+        verify(carRepository, times(0)).saveAndFlush(mockCar);
     }
 }
