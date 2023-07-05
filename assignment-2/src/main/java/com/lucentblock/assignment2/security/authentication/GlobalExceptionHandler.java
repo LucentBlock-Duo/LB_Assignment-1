@@ -137,15 +137,9 @@ public class GlobalExceptionHandler {
             (ReservedWithNoMatchValueException e){
 
         Map<String,String> error=new HashMap<>();
-        List<String> list=new ArrayList<>();
-
-        if(e.getSet().getCar()==null) list.add("car");
-        if(e.getSet().getRepairShop()==null) list.add("repair_shop");
-        if(e.getSet().getRepairMan()==null) list.add("repair_man");
-        if(e.getSet().getMaintenanceItem()==null) list.add("maintenance_item");
 
         error.put("message",e.getErrorCode().getMessage());
-        error.put("not_found_list",list.toString());
+        error.put("not_found_list",e.getErrorList().toString());
 
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(error);
     }

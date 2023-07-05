@@ -7,6 +7,7 @@ import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.repository.ReserveRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +15,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ReserveService {
+
     private final EntityManager em;
     private final ReserveRepository reserveRepository;
-
-    public ReserveService(EntityManager em, ReserveRepository reserveRepository) {
-        this.em = em;
-        this.reserveRepository = reserveRepository;
-    }
 
     public List<Reserve> findReserveByCarId(long carId) {
         return reserveRepository.findReservesByCar(em.find(Car.class,carId));
@@ -30,13 +28,8 @@ public class ReserveService {
 
     @Transactional
     public ResponseReserveDTO updateReserve(UpdateRequestReserveDTO dto) throws RuntimeException{
-        Reserve reserve =reserveRepository.findById(dto.getReserve_id()).orElse(null);
-
-        if(reserve==null){
-            log.info("Reserve not found At {}",Thread.currentThread().getStackTrace()[1].getMethodName());
-            return null;
-        }
-
+        Reserve reserve =reserveRepository.findById(dto.getReserve_id())
+                .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
 
         reserve.setCar(foreignKeySet.getCar());
@@ -47,22 +40,16 @@ public class ReserveService {
         reserve.setEndTime(dto.getStart_time().
                 plusMinutes(foreignKeySet.getMaintenanceItem().getRequiredTime()));
 
-        if(!ableToReserve(reserve)){
-            throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
-        }else if(!foreignKeySet.isValidate()){
-            throw new ReservedWithNoMatchValueException(ReserveErrorCode.ERROR_103,foreignKeySet);
-        }else if(!ableToRepair(reserve)){
-            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
-        }
+        checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
 
         return reserveRepository.save(reserve).toDto();
     }
 
-    private boolean ableToRepair(Reserve reserve){
-        return reserve.getRepairMan().getLicenseId()
-                >= reserve.getMaintenanceItem().getRequiredLicense();
+    private void checkingValidationForReserve(Reserve reserve,ForeignKeySetForReserve set) throws RuntimeException{
+        checkAbleToReserve(reserve);
+        set.isValidate();
+        checkAbleToRepair(reserve);
     }
-
     private ForeignKeySetForReserve getForeignKeySet(RequestReserveDTO dto){
         Car car = em.find(Car.class, dto.getCar_id());
         RepairMan repairMan = em.find(RepairMan.class, dto.getRepair_man_id());
@@ -79,24 +66,15 @@ public class ReserveService {
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
         Reserve reserve = dto.toEntity(foreignKeySet);
 
-        if(!ableToReserve(reserve)){
-            throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
-        }else if(!foreignKeySet.isValidate()){
-            throw new ReservedWithNoMatchValueException(ReserveErrorCode.ERROR_103,foreignKeySet);
-        }else if(!ableToRepair(reserve)){
-            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
-        }
-
+        checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
         return reserveRepository.save(reserve).toDto();
     }
 
-
-    private boolean ableToReserve(Reserve givenReserve) {
+    private void checkAbleToReserve(Reserve givenReserve) {
         for (Reserve reserve : reserveRepository.findAbleReserves(givenReserve.getRepairMan(),givenReserve.getCar())) {
-            if (isTimeConflict(reserve, givenReserve)) return false;
+            if (isTimeConflict(reserve, givenReserve))
+                throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
         } // 차와 정비공에 대한 스케줄 충돌 확인
-
-        return true;
     }
 
     private boolean isTimeConflict(Reserve base, Reserve inner) {
@@ -110,6 +88,10 @@ public class ReserveService {
                 basePeriod[0].isEqual(innerPeriod[1]) || basePeriod[1].isEqual(innerPeriod[1]));
     } // 두 예약에 대한 시간 충돌 여부
 
+    private void checkAbleToRepair(Reserve reserve){
+        if(reserve.getRepairMan().getLicenseId() < reserve.getMaintenanceItem().getRequiredLicense())
+            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
+    }
 
     @Transactional
     public Reserve deleteReserve(Long reserveId){
