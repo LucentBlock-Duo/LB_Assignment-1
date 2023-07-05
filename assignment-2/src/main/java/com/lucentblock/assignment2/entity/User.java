@@ -15,11 +15,11 @@ import java.util.List;
 @Getter @Setter @Builder
 @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "user")
-public class User{
+public class User implements SoftDeletable {
     @Id
     private long id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "name", nullable = false)

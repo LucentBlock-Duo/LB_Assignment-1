@@ -23,7 +23,7 @@ public class Car implements SoftDeletable {
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="user_id")
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="car_manufacturer_id")
