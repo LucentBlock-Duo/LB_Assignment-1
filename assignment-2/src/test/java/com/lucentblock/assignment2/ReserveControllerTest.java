@@ -34,6 +34,45 @@ class ReserveControllerTest {
 
     @Autowired
     ReserveService reserveService;
+
+    private CarManufacturer getCarManufacturer(){
+        return new CarManufacturer();
+    }
+
+    private RepairMan getRepairMan(int level){
+        return RepairMan.builder()
+                .name("JAMES")
+                .licenseId(level)
+                .build();
+    }
+    private RepairShop getRepairShop(){
+        return RepairShop.builder()
+                .name("HI_MART")
+                .build();
+    }
+    private User getUser(){
+        return User.builder()
+                .name("choiyt3465")
+                .email("test@naver.com")
+                .build();
+    }
+    private Car getCar(){
+        return Car.builder()
+                .name("SONATA")
+                .user(getUser())
+                .carManufacturer(getCarManufacturer())
+                .build();
+    }
+
+    private Reserve getReserve() {
+        return  Reserve.builder()
+                .car(new Car())
+                .repairMan(new RepairMan())
+                .repairShop(new RepairShop())
+                .maintenanceItem(new MaintenanceItem())
+                .startTime(LocalDateTime.now()).build();
+    }
+
     @Test
     @DisplayName("정비공은 자기보다 높은 등급의 정비 항목을 선택할 수 없다.")
     void createReservationWithUnsatisfiedException() {

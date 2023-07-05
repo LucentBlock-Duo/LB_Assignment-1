@@ -1,11 +1,13 @@
 package com.lucentblock.assignment2.security.authentication;
 
 import com.lucentblock.assignment2.exception.ReserveNotFoundException;
+import com.lucentblock.assignment2.exception.CarNotFoundException;
 import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
 import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
 import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
 import com.lucentblock.assignment2.security.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -153,10 +155,21 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ReserveNotFoundException.class)
-    public ResponseEntity<Map<String,String>> handleReserveNotFoundException(ReserveNotFoundException e){
-        Map<String,String> error=new HashMap<>();
-        error.put("message",e.getErrorCode().getMessage());
+    public ResponseEntity<Map<String,String>> handleReserveNotFoundException(ReserveNotFoundException e) {
+        Map<String, String> error = new HashMap<>();
+        error.put("message", e.getErrorCode().getMessage());
 
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(error);
     }
+    //////////////////////////////////////////////////////reserve////////////////////////////////////////////////////////
+    @ExceptionHandler(CarNotFoundException.class)
+    public ResponseEntity<Map<String, String >> handleCarNotFoundException(CarNotFoundException ex) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("message", "Car Not Found");
+        error.put("car_id", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(error);
+    }
+
 }
