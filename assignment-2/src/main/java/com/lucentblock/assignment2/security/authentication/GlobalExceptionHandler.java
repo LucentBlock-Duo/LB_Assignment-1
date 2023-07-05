@@ -157,7 +157,7 @@ public class GlobalExceptionHandler {
         Map<String, String> error = new HashMap<>();
 
         error.put("message", "Car Not Found");
-        error.put("car_id", ex.getMessage());
+        error.put("license_plate_no", ex.getMessage());
 
         return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(error);
     }
