@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.entity;
 
+import com.lucentblock.assignment2.model.ResponseCarManufacturerDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,5 +31,12 @@ public class CarManufacturer implements SoftDeletable{
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public ResponseCarManufacturerDTO toDto(){
+        return ResponseCarManufacturerDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .build();
     }
 }

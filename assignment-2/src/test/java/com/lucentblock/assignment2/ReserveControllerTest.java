@@ -1,30 +1,21 @@
 package com.lucentblock.assignment2;
 
-import com.lucentblock.assignment2.entity.*;
-import com.lucentblock.assignment2.exception.*;
-import com.lucentblock.assignment2.controller.ReserveController;
+import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
+import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
+import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
 import com.lucentblock.assignment2.model.CreateRequestReserveDTO;
 import com.lucentblock.assignment2.service.ReserveService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.BDDMockito.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 
@@ -33,7 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 class ReserveControllerTest {
 
     @Autowired
-    ReserveService reserveService;
+    private ReserveService reserveService;
     @Test
     @DisplayName("정비공은 자기보다 높은 등급의 정비 항목을 선택할 수 없다.")
     void createReservationWithUnsatisfiedException() {
