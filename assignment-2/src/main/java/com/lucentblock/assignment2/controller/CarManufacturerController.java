@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CarManufacturerController {
-    private CarManufacturerService carManufacturerService;
+    private final CarManufacturerService carManufacturerService;
     @GetMapping
     private List<ResponseCarManufacturerDTO> read(){
         return carManufacturerService.readAll();

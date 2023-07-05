@@ -7,4 +7,4 @@ ALTER TABLE maintenance_item ADD COLUMN deleted_at TIMESTAMP;
 
 -- changeset 0tae:car-v.1.1 labels:v1,1.1
 -- comment: fix : 번호판 column 추가
-ALTER TABLE car ADD COLUMN licensePlateNo VARCHAR(25) NOT NULL;
+ALTER TABLE car ADD COLUMN license_plate_no VARCHAR(25) NOT NULL;

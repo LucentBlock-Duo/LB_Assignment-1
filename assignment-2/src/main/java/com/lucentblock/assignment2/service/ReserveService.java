@@ -70,7 +70,8 @@ public class ReserveService {
         return reserveRepository.save(reserve).toDto();
     }
 
-    private void checkAbleToReserve(Reserve givenReserve) {
+    @Transactional
+    public void checkAbleToReserve(Reserve givenReserve) {
         for (Reserve reserve : reserveRepository.findAbleReserves(givenReserve.getRepairMan(),givenReserve.getCar())) {
             if (isTimeConflict(reserve, givenReserve))
                 throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);

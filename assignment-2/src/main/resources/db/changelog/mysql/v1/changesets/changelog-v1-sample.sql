@@ -26,7 +26,7 @@ INSERT INTO car_manufacturer (id, name) VALUES
                                             (8, 'CHEVROLET'),
                                             (9, 'RENAULT');
 
-INSERT INTO car (id,licensePlateNo, user_id, name, car_manufacturer_id, bought_at, created_at, deleted_at)
+INSERT INTO car (id,license_plate_no, user_id, name, car_manufacturer_id, bought_at, created_at, deleted_at)
 VALUES
     (3, '987가6543',3, 'ELANTRA', 3, TIMESTAMP('2023-07-05 10:00:00'), TIMESTAMP('2023-07-04 10:00:00'), null),
     (5, '876가5432',4, 'S580', 5, TIMESTAMP('2023-07-06 00:00:00'), TIMESTAMP('2023-07-05 10:00:00'), null);
