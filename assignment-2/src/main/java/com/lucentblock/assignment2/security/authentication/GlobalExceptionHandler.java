@@ -1,5 +1,6 @@
 package com.lucentblock.assignment2.security.authentication;
 
+import com.lucentblock.assignment2.exception.ReserveNotFoundException;
 import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
 import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
 import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
@@ -147,6 +148,14 @@ public class GlobalExceptionHandler {
 
         error.put("message",e.getErrorCode().getMessage());
         error.put("not_found_list",list.toString());
+
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(error);
+    }
+
+    @ExceptionHandler(ReserveNotFoundException.class)
+    public ResponseEntity<Map<String,String>> handleReserveNotFoundException(ReserveNotFoundException e){
+        Map<String,String> error=new HashMap<>();
+        error.put("message",e.getErrorCode().getMessage());
 
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(error);
     }

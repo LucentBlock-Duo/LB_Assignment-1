@@ -2,13 +2,11 @@ package com.lucentblock.assignment2.service;
 
 
 import com.lucentblock.assignment2.entity.*;
-import com.lucentblock.assignment2.exception.ReserveErrorCode;
-import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
-import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
-import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
+import com.lucentblock.assignment2.exception.*;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.repository.ReserveRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +28,8 @@ public class ReserveService {
         return reserveRepository.findReservesByCar(em.find(Car.class,carId));
     } // 차에 대한 예약 리스트 가져오기
 
-    public ResponseReserveDTO updateReserve(UpdateRequestReserveDTO dto){
+    @Transactional
+    public ResponseReserveDTO updateReserve(UpdateRequestReserveDTO dto) throws RuntimeException{
         Reserve reserve =reserveRepository.findById(dto.getReserve_id()).orElse(null);
 
         if(reserve==null){
@@ -50,10 +49,10 @@ public class ReserveService {
 
         if(!ableToReserve(reserve)){
             throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
-        }else if(!ableToRepair(reserve)){
-            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
         }else if(!foreignKeySet.isValidate()){
             throw new ReservedWithNoMatchValueException(ReserveErrorCode.ERROR_103,foreignKeySet);
+        }else if(!ableToRepair(reserve)){
+            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
         }
 
         return reserveRepository.save(reserve).toDto();
@@ -76,19 +75,17 @@ public class ReserveService {
                                                 maintenanceItem(maintenanceItem).build();
     }
 
-    public ResponseReserveDTO createReserve(CreateRequestReserveDTO dto) {
+    public ResponseReserveDTO createReserve(CreateRequestReserveDTO dto) throws RuntimeException {
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
         Reserve reserve = dto.toEntity(foreignKeySet);
 
-
         if(!ableToReserve(reserve)){
             throw new ReserveTimeConflictException(ReserveErrorCode.ERROR_102);
-        }else if(!ableToRepair(reserve)){
-            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
         }else if(!foreignKeySet.isValidate()){
             throw new ReservedWithNoMatchValueException(ReserveErrorCode.ERROR_103,foreignKeySet);
+        }else if(!ableToRepair(reserve)){
+            throw new UnsatisfiedLicenseException(ReserveErrorCode.ERROR_104,reserve);
         }
-
 
         return reserveRepository.save(reserve).toDto();
     }
@@ -102,10 +99,6 @@ public class ReserveService {
         return true;
     }
 
-    // TimeConflict의 조건
-    // 1. 해당 정비공이 이미 예약이 잡혀있거나
-    // 2. 해당 차가 이미 예약이 잡혀있거나
-
     private boolean isTimeConflict(Reserve base, Reserve inner) {
         LocalDateTime[] basePeriod = {base.getStartTime(), base.getEndTime()};
         LocalDateTime[] innerPeriod = {inner.getStartTime(), inner.getEndTime()};
@@ -117,15 +110,15 @@ public class ReserveService {
                 basePeriod[0].isEqual(innerPeriod[1]) || basePeriod[1].isEqual(innerPeriod[1]));
     } // 두 예약에 대한 시간 충돌 여부
 
-    public Reserve deleteReserve(Long reserveId){
-        Reserve reserve = reserveRepository.findById(reserveId).orElse(null);
 
-        if(reserve!=null){
-            reserve.delete();
-            reserveRepository.save(reserve);
-        }
+    @Transactional
+    public Reserve deleteReserve(Long reserveId){
+        Reserve reserve = reserveRepository.findById(reserveId)
+                .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        reserve.delete();
+        reserveRepository.save(reserve);
 
         return reserve;
     }
-
 }

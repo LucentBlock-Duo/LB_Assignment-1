@@ -32,10 +32,6 @@ public class CreateRequestReserveDTO implements RequestReserveDTO {
     @NotNull(message = "예약 시작 시간을 입력해주세요.")
     LocalDateTime start_time; // 예약시작
 
-    public boolean isValid(){
-        return car_id!=null && repair_shop_id!=null && repair_man_id!=null && maintenance_item_id!=null &&
-                start_time!=null;
-    }
     public Reserve toEntity(ForeignKeySetForReserve set){
         return Reserve.builder().
                 car(set.getCar()).

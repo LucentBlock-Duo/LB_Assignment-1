@@ -4,9 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +12,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "maintenance_item")
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class MaintenanceItem implements SoftDeletable {
 
     @Id

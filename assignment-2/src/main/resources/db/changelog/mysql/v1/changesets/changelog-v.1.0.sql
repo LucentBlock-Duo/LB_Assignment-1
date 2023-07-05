@@ -36,7 +36,7 @@ CREATE TABLE car_manufacturer (
 -- changeset 0tae:car-v.1.0 labels:v1,1.0,create
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE car (
-                     id INT PRIMARY KEY,
+                     id INT PRIMARY KEY AUTO_INCREMENT,
                      user_id INT,
                      name VARCHAR(255) NOT NULL,
                      car_manufacturer_id INT,
