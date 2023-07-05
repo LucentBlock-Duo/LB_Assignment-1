@@ -22,9 +22,9 @@ public class CarInfoDTO {
     @NotEmpty(message = "이름은 필수 항목입니다.")
     private String userName;
 
-    @JsonProperty(value = "car_id")
-    @NotNull(message = "carId 는 필수 항목입니다.")
-    private Long carId;
+    @JsonProperty(value = "license_plate_no")
+    @NotNull(message = "차량번호는 필수 항목입니다.")
+    private String licensePlateNo;
 
     @JsonProperty(value = "car_name")
     @NotEmpty(message = "차량 이름은 필수 항목입니다.")
@@ -40,7 +40,7 @@ public class CarInfoDTO {
 
     public static CarInfoDTO carToCarInfoDTO(Car car) {
         return CarInfoDTO.builder()
-                .carId(car.getId())
+                .licensePlateNo(car.getLicensePlateNo())
                 .userEmail(car.getUser().getEmail())
                 .userName(car.getUser().getName())
                 .carName(car.getName())

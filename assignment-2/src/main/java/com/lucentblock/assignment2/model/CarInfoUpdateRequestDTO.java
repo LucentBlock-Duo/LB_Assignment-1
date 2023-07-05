@@ -11,22 +11,24 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class CreateCarRequestDTO {
-    @NotEmpty(message = "차량이름은 필수 항목입니다.")
-    @JsonProperty(value = "car_name")
-    private String carName;
+public class CarInfoUpdateRequestDTO {
+//    @JsonProperty(value = "user_email")
+//    @NotEmpty(message = "이메일은 필수 항목입니다.")
+//    private String userEmail;
 
-    @NotEmpty(message = "차량번호는 필수 항목입니다.")
     @JsonProperty(value = "license_plate_no")
+    @NotNull(message = "차량번호는 필수 항목입니다.")
     private String licensePlateNo;
 
-    @JsonProperty(value = "user_email")
-    private String userEmail;
+    @JsonProperty(value = "car_name")
+    @NotEmpty(message = "차량 이름은 필수 항목입니다.")
+    private String carName;
 
     @JsonProperty(value = "car_manufacturer_id")
+    @NotNull(message = "제조사명은 필수 항목입니다.")
     private Long carManufacturerId;
 
     @JsonProperty(value = "bought_at")
-    @NotNull(message = "차량 구입 시기는 필수 항목입니다.")
+    @NotNull(message = "구입일자는 필수 항목입니다.")
     private LocalDateTime boughtAt;
 }

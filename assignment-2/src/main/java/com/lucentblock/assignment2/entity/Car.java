@@ -22,6 +22,9 @@ public class Car implements SoftDeletable {
     @Column
     private String name;
 
+    @Column(name = "license_plate_no")
+    private String licensePlateNo;
+
     @ManyToOne
     @JoinColumn(referencedColumnName = "id",name="user_id")
     private User user;

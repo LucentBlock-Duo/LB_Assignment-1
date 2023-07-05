@@ -4,16 +4,15 @@ import com.lucentblock.assignment2.entity.CarManufacturer;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.exception.CarManufacturerNotFoundException;
 import com.lucentblock.assignment2.model.CarInfoDTO;
+import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
 import com.lucentblock.assignment2.repository.CarManufacturerRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.service.CarService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
@@ -35,7 +34,7 @@ public class CarController {
     public ResponseEntity createCar(@Validated @RequestBody CreateCarRequestDTO createCarRequestDTO) {
         if (!createCarRequestDTO.getUserEmail().equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-        }
+        } // 현재 로그인한 유저와 신청 양식에 적힌 주소가 다르면 Reject.
 
         User user = userRepository.findByEmailAndDeletedAtIsNull(createCarRequestDTO.getUserEmail())
                 .orElseThrow(() -> new UsernameNotFoundException(createCarRequestDTO.getUserEmail()));
@@ -46,18 +45,20 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<CarInfoDTO> fetchCarInfo(@RequestBody Map<String, Long> carId) {
-        return ResponseEntity.ok(carService.fetchCarInfo(carId.get("car_id")));
+    public ResponseEntity<CarInfoDTO> fetchCarInfo(@RequestBody Map<String, String> licensePlateNo) {
+        return ResponseEntity.ok(carService.fetchCarInfo(licensePlateNo.get("license_plate_no")));
     }
 
     @PatchMapping
-    public ResponseEntity updateCarInfo(@Validated @RequestBody CarInfoDTO carInfoDTO) {
-        return ResponseEntity.ok(carService.updateCarInfo(carInfoDTO)); // 남이 다른 사람 것 수정 못하게 하는 로직 필요.
+    public ResponseEntity updateCarInfo(@Validated @RequestBody CarInfoUpdateRequestDTO carInfoDTO) {
+        CarManufacturer carManufacturer = carManufacturerRepository.findById(carInfoDTO.getCarManufacturerId())
+                .orElseThrow(() -> new CarManufacturerNotFoundException(carInfoDTO.getCarManufacturerId().toString()));
+
+        return ResponseEntity.ok(carService.updateCarInfo(carInfoDTO, carManufacturer)); // 남이 다른 사람 것 수정 못하게 하는 로직 필요.
     }
 
-    @Transactional
     @DeleteMapping
-    public ResponseEntity deleteCarInfo(@RequestBody Map<String, Long> carId) {
-        return ResponseEntity.ok(carService.deleteCar(carId.get("car_id")));
+    public ResponseEntity deleteCarInfo(@RequestBody Map<String, String> licensePlateNo) {
+        return ResponseEntity.ok(carService.deleteCar(licensePlateNo.get("license_plate_no")));
     }
 }

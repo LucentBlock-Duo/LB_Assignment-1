@@ -1,10 +1,6 @@
 package com.lucentblock.assignment2.security.authentication;
 
-import com.lucentblock.assignment2.exception.ReserveNotFoundException;
-import com.lucentblock.assignment2.exception.CarNotFoundException;
-import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
-import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
-import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
+import com.lucentblock.assignment2.exception.*;
 import com.lucentblock.assignment2.security.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatusCode;
@@ -172,4 +168,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(error);
     }
 
+    @ExceptionHandler(CarDuplicateException.class)
+    public ResponseEntity<Map<String, String>> handleCarDuplicateException(CarDuplicateException ex) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("message", "There is a car with the same license plate number.");
+        error.put("license_plate_no", ex.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_CONFLICT).body(error);
+    }
 }
