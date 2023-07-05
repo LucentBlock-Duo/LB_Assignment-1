@@ -59,6 +59,7 @@ public class CarController {
 
     @DeleteMapping
     public ResponseEntity deleteCarInfo(@RequestBody Map<String, String> licensePlateNo) {
-        return ResponseEntity.ok(carService.deleteCar(licensePlateNo.get("license_plate_no")));
+        carService.deleteCar(licensePlateNo.get("license_plate_no"));
+        return ResponseEntity.ok().build();
     }
 }

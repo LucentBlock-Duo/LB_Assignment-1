@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CarService {
     private final CarRepository carRepository;
-    private final CarManufacturerRepository carManufacturerRepository;
 
     public CarInfoDTO createCar(CreateCarRequestDTO createCarRequestDTO, User user, CarManufacturer carManufacturer) {
 
@@ -67,7 +66,6 @@ public class CarService {
         }
 
         car.setCarManufacturer(carManufacturer);
-        car.setLicensePlateNo(carInfo.getLicensePlateNo());
         car.setName(carInfo.getCarName());
         car.setBoughtAt(carInfo.getBoughtAt());
         Car savedCar = carRepository.saveAndFlush(car);
@@ -75,7 +73,7 @@ public class CarService {
         return CarInfoDTO.carToCarInfoDTO(savedCar);
     }
 
-    public CarInfoDTO deleteCar(String licensePlateNo) {
+    public void deleteCar(String licensePlateNo) {
         Car car = carRepository.findByLicensePlateNoAndDeletedAtIsNull(licensePlateNo)
                 .orElseThrow(() -> new CarNotFoundException(licensePlateNo));
 
@@ -86,8 +84,6 @@ public class CarService {
         }
 
         car.delete();
-        Car deletedCar = carRepository.saveAndFlush(car);
-
-        return CarInfoDTO.carToCarInfoDTO(deletedCar);
+        carRepository.saveAndFlush(car);
     }
 }
