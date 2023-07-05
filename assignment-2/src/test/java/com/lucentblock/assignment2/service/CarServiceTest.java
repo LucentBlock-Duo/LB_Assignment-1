@@ -4,6 +4,7 @@ import com.lucentblock.assignment2.entity.Car;
 import com.lucentblock.assignment2.entity.CarManufacturer;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
+import com.lucentblock.assignment2.exception.CarDuplicateException;
 import com.lucentblock.assignment2.model.CarInfoDTO;
 import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
@@ -16,11 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -36,9 +37,6 @@ public class CarServiceTest {
 
     @Mock
     CarRepository carRepository;
-
-    @Mock
-    CarInfoDTO carInfoDTO;
 
     @InjectMocks
     CarService carService;
@@ -76,7 +74,6 @@ public class CarServiceTest {
 
     @Test
     @DisplayName("자신의 차량 정보를 등록할 수 있다.")
-    @WithMockUser(username = "test@test.com", authorities = "ROLE_USER")
     void createCar() {
         // given
         CreateCarRequestDTO testRequest = CreateCarRequestDTO.builder()
@@ -98,18 +95,38 @@ public class CarServiceTest {
     }
 
     @Test
+    @DisplayName("차량번호가 중복되는 차량이 존재할 경우, CarDuplicateException 이 발생한다.")
+    void createCarWithDuplicateLicensePlateNo() {
+        // given
+        CreateCarRequestDTO testRequest = CreateCarRequestDTO.builder()
+                .carName("testCarName")
+                .carManufacturerId(999L)
+                .licensePlateNo("testLicensePlateNo")
+                .boughtAt(LocalDateTime.now())
+                .userEmail("test@test.com")
+                .build();
+
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(testRequest.getLicensePlateNo())).willReturn(Optional.of(car));
+
+        // when & then
+        assertThrows(CarDuplicateException.class, () -> carService.createCar(testRequest, user, carManufacturer) );
+    }
+
+    @Test
     @DisplayName("자신의 차량 정보를 읽어올 수 있다.")
     void fetchCarInfo() {
         // given
-        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
-                .willReturn(Optional.of(car));
-
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
         given(securityContext.getAuthentication()).willReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         given(SecurityContextHolder.getContext().getAuthentication())
                 .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
+
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
+                .willReturn(Optional.of(car));
+
+
 
         // when
         CarInfoDTO carInfoDTO = carService.fetchCarInfo(car.getLicensePlateNo());
@@ -123,18 +140,42 @@ public class CarServiceTest {
     }
 
     @Test
-    @DisplayName("자신의 차량 정보를 변경할 수 있다.")
-    void updateCarInfo() {
+    @DisplayName("자신의 차량이 아니면 정보를 읽어올 수 없다.")
+    void fetchCarInfoOfSomeoneElse() {
         // given
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        given(securityContext.getAuthentication()).willReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("DoesNotMatch@test.com", null));
+
+
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
                 .willReturn(Optional.of(car));
 
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
+        // when & then
+        assertThrows(AccessDeniedException.class, ()-> carService.fetchCarInfo(car.getLicensePlateNo()));
+    }
+
+    @Test
+    @DisplayName("자신의 차량 정보를 변경할 수 있다.")
+    void updateCarInfo() {
+        // given
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
         given(securityContext.getAuthentication()).willReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         given(SecurityContextHolder.getContext().getAuthentication())
                 .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
+
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
+                .willReturn(Optional.of(car));
+
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
+
 
         carManufacturer.setId(998L);
         carManufacturer.setName("changedCarManufacturerName");
@@ -161,25 +202,79 @@ public class CarServiceTest {
         assertEquals("changedCarManufacturerName", carInfoDTO.getCarManufacturerName());
         assertEquals(LocalDateTime.of(2022, 1, 1, 0, 0, 0), carInfoDTO.getBoughtAt());
     }
-    
-    @Test
-    @DisplayName("자신의 자동차 정보를 삭제할 수 있다.")
-    void deleteCarInfo() {
-        // given
-        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
-                .willReturn(Optional.of(car));
 
+    @Test
+    @DisplayName("자신의 차량이 아니면 차량 정보를 업데이트 할 수 없다.")
+    void updateCarInfoOfSomeoneElse() {
+        // given
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
         given(securityContext.getAuthentication()).willReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         given(SecurityContextHolder.getContext().getAuthentication())
                 .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
-        
+
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
+                .willReturn(Optional.of(car));
+
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("DoesNotMatch@test.com", null));
+
+
+        carManufacturer.setId(998L);
+        carManufacturer.setName("changedCarManufacturerName");
+
+        car.setCarManufacturer(carManufacturer);
+        car.setName("changedCarName");
+        car.setBoughtAt(LocalDateTime.of(2022, 1, 1, 0, 0, 0));
+
+        // when & then
+        assertThrows(AccessDeniedException.class, () -> carService.updateCarInfo(
+                CarInfoUpdateRequestDTO.builder()
+                        .carName("changedCarName")
+                        .carManufacturerId(998L)
+                        .licensePlateNo(car.getLicensePlateNo())
+                        .boughtAt(LocalDateTime.of(2022, 1, 1, 0, 0, 0))
+                        .build(), carManufacturer
+        ));
+    }
+
+    @Test
+    @DisplayName("자신의 자동차 정보를 삭제할 수 있다.")
+    void deleteCarInfo() {
+        // given
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        given(securityContext.getAuthentication()).willReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
+
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
+                .willReturn(Optional.of(car));
+
         // when
         carService.deleteCar(car.getLicensePlateNo());
 
         // then
         verify(carRepository, times(1)).saveAndFlush(any(Car.class));
+    }
+
+    @Test
+    @DisplayName("자신의 차량이 아닌 차량 정보는 삭제할 수 없다.")
+    void deleteCarInfoOfSomeoneElse() {
+        // given
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        given(securityContext.getAuthentication()).willReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("DoesNotMatch@test.com", null));
+
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(car.getLicensePlateNo()))
+                .willReturn(Optional.of(car));
+
+        // when & then
+        assertThrows(AccessDeniedException.class, () -> carService.deleteCar(car.getLicensePlateNo()));
     }
 }
