@@ -151,7 +151,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(error);
     }
-    //////////////////////////////////////////////////////reserve////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////car////////////////////////////////////////////////////////
     @ExceptionHandler(CarNotFoundException.class)
     public ResponseEntity<Map<String, String >> handleCarNotFoundException(CarNotFoundException ex) {
         Map<String, String> error = new HashMap<>();
@@ -170,5 +170,24 @@ public class GlobalExceptionHandler {
         error.put("license_plate_no", ex.getMessage());
 
         return ResponseEntity.status(HttpServletResponse.SC_CONFLICT).body(error);
+    }
+
+
+    @ExceptionHandler(LocationNotFoundException.class)
+    public ResponseEntity<Map<String,String>> handleLocationNotFoundException(LocationNotFoundException e){
+        Map<String, String> error = new HashMap<>();
+
+        error.put("message", e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(RepairShopNotFoundException.class)
+    public ResponseEntity<Map<String,String>> handleLocationNotFoundException(RepairShopNotFoundException e){
+        Map<String, String> error = new HashMap<>();
+
+        error.put("message", e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
     }
 }
