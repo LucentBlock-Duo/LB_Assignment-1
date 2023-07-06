@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ class ReserveControllerTest {
   
     @Test
     @DisplayName("정비공은 자기보다 높은 등급의 정비 항목을 선택할 수 없다.")
+    @WithMockUser(username = "ilmo@gmail.com", authorities = "ROLE_USER")
     void createReservationWithUnsatisfiedException() {
         // given
         CreateRequestReserveDTO dto=
@@ -50,6 +52,7 @@ class ReserveControllerTest {
 
     @Test
     @DisplayName("예약에 필요한 자동차 정보를 보유하고 있지 않다면 예약할 수 없다.")
+    @WithMockUser(username = "ilmo@gmail.com", authorities = "ROLE_USER")
     void createReservationWithNoMatchValueException() {
         // given
         CreateRequestReserveDTO dto=
@@ -68,6 +71,7 @@ class ReserveControllerTest {
 
     @Test
     @DisplayName("같은 차량에 대해서 기존 예약과 시간이 겹치면 예약할 수 없다.")
+    @WithMockUser(username = "ilmo@gmail.com", authorities = "ROLE_USER")
     void createReservationWithCarTimeConflictException() {
         // given
         long carId=3L;
@@ -97,6 +101,7 @@ class ReserveControllerTest {
 
     @Test
     @DisplayName("같은 정비공에 대해서 기존 예약과 시간이 겹치면 예약할 수 없다.")
+    @WithMockUser(username = "ilmo@gmail.com", authorities = "ROLE_USER")
     void createReservationWithRepairManTimeConflictException() {
         // given
         long repairManId=1L;
