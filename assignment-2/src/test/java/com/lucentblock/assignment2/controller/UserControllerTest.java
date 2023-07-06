@@ -12,7 +12,6 @@ import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
 import com.lucentblock.assignment2.security.config.CustomAccessDeniedHandler;
 import com.lucentblock.assignment2.security.config.CustomEntryPoint;
 import com.lucentblock.assignment2.security.config.SecurityConfiguration;
-import com.lucentblock.assignment2.security.model.UserEmailDTO;
 import com.lucentblock.assignment2.security.model.UpdateUserInfoRequestDTO;
 import com.lucentblock.assignment2.security.model.UserInfoResponseDTO;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
@@ -81,12 +80,7 @@ public class UserControllerTest {
         // @WithAnonymousUser
 
         // when & then
-        this.mockMvc.perform(get("/api/user-info")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(
-                                UserEmailDTO.builder()
-                                        .userEmail("test@test.com")
-                                        .build())))
+        this.mockMvc.perform(get("/api/user-info"))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -108,12 +102,7 @@ public class UserControllerTest {
         given(userService.fetchUserInfo(user.getEmail())).willReturn(UserInfoResponseDTO.userEntityToUserInfoDTO(user));
 
         // when & then
-        this.mockMvc.perform(get("/api/user-info")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(
-                                UserEmailDTO.builder()
-                                        .userEmail(user.getEmail())
-                                        .build())))
+        this.mockMvc.perform(get("/api/user-info"))
                 .andDo(print())
                 .andExpect(jsonPath("user_name").hasJsonPath())
                 .andExpect(jsonPath("user_email").hasJsonPath())
@@ -196,12 +185,7 @@ public class UserControllerTest {
         // @WithAnonymousUser
 
         // when & then
-        this.mockMvc.perform(delete("/api/user-info")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(
-                                UserEmailDTO.builder()
-                                        .userEmail("test@test.com")
-                                        .build())))
+        this.mockMvc.perform(delete("/api/user-info"))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -222,12 +206,7 @@ public class UserControllerTest {
         given(userService.deleteUserInfo(user.getEmail())).willReturn(ResponseEntity.ok().build());
 
         // when & then
-        this.mockMvc.perform(delete("/api/user-info")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(
-                                UserEmailDTO.builder()
-                                        .userEmail(user.getEmail())
-                                        .build())))
+        this.mockMvc.perform(delete("/api/user-info"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
