@@ -9,6 +9,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,13 +25,27 @@ public class ReserveService {
     private final ReserveRepository reserveRepository;
 
     public List<Reserve> findReserveByCarId(long carId) {
-        return reserveRepository.findReservesByCar(em.find(Car.class,carId));
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        Car car = em.find(Car.class, carId);
+
+        if (!currentUser.equals(car.getUser().getEmail())) {
+            log.info(currentUser + " 이 " + car.getUser().getEmail() + " 의 예약 정보 조회를 시도했습니다.");
+            throw new AccessDeniedException("잘못된 접근");
+        }
+        return reserveRepository.findReservesByCar(car);
     } // 차에 대한 예약 리스트 가져오기
 
     @Transactional
     public ResponseReserveDTO updateReserve(UpdateRequestReserveDTO dto) throws RuntimeException{
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Reserve reserve =reserveRepository.findById(dto.getReserve_id())
                 .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        if (!currentUser.equals(reserve.getCar().getUser().getEmail())) {
+            log.info(currentUser + " 이 " + reserve.getCar().getUser().getEmail() + " 의 예약 정보 변경을 시도했습니다.");
+            throw new AccessDeniedException("잘못된 접근");
+        }
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
 
         reserve.setCar(foreignKeySet.getCar());
@@ -64,6 +80,11 @@ public class ReserveService {
 
     public ResponseReserveDTO createReserve(CreateRequestReserveDTO dto) throws RuntimeException {
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!currentUsername.equals(foreignKeySet.getCar().getUser().getEmail())) {
+            log.info(currentUsername + " 이 " + foreignKeySet.getCar().getUser().getEmail() + " 으로 예약 생성을 시도하였습니다.");
+            throw new AccessDeniedException("허용되지 않은 접근");
+        }
         Reserve reserve = dto.toEntity(foreignKeySet);
 
         checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
@@ -96,8 +117,15 @@ public class ReserveService {
 
     @Transactional
     public Reserve deleteReserve(Long reserveId){
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Reserve reserve = reserveRepository.findById(reserveId)
                 .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        if (!currentUsername.equals(reserve.getCar().getUser().getEmail())) {
+            log.info(currentUsername + " 이 " + reserve.getCar().getUser().getEmail() + " 으로 예약 삭제를 시도하였습니다.");
+            throw new AccessDeniedException("허용되지 않은 접근");
+        }
 
         reserve.delete();
         reserveRepository.save(reserve);

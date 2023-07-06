@@ -51,7 +51,7 @@ public class CarService {
 
         String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!car.getUser().getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 에 접근을 시도했습니다.");
+            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 의 차량 정보 조회를 시도하였습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
         return CarInfoDTO.carToCarInfoDTO(car);
@@ -63,7 +63,7 @@ public class CarService {
 
         String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!car.getUser().getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 에 접근을 시도했습니다.");
+            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 의 차량 정보 변경을 시도했습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
 
@@ -81,7 +81,7 @@ public class CarService {
 
         String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!car.getUser().getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 에 접근을 시도했습니다.");
+            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 의 차량 정보 삭제를 시도했습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
 
@@ -92,7 +92,7 @@ public class CarService {
     public List<CarInfoDTO> fetchCarInfoListByUser(User user) { // 그대로 반환하면 안되고 ResponseDTO 만들어야함.
         String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!user.getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + user.getEmail() + " 에 접근을 시도했습니다.");
+            log.info(userIssuedRequest +" 이 " + user.getEmail() + " 의 차량 정보 목록 조회를 시도했습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
 
