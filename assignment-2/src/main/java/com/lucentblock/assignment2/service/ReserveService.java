@@ -80,14 +80,15 @@ public class ReserveService {
 
     public ResponseReserveDTO createReserve(CreateRequestReserveDTO dto) throws RuntimeException {
         ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
+        Reserve reserve = dto.toEntity(foreignKeySet);
+        checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
+
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!currentUsername.equals(foreignKeySet.getCar().getUser().getEmail())) {
             log.info(currentUsername + " 이 " + foreignKeySet.getCar().getUser().getEmail() + " 으로 예약 생성을 시도하였습니다.");
             throw new AccessDeniedException("허용되지 않은 접근");
         }
-        Reserve reserve = dto.toEntity(foreignKeySet);
 
-        checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
         return reserveRepository.save(reserve).toDto();
     }
 

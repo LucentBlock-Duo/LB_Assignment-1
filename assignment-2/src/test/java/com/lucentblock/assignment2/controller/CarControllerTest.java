@@ -123,10 +123,10 @@ public class CarControllerTest {
     @WithMockUser(username = "test@test.com", authorities = "ROLE_USER")
     void createCar() throws Exception {
         // given
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
         CreateCarRequestDTO testRequest = CreateCarRequestDTO.builder()
                 .carName("testCarName")
                 .licensePlateNo("testLPN")
-                .userEmail("test@test.com")
                 .carManufacturerId(1L)
                 .boughtAt(LocalDateTime.of(2023, 1, 1, 0, 0, 0))
                 .build();
@@ -134,7 +134,7 @@ public class CarControllerTest {
         given(carService.createCar(any(CreateCarRequestDTO.class), any(User.class), any(CarManufacturer.class)))
                 .willReturn(
                         CarInfoDTO.builder()
-                                .userEmail("test@test.com")
+                                .userEmail(currentUser)
                                 .userName("testName")
                                 .licensePlateNo("testLPN")
                                 .carName("testCarName")

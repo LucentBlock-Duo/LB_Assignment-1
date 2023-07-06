@@ -2,22 +2,19 @@ package com.lucentblock.assignment2.security.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lucentblock.assignment2.entity.User;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
+@Data @Builder
 @NoArgsConstructor @AllArgsConstructor
-public class UserInfoDTO {
+public class UserInfoResponseDTO {
     @JsonProperty(value = "user_email")
-    @Email
     private String userEmail;
 
     @JsonProperty(value = "user_name")
-    private String username;
+    private String userName;
 
     @JsonProperty(value = "phone_number")
     private String phoneNumber;
@@ -28,10 +25,10 @@ public class UserInfoDTO {
     @JsonProperty(value = "provider") // OAuth 로 가입한 사용자이면 not null
     private String provider;
 
-    public static UserInfoDTO UserEntityToUserInfoDTO(User user) {
-        return UserInfoDTO.builder()
+    public static UserInfoResponseDTO userEntityToUserInfoDTO(User user) {
+        return UserInfoResponseDTO.builder()
                 .userEmail(user.getEmail())
-                .username(user.getName())
+                .userName(user.getName())
                 .phoneNumber(user.getPhoneNumber())
                 .isEmailVerified(user.getIsEmailVerified())
                 .provider(user.getProvider())

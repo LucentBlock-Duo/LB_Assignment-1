@@ -49,11 +49,12 @@ public class CarService {
         Car car = carRepository.findByLicensePlateNoAndDeletedAtIsNull(licensePlateNo)
                 .orElseThrow(() -> new CarNotFoundException(licensePlateNo));
 
-        String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!car.getUser().getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 의 차량 정보 조회를 시도하였습니다.");
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!car.getUser().getEmail().equals(currentUser)) {
+            log.info(currentUser +" 이 " + car.getUser().getEmail() + " 의 차량 정보 조회를 시도하였습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
+
         return CarInfoDTO.carToCarInfoDTO(car);
     }
 
@@ -61,9 +62,9 @@ public class CarService {
         Car car = carRepository.findByLicensePlateNoAndDeletedAtIsNull(carInfo.getLicensePlateNo())
                 .orElseThrow(() -> new CarNotFoundException(carInfo.getLicensePlateNo()));
 
-        String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!car.getUser().getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 의 차량 정보 변경을 시도했습니다.");
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!car.getUser().getEmail().equals(currentUser)) {
+            log.info(currentUser +" 이 " + car.getUser().getEmail() + " 의 차량 정보 변경을 시도했습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
 
@@ -79,9 +80,9 @@ public class CarService {
         Car car = carRepository.findByLicensePlateNoAndDeletedAtIsNull(licensePlateNo)
                 .orElseThrow(() -> new CarNotFoundException(licensePlateNo));
 
-        String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!car.getUser().getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + car.getUser().getEmail() + " 의 차량 정보 삭제를 시도했습니다.");
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!car.getUser().getEmail().equals(currentUser)) {
+            log.info(currentUser +" 이 " + car.getUser().getEmail() + " 의 차량 정보 삭제를 시도했습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
 
@@ -90,9 +91,10 @@ public class CarService {
     }
 
     public List<CarInfoDTO> fetchCarInfoListByUser(User user) { // 그대로 반환하면 안되고 ResponseDTO 만들어야함.
-        String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!user.getEmail().equals(userIssuedRequest)) {
-            log.info(userIssuedRequest +" 이 " + user.getEmail() + " 의 차량 정보 목록 조회를 시도했습니다.");
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!user.getEmail().equals(currentUser)) {
+            log.info(currentUser +" 이 " + user.getEmail() + " 의 차량 정보 목록 조회를 시도했습니다.");
             throw new AccessDeniedException("잘못된 접근");
         }
 

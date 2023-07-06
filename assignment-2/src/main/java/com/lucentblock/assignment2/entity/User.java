@@ -1,16 +1,10 @@
 package com.lucentblock.assignment2.entity;
 
-import com.lucentblock.assignment2.security.model.UserInfoDTO;
-import jakarta.annotation.PostConstruct;
+import com.lucentblock.assignment2.security.model.UpdateUserInfoRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @Getter @Setter @Builder
 @Entity @NoArgsConstructor @AllArgsConstructor
@@ -58,9 +52,9 @@ public class User implements SoftDeletable {
     @Column(name = "refresh_token")
     private String refreshToken;
 
-    public User UpdateUserBasedOnUserInfoDTO(UserInfoDTO userInfoDTO) {
-        this.name = userInfoDTO.getUsername();
-        this.phoneNumber = userInfoDTO.getPhoneNumber();
+    public User updateUserBasedOnUserInfoDTO(UpdateUserInfoRequestDTO updateUserInfoRequestDTO) {
+        this.name = updateUserInfoRequestDTO.getUserName();
+        this.phoneNumber = updateUserInfoRequestDTO.getPhoneNumber();
 
         return this;
     }
