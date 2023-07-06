@@ -4,10 +4,12 @@ import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
 import com.lucentblock.assignment2.exception.ReservedWithNoMatchValueException;
 import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
 import com.lucentblock.assignment2.model.CreateRequestReserveDTO;
+import com.lucentblock.assignment2.repository.ReserveRepository;
 import com.lucentblock.assignment2.service.ReserveService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +31,10 @@ class ReserveControllerTest {
 
     @Autowired
     private ReserveService reserveService;
-  
+
+    @Mock
+    private ReserveRepository reserveRepository;
+
     @Test
     @DisplayName("정비공은 자기보다 높은 등급의 정비 항목을 선택할 수 없다.")
     void createReservationWithUnsatisfiedException() {
