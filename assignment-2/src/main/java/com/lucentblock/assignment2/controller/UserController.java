@@ -4,28 +4,29 @@ import com.lucentblock.assignment2.security.model.UserEmailDTO;
 import com.lucentblock.assignment2.security.model.UserInfoDTO;
 import com.lucentblock.assignment2.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserController {
     private final UserService userService;
 
     @GetMapping("/user-info")
-    public ResponseEntity fetchUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
+    public ResponseEntity fetchUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
+        if (! (authentication.getName() == null) ) {
+            log.info("인증 정보 없음.")
+            throw new AccessDeniedException("잘못된 접근");
         }
 
         return ResponseEntity.ok(userService.fetchUserInfo(userEmailDTO.getUserEmail()));
@@ -35,11 +36,8 @@ public class UserController {
     public ResponseEntity updateUser(@Validated @RequestBody UserInfoDTO userInfoDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userInfoDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
+        if (!authentication.getName().equals(userInfoDTO.getUserEmail())) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
         }
 
         return ResponseEntity.ok(userService.updateUserInfo(userInfoDTO));
@@ -49,11 +47,8 @@ public class UserController {
     public ResponseEntity deleteUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
+        if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
         }
 
         return userService.deleteUserInfo(userEmailDTO.getUserEmail());

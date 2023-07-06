@@ -302,8 +302,4 @@ class AuthenticationControllerTest {
     @DisplayName("OAuth2.0 으로 로그인 한 경우, Access Token 과 Refresh Token 이 발급된다.")
     void loginByOAuth2(){
     }
-
-    @Test
-    void admin() {
-    }
 }

@@ -77,7 +77,7 @@ class HomeControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"ROLE_USER", "ROLE_ADMIN"})
+    @WithMockUser(authorities = {"ROLE_USER"})
     @DisplayName("인증된 사용자는 secured url 에 접속할 수 있다.")
     void accessSecuredWithUser() throws Exception {
         this.mockMvc.perform(get("/secured"))
