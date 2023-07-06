@@ -52,9 +52,12 @@ INSERT INTO car_description (id, car_id, color, seats) VALUES
                                                            (1, 3, 'Red', 4),
                                                            (2, 5, 'Blue', 4);
 
-INSERT INTO repair_shop (id, name, location) VALUES
-                                                 (1, 'Shop A', 'Location A'),
-                                                 (2, 'Shop B', 'Location B');
+INSERT INTO repair_shop (id, name, location_id) VALUES
+                                                 (1, '현대블루핸즈 봉명점', 4),
+                                                 (2, '현대블루핸즈 용전점', 2),
+                                                 (3, '현대블루핸즈 서대전점', 5),
+                                                 (4, '현대자동차블루핸즈 대덕현대서비스', 1),
+                                                 (5, '현대블루핸즈 둔산점', 3);
 
 INSERT INTO repair_man (id, name, license_id) VALUES
                                                   (1, 'Repairman A', 1),

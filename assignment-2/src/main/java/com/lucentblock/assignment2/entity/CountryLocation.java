@@ -1,30 +1,30 @@
 package com.lucentblock.assignment2.entity;
 
 
-import com.lucentblock.assignment2.model.ResponseRepairShopDTO;
+import com.lucentblock.assignment2.model.ResponseLocationDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name="repair_shop")
 @Getter
 @Builder
+@Table(name="location")
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class RepairShop implements SoftDeletable{
+@Entity
+public class CountryLocation implements SoftDeletable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    private String name; // 블루핸즈봉명점
+    private String province; // 시도
 
-    @ManyToOne
-    @JoinColumn(referencedColumnName = "id",name="location_id")
-    private CountryLocation location; // location 수정
+    @Column
+    private String city; // 시군구
 
     @Column(name="created_at")
     private LocalDateTime createdAt;
@@ -36,10 +36,10 @@ public class RepairShop implements SoftDeletable{
         this.deletedAt = deletedAt;
     }
 
-    public ResponseRepairShopDTO toDto(){
-        return ResponseRepairShopDTO.builder()
+    public ResponseLocationDTO toDto(){
+        return ResponseLocationDTO.builder()
                 .id(id)
-                .name(name)
-                .location(location.toDto()).build();
+                .province(province)
+                .city(city).build();
     }
 }
