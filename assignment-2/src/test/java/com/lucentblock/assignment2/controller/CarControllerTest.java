@@ -39,9 +39,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -245,5 +247,30 @@ public class CarControllerTest {
                                                 Map.of("license_plate_no", "testLPN"))))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("자신의 차량 목록을 조회할 수 있다.")
+    @WithMockUser(username = "test@test.com", authorities = "ROLE_USER")
+    void fetchCarInfoListByUser() throws Exception {
+        Car car2 = Car.builder()
+                .name("testCarName2")
+                .carManufacturer(carManufacturer)
+                .licensePlateNo("testLicensePlateNo2")
+                .boughtAt(LocalDateTime.now())
+                .user(user)
+                .build();
+
+        given(userRepository.findByEmailAndDeletedAtIsNull(anyString())).willReturn(Optional.of(user));
+        given(carService.fetchCarInfoListByUser(user))
+                .willReturn(List.of(CarInfoDTO.carToCarInfoDTO(car), CarInfoDTO.carToCarInfoDTO(car2)));
+
+        // when & then
+        this.mockMvc.perform(get("/api/car/list")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("user_email", "test@test.com"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 }

@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -85,5 +87,17 @@ public class CarService {
 
         car.delete();
         carRepository.saveAndFlush(car);
+    }
+
+    public List<CarInfoDTO> fetchCarInfoListByUser(User user) { // 그대로 반환하면 안되고 ResponseDTO 만들어야함.
+        String userIssuedRequest = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!user.getEmail().equals(userIssuedRequest)) {
+            log.info(userIssuedRequest +" 이 " + user.getEmail() + " 에 접근을 시도했습니다.");
+            throw new AccessDeniedException("잘못된 접근");
+        }
+
+        return carRepository.findCarsByUserAndDeletedAtIsNull(user).stream()
+                .map( car -> CarInfoDTO.carToCarInfoDTO(car))
+                .collect(Collectors.toList());
     }
 }
