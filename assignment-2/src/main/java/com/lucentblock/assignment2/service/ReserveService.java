@@ -46,9 +46,9 @@ public class ReserveService {
     }
 
     private void checkingValidationForReserve(Reserve reserve,ForeignKeySetForReserve set) throws RuntimeException{
-        checkAbleToReserve(reserve);
         set.isValidate();
         checkAbleToRepair(reserve);
+        checkAbleToReserve(reserve);
     }
     private ForeignKeySetForReserve getForeignKeySet(RequestReserveDTO dto){
         Car car = em.find(Car.class, dto.getCar_id());

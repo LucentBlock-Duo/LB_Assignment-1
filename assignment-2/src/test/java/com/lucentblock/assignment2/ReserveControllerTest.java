@@ -16,6 +16,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 
 
@@ -32,11 +36,11 @@ class ReserveControllerTest {
         // given
         CreateRequestReserveDTO dto=
                 CreateRequestReserveDTO.builder()
-                        .car_id(1L)
+                        .car_id(3L)
                         .repair_man_id(1L)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())
-                        .maintenance_item_id(3L)
+                        .maintenance_item_id(8L)
                         .build();
 
         // when, then
@@ -51,10 +55,10 @@ class ReserveControllerTest {
         CreateRequestReserveDTO dto=
                 CreateRequestReserveDTO.builder()
                         .car_id(10L)
-                        .repair_man_id(6L)
+                        .repair_man_id(1L)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())
-                        .maintenance_item_id(2L)
+                        .maintenance_item_id(8L)
                         .build();
 
         // when, then
@@ -66,27 +70,27 @@ class ReserveControllerTest {
     @DisplayName("같은 차량에 대해서 기존 예약과 시간이 겹치면 예약할 수 없다.")
     void createReservationWithCarTimeConflictException() {
         // given
-        long carId=1L;
+        long carId=3L;
         CreateRequestReserveDTO dto1=
                 CreateRequestReserveDTO.builder()
                         .car_id(carId)
-                        .repair_man_id(1L)
+                        .repair_man_id(3L)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())
-                        .maintenance_item_id(2L)
+                        .maintenance_item_id(8L)
                         .build();
         CreateRequestReserveDTO dto2=
                 CreateRequestReserveDTO.builder()
                         .car_id(carId)
-                        .repair_man_id(1L)
+                        .repair_man_id(3L)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())
-                        .maintenance_item_id(2L)
+                        .maintenance_item_id(7L)
                         .build();
 
         // when, then
-        reserveService.createReserve(dto1);
-
+        assertThatThrownBy(() -> reserveService.createReserve(dto1))
+                .isInstanceOf(ReserveTimeConflictException.class);
         assertThatThrownBy(() -> reserveService.createReserve(dto2))
                 .isInstanceOf(ReserveTimeConflictException.class);
     }
@@ -98,23 +102,24 @@ class ReserveControllerTest {
         long repairManId=1L;
         CreateRequestReserveDTO dto1=
                 CreateRequestReserveDTO.builder()
-                        .car_id(1L)
+                        .car_id(3L)
                         .repair_man_id(repairManId)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())
-                        .maintenance_item_id(1L)
+                        .maintenance_item_id(7L)
                         .build();
         CreateRequestReserveDTO dto2=
                 CreateRequestReserveDTO.builder()
-                        .car_id(2L)
+                        .car_id(5L)
                         .repair_man_id(repairManId)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())
-                        .maintenance_item_id(2L)
+                        .maintenance_item_id(7L)
                         .build();
 
         // when, then
-        reserveService.createReserve(dto1);
+        assertThatThrownBy(() -> reserveService.createReserve(dto1))
+                .isInstanceOf(ReserveTimeConflictException.class);
         assertThatThrownBy(() -> reserveService.createReserve(dto2))
                 .isInstanceOf(ReserveTimeConflictException.class);
     }
