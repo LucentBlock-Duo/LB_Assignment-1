@@ -1,61 +1,55 @@
 package com.lucentblock.assignment2.controller;
 
-import com.lucentblock.assignment2.security.model.UserEmailDTO;
-import com.lucentblock.assignment2.security.model.UserInfoDTO;
+import com.lucentblock.assignment2.security.model.UpdateUserInfoRequestDTO;
 import com.lucentblock.assignment2.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatusCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserController {
     private final UserService userService;
 
     @GetMapping("/user-info")
-    public ResponseEntity fetchUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity fetchUser() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
+        if (userEmail == null || userEmail.isEmpty()) {
+            log.info("인증 정보 없음.");
+            throw new AccessDeniedException("잘못된 접근");
         }
 
-        return ResponseEntity.ok(userService.fetchUserInfo(userEmailDTO.getUserEmail()));
+        return ResponseEntity.ok(userService.fetchUserInfo(userEmail));
     }
 
     @PatchMapping("/user-info")
-    public ResponseEntity updateUser(@Validated @RequestBody UserInfoDTO userInfoDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity updateUser(@Validated @RequestBody UpdateUserInfoRequestDTO updateUserInfoRequestDTO) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userInfoDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
+        if (userEmail == null || userEmail.isEmpty()) {
+            log.info("인증 정보 없음.");
+            throw new AccessDeniedException("잘못된 접근");
         }
 
-        return ResponseEntity.ok(userService.updateUserInfo(userInfoDTO));
+        return ResponseEntity.ok(userService.updateUserInfo(userEmail, updateUserInfoRequestDTO));
     }
 
     @DeleteMapping("/user-info")
-    public ResponseEntity deleteUser(@Validated @RequestBody UserEmailDTO userEmailDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity deleteUser() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (authentication.getAuthorities().stream().anyMatch(
-                grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
-            if (!authentication.getName().equals(userEmailDTO.getUserEmail())) {
-                return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-            }
+        if (userEmail == null || userEmail.isEmpty()) {
+            log.info("인증 정보 없음.");
+            throw new AccessDeniedException("잘못된 접근");
         }
 
-        return userService.deleteUserInfo(userEmailDTO.getUserEmail());
+        return userService.deleteUserInfo(userEmail);
     }
 }

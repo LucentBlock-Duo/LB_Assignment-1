@@ -82,7 +82,6 @@ public class CarServiceTest {
                 .carManufacturerId(999L)
                 .licensePlateNo("testLicensePlateNo")
                 .boughtAt(LocalDateTime.now())
-                .userEmail("test@test.com")
                 .build();
 
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(anyString())).willReturn(Optional.empty());
@@ -104,7 +103,6 @@ public class CarServiceTest {
                 .carManufacturerId(999L)
                 .licensePlateNo("testLicensePlateNo")
                 .boughtAt(LocalDateTime.now())
-                .userEmail("test@test.com")
                 .build();
 
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(testRequest.getLicensePlateNo())).willReturn(Optional.of(car));

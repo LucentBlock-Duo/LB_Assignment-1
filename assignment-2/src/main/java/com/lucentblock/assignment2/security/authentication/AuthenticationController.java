@@ -31,10 +31,4 @@ public class AuthenticationController {
         String accessToken = authHeader.substring(7);
         return ResponseEntity.ok(authService.refresh(accessToken, refreshToken));
     }
-
-
-    @GetMapping("/admin")
-    public String admin() {
-        return "Admin Page";
-    }
 }

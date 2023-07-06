@@ -20,9 +20,6 @@ public class CreateCarRequestDTO {
     @JsonProperty(value = "license_plate_no")
     private String licensePlateNo;
 
-    @JsonProperty(value = "user_email")
-    private String userEmail;
-
     @JsonProperty(value = "car_manufacturer_id")
     private Long carManufacturerId;
 

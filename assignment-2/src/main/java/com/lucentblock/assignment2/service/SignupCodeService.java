@@ -9,7 +9,6 @@ import com.lucentblock.assignment2.security.authentication.jwt.JwtRefreshService
 import com.lucentblock.assignment2.security.authentication.jwt.JwtService;
 import com.lucentblock.assignment2.security.exception.AlreadyVerifiedUserException;
 import com.lucentblock.assignment2.security.exception.CodeDoesNotMatchException;
-import com.lucentblock.assignment2.security.model.VerifySignupCodeRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +25,8 @@ import java.util.Random;
 @Slf4j
 @RequiredArgsConstructor
 public class SignupCodeService {
-    private final JwtService jwtService;
-    private final JwtRefreshService jwtRefreshService;
-    private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
-    private final LoginChallengeRepository loginChallengeRepository;
     private final SignupCodeChallengeRepository signupCodeChallengeRepository;
 
     public ResponseEntity generateSignupCode(String userEmail) {
@@ -42,7 +37,7 @@ public class SignupCodeService {
             Random random = new Random();
             String code = String.valueOf(random.nextInt(1000, 10000));
 
-            SignupCodeChallenge signupCodeChallenge = signupCodeChallengeRepository.save(
+            signupCodeChallengeRepository.save(
                     SignupCodeChallenge.builder()
                             .user(retrievedUser)
                             .code(code)
@@ -60,10 +55,7 @@ public class SignupCodeService {
         throw new AlreadyVerifiedUserException(retrievedUser.getEmail());
     }
 
-    public ResponseEntity verifySignupCode(VerifySignupCodeRequestDTO verifySignupCodeRequestDTO) {
-        String code = verifySignupCodeRequestDTO.getCode();
-        String userEmail = verifySignupCodeRequestDTO.getUserEmail();
-
+    public ResponseEntity verifySignupCode(String userEmail, String code) {
         User retrievedUser = userRepository.findByEmailAndDeletedAtIsNull(userEmail).orElseThrow(() -> new UsernameNotFoundException(userEmail));
 
         if (!retrievedUser.getIsEmailVerified()) {
