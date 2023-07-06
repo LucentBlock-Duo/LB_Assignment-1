@@ -183,10 +183,7 @@ public class CarControllerTest {
         // when & then
         this.mockMvc.perform(
                 get("/api/car")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                objectMapper.writeValueAsString(
-                                        Map.of("license_plate_no", "testLPN"))))
+                        .param(CarController.paramKeyOfLicensePlateNo, "testLPN"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("user_email").hasJsonPath())
@@ -241,10 +238,7 @@ public class CarControllerTest {
         // when & then
         this.mockMvc.perform(
                         delete("/api/car")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        objectMapper.writeValueAsString(
-                                                Map.of("license_plate_no", "testLPN"))))
+                                .param(CarController.paramKeyOfLicensePlateNo, "testLPN"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

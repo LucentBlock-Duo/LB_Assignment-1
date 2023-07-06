@@ -8,14 +8,13 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @Slf4j
 @RequestMapping("/api/email-verification")
 @RequiredArgsConstructor
 public class SignupCodeController {
     private final SignupCodeService signupCodeService;
+    public static final String paramKeyOfCode = "code";
 
     @PostMapping
     public ResponseEntity generateSignupCode() {
@@ -28,13 +27,13 @@ public class SignupCodeController {
     }
 
     @PatchMapping
-    public ResponseEntity verifySignupCode(@RequestBody Map<String, String> code) {
+    public ResponseEntity verifySignupCode(@RequestParam(paramKeyOfCode) String code) {
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
         if (currentUser == null || currentUser.isEmpty()) {
             log.info("인증 정보가 비어있습니다.");
             throw new AccessDeniedException("잚못된 접근");
         }
 
-        return signupCodeService.verifySignupCode(currentUser, code.get("code"));
+        return signupCodeService.verifySignupCode(currentUser, code);
     }
 }

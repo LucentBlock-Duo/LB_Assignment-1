@@ -164,9 +164,7 @@ public class SignupCodeControllerTest {
 
         // when & then
         this.mockMvc.perform(patch("/api/email-verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                Map.of("code", "correctCode"))))
+                        .param(SignupCodeController.paramKeyOfCode, "correctCode"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -182,8 +180,7 @@ public class SignupCodeControllerTest {
 
         // when & then
         this.mockMvc.perform(patch("/api/email-verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(Map.of("code", "incorrectCode"))))
+                        .param(SignupCodeController.paramKeyOfCode, "incorrectCode"))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -199,8 +196,7 @@ public class SignupCodeControllerTest {
 
         // when & then
         this.mockMvc.perform(patch("/api/email-verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(Map.of("code", "code"))))
+                        .param(SignupCodeController.paramKeyOfCode, "code"))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("message").exists())

@@ -29,6 +29,7 @@ public class CarController {
     private final UserRepository userRepository;
     private final CarManufacturerRepository carManufacturerRepository;
     private final CarService carService;
+    public static final String paramKeyOfLicensePlateNo = "license_plate_no";
 
     @PostMapping
     public ResponseEntity createCar(@Validated @RequestBody CreateCarRequestDTO createCarRequestDTO) {
@@ -47,8 +48,8 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<CarInfoDTO> fetchCarInfo(@RequestBody Map<String, String> licensePlateNo) {
-        return ResponseEntity.ok(carService.fetchCarInfo(licensePlateNo.get("license_plate_no")));
+    public ResponseEntity<CarInfoDTO> fetchCarInfo(@RequestParam(paramKeyOfLicensePlateNo) String licensePlateNo) {
+        return ResponseEntity.ok(carService.fetchCarInfo(licensePlateNo));
     }
 
     @PatchMapping
@@ -60,8 +61,8 @@ public class CarController {
     }
 
     @DeleteMapping
-    public ResponseEntity deleteCarInfo(@RequestBody Map<String, String> licensePlateNo) {
-        carService.deleteCar(licensePlateNo.get("license_plate_no"));
+    public ResponseEntity deleteCarInfo(@RequestParam(paramKeyOfLicensePlateNo) String licensePlateNo) {
+        carService.deleteCar(licensePlateNo);
         return ResponseEntity.ok().build();
     }
 
