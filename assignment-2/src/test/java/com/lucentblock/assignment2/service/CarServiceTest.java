@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -283,5 +284,51 @@ public class CarServiceTest {
         assertThrows(AccessDeniedException.class, () -> carService.deleteCar(car.getLicensePlateNo()));
         verify(mockCar, times(0)).delete();
         verify(carRepository, times(0)).saveAndFlush(mockCar);
+    }
+
+    @Test
+    @DisplayName("자신의 차량 목록을 조회할 수 있다.")
+    void fetchCarInfoByUser() {
+        // given
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        given(securityContext.getAuthentication()).willReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("test@test.com", null));
+
+        Car car2 = Car.builder()
+                .name("testCarName2")
+                .carManufacturer(carManufacturer)
+                .licensePlateNo("testLicensePlateNo2")
+                .boughtAt(LocalDateTime.now())
+                .user(user)
+                .build();
+
+        given(carRepository.findCarsByUserAndDeletedAtIsNull(user))
+                .willReturn(List.of(car, car2));
+
+        // when
+        List<CarInfoDTO> carInfoList = carService.fetchCarInfoListByUser(user);
+
+        // then
+        assertEquals(2, carInfoList.size());
+        assertEquals(CarInfoDTO.carToCarInfoDTO(car), carInfoList.get(0));
+        assertEquals(CarInfoDTO.carToCarInfoDTO(car2), carInfoList.get(1));
+    }
+
+    @Test
+    @DisplayName("자신의 차량 목록을 조회할 수 있다.")
+    void fetchCarInfoBySomeoneElse() {
+        // given
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        given(securityContext.getAuthentication()).willReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        given(SecurityContextHolder.getContext().getAuthentication())
+                .willReturn(new UsernamePasswordAuthenticationToken("DoesNotMatch@test.com", null));
+
+        // when & then
+        assertThrows(AccessDeniedException.class, () -> carService.fetchCarInfoListByUser(user));
     }
 }
