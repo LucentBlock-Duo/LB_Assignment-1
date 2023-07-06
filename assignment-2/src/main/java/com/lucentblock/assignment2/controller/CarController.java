@@ -62,4 +62,13 @@ public class CarController {
         carService.deleteCar(licensePlateNo.get("license_plate_no"));
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/list")
+    public ResponseEntity fetchCarInfoListByUser() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmailAndDeletedAtIsNull(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException(userEmail));
+
+        return ResponseEntity.ok(carService.fetchCarInfoListByUser(user)); // 그대로 반환하면 안되고 ResponseDTO 만들어야함.
+    }
 }
