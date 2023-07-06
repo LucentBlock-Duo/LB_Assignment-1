@@ -7,7 +7,6 @@ import com.lucentblock.assignment2.exception.CarDuplicateException;
 import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
 import com.lucentblock.assignment2.model.CarInfoDTO;
-import com.lucentblock.assignment2.repository.CarManufacturerRepository;
 import com.lucentblock.assignment2.repository.CarRepository;
 import com.lucentblock.assignment2.exception.CarNotFoundException;
 import lombok.RequiredArgsConstructor;

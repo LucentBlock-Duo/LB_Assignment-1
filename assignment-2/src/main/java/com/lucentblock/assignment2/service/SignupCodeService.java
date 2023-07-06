@@ -25,12 +25,8 @@ import java.util.Random;
 @Slf4j
 @RequiredArgsConstructor
 public class SignupCodeService {
-    private final JwtService jwtService;
-    private final JwtRefreshService jwtRefreshService;
-    private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
-    private final LoginChallengeRepository loginChallengeRepository;
     private final SignupCodeChallengeRepository signupCodeChallengeRepository;
 
     public ResponseEntity generateSignupCode(String userEmail) {
