@@ -57,9 +57,9 @@ public class CarService {
         return CarInfoDTO.carToCarInfoDTO(car);
     }
 
-    public CarInfoDTO updateCarInfo(CarInfoUpdateRequestDTO carInfo, CarManufacturer carManufacturer) {
-        Car car = carRepository.findByLicensePlateNoAndDeletedAtIsNull(carInfo.getLicensePlateNo())
-                .orElseThrow(() -> new CarNotFoundException(carInfo.getLicensePlateNo()));
+    public CarInfoDTO updateCarInfo(CarInfoUpdateRequestDTO updateRequestDTO, CarManufacturer carManufacturer) {
+        Car car = carRepository.findByLicensePlateNoAndDeletedAtIsNull(updateRequestDTO.getLicensePlateNo())
+                .orElseThrow(() -> new CarNotFoundException(updateRequestDTO.getLicensePlateNo()));
 
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!car.getUser().getEmail().equals(currentUser)) {
@@ -68,8 +68,8 @@ public class CarService {
         }
 
         car.setCarManufacturer(carManufacturer);
-        car.setName(carInfo.getCarName());
-        car.setBoughtAt(carInfo.getBoughtAt());
+        car.setName(updateRequestDTO.getCarName());
+        car.setBoughtAt(updateRequestDTO.getBoughtAt());
         Car savedCar = carRepository.saveAndFlush(car);
 
         return CarInfoDTO.carToCarInfoDTO(savedCar);
