@@ -39,6 +39,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         Cookie accessTokenCookie = new Cookie("access_token", accessToken);
         Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
 
+        accessTokenCookie.setPath("/");
+        refreshTokenCookie.setPath("/");
+
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
         // 쿠키에 저장하거나
