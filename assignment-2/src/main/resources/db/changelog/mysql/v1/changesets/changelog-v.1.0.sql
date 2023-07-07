@@ -5,7 +5,7 @@
    @runTransaction = true 를 통해 해당 changeset 을 transaction 으로 실행
    @runAlways = true 를 통해 이전에 실행된 적이 있더라도 해당 changeset 을 실행함, 원래는 같은 ID 일 때 해당 작업을 건너 뛰었음 */
 
--- changeset 0tae:user-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:user-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE user (
                       id INT PRIMARY KEY AUTO_INCREMENT,
@@ -24,7 +24,7 @@ CREATE TABLE user (
                       refresh_token TEXT
 );
 
--- changeset 0tae:car_manufacturer-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:car_manufacturer-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE car_manufacturer (
                                   id INT PRIMARY KEY,
@@ -33,7 +33,7 @@ CREATE TABLE car_manufacturer (
                                   deleted_at TIMESTAMP
 );
 
--- changeset 0tae:car-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:car-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE car (
                      id INT PRIMARY KEY AUTO_INCREMENT,
@@ -47,7 +47,7 @@ CREATE TABLE car (
                      FOREIGN KEY (car_manufacturer_id) REFERENCES car_manufacturer(id) ON DELETE SET NULL
 );
 
--- changeset 0tae:car_description-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:car_description-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE car_description (
                                  id INT PRIMARY KEY,
@@ -60,7 +60,7 @@ CREATE TABLE car_description (
 --                                    INDEX(car_id)
 );
 
--- changeset 0tae:login_challenge-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:login_challenge-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE login_challenge (
                                  id INT PRIMARY KEY AUTO_INCREMENT,
@@ -70,7 +70,7 @@ CREATE TABLE login_challenge (
                                  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
--- changeset 0tae:signup_code_challenge-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:signup_code_challenge-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE signup_code_challenge (
                                        id INT PRIMARY KEY AUTO_INCREMENT,
@@ -82,7 +82,7 @@ CREATE TABLE signup_code_challenge (
                                        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
--- changeset 0tae:repair_man-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:repair_man-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE repair_man (
                             id INT PRIMARY KEY,
@@ -93,7 +93,7 @@ CREATE TABLE repair_man (
                             deleted_at TIMESTAMP
 );
 
--- changeset 0tae:repair_shop-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:repair_shop-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE repair_shop (
                              id INT PRIMARY KEY,
@@ -103,7 +103,7 @@ CREATE TABLE repair_shop (
                              deleted_at TIMESTAMP
 );
 
--- changeset 0tae:maintenance_item-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:maintenance_item-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE maintenance_item (
                                   id INT PRIMARY KEY,
@@ -112,7 +112,7 @@ CREATE TABLE maintenance_item (
                                   required_time INT CHECK (required_time BETWEEN 30 AND 300) NOT NULL
 );
 
--- changeset 0tae:reserve-v.1.0 labels:v1,1.0,create
+-- changeset 0tae:reserve-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE reserve (
                          id INT PRIMARY KEY AUTO_INCREMENT,
@@ -129,3 +129,14 @@ CREATE TABLE reserve (
                          FOREIGN KEY (repair_shop_id) REFERENCES repair_shop(id),
                          FOREIGN KEY (maintenance_item_id) REFERENCES maintenance_item(id)
 );
+
+-- changeset 0tae:maintenance_item-2 labels:v1,1.0,fix
+-- comment: fix : 누락 데이터 추가
+ALTER TABLE maintenance_item ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE maintenance_item ADD COLUMN deleted_at TIMESTAMP;
+
+-- changeset 0tae:car-2 labels:v1,1.0,fix
+-- comment: fix : 번호판 column 추가
+ALTER TABLE car ADD COLUMN license_plate_no VARCHAR(25) NOT NULL;
+
+

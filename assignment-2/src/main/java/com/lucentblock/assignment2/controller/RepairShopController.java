@@ -17,7 +17,7 @@ public class RepairShopController {
 
     private final RepairShopService repairShopService;
 
-    @GetMapping("/apis/repairShop")
+    @GetMapping("/api/repairShop")
     private List<ResponseRepairShopDTO> read(@RequestParam String keyword,Long location_id){
         return repairShopService.searchResult(new RepairShopSearchRequestDTO(keyword,location_id));
     }

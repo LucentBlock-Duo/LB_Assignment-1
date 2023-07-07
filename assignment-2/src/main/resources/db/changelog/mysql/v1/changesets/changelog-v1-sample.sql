@@ -52,6 +52,14 @@ INSERT INTO car_description (id, car_id, color, seats) VALUES
                                                            (1, 3, 'Red', 4),
                                                            (2, 5, 'Blue', 4);
 
+INSERT INTO location(province, city) VALUES
+                                         ('대전','대덕구'),
+                                         ('대전','동구'),
+                                         ('대전','서구'),
+                                         ('대전','유성구'),
+                                         ('대전','중구');
+
+
 INSERT INTO repair_shop (id, name, location_id) VALUES
                                                  (1, '현대블루핸즈 봉명점', 4),
                                                  (2, '현대블루핸즈 용전점', 2),
