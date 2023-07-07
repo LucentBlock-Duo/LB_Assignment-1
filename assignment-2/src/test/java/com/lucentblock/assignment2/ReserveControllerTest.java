@@ -120,7 +120,7 @@ class ReserveControllerTest {
                         .build();
         CreateRequestReserveDTO dto2=
                 CreateRequestReserveDTO.builder()
-                        .car_id(5L)
+                        .car_id(3L)
                         .repair_man_id(repairManId)
                         .repair_shop_id(1L)
                         .start_time(LocalDateTime.now())

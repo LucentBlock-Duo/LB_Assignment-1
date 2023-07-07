@@ -5,6 +5,7 @@ import com.lucentblock.assignment2.entity.CarManufacturer;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.exception.CarDuplicateException;
+import com.lucentblock.assignment2.exception.CarNotFoundException;
 import com.lucentblock.assignment2.model.CarInfoDTO;
 import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
@@ -82,7 +83,6 @@ public class CarServiceTest {
                 .carManufacturerId(999L)
                 .licensePlateNo("testLicensePlateNo")
                 .boughtAt(LocalDateTime.now())
-                .userEmail("test@test.com")
                 .build();
 
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(anyString())).willReturn(Optional.empty());
@@ -104,7 +104,6 @@ public class CarServiceTest {
                 .carManufacturerId(999L)
                 .licensePlateNo("testLicensePlateNo")
                 .boughtAt(LocalDateTime.now())
-                .userEmail("test@test.com")
                 .build();
 
         given(carRepository.findByLicensePlateNoAndDeletedAtIsNull(testRequest.getLicensePlateNo())).willReturn(Optional.of(car));
@@ -330,5 +329,19 @@ public class CarServiceTest {
 
         // when & then
         assertThrows(AccessDeniedException.class, () -> carService.fetchCarInfoListByUser(user));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 차량에 RUD 를 수행할 경우 CarNotFoundException 발생")
+    void RUDWithCarDoesNotExist() {
+        // given
+        given(carRepository.findByLicensePlateNoAndDeletedAtIsNull("DoesNotExistLPN")).willReturn(Optional.empty());
+        CarInfoUpdateRequestDTO mockUpdateRequestDTO = mock(CarInfoUpdateRequestDTO.class);
+        CarManufacturer carManufacturer = mock(CarManufacturer.class);
+
+        // when & then
+        assertThrows(CarNotFoundException.class, () -> carService.fetchCarInfo("DoesNotExistLPN"));
+        assertThrows(CarNotFoundException.class, () -> carService.updateCarInfo(mockUpdateRequestDTO, carManufacturer));
+        assertThrows(CarNotFoundException.class, () -> carService.deleteCar("DoesNotExistLPN"));
     }
 }

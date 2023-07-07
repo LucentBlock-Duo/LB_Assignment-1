@@ -11,8 +11,8 @@ import com.lucentblock.assignment2.repository.UserRepository;
 import com.lucentblock.assignment2.service.CarService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
@@ -29,15 +29,18 @@ public class CarController {
     private final UserRepository userRepository;
     private final CarManufacturerRepository carManufacturerRepository;
     private final CarService carService;
+    public static final String paramKeyOfLicensePlateNo = "license_plate_no";
 
     @PostMapping
     public ResponseEntity createCar(@Validated @RequestBody CreateCarRequestDTO createCarRequestDTO) {
-        if (!createCarRequestDTO.getUserEmail().equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-        } // 현재 로그인한 유저와 신청 양식에 적힌 주소가 다르면 Reject.
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (currentUser.isEmpty()) {
+            log.info("인증 정보가 없습니다.");
+            throw new AccessDeniedException("잘못된 접근");
+        }
 
-        User user = userRepository.findByEmailAndDeletedAtIsNull(createCarRequestDTO.getUserEmail())
-                .orElseThrow(() -> new UsernameNotFoundException(createCarRequestDTO.getUserEmail()));
+        User user = userRepository.findByEmailAndDeletedAtIsNull(currentUser)
+                .orElseThrow(() -> new UsernameNotFoundException(currentUser));
         CarManufacturer carManufacturer = carManufacturerRepository.findById(createCarRequestDTO.getCarManufacturerId())
                 .orElseThrow(() -> new CarManufacturerNotFoundException(createCarRequestDTO.getCarManufacturerId().toString()));
 
@@ -45,8 +48,8 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<CarInfoDTO> fetchCarInfo(@RequestBody Map<String, String> licensePlateNo) {
-        return ResponseEntity.ok(carService.fetchCarInfo(licensePlateNo.get("license_plate_no")));
+    public ResponseEntity<CarInfoDTO> fetchCarInfo(@RequestParam(paramKeyOfLicensePlateNo) String licensePlateNo) {
+        return ResponseEntity.ok(carService.fetchCarInfo(licensePlateNo));
     }
 
     @PatchMapping
@@ -58,8 +61,8 @@ public class CarController {
     }
 
     @DeleteMapping
-    public ResponseEntity deleteCarInfo(@RequestBody Map<String, String> licensePlateNo) {
-        carService.deleteCar(licensePlateNo.get("license_plate_no"));
+    public ResponseEntity deleteCarInfo(@RequestParam(paramKeyOfLicensePlateNo) String licensePlateNo) {
+        carService.deleteCar(licensePlateNo);
         return ResponseEntity.ok().build();
     }
 

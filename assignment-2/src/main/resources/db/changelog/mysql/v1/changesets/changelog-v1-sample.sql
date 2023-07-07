@@ -16,10 +16,10 @@ DELETE from user;
 
 INSERT INTO user
     (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token)
-    VALUES (3, 'ilmo@gmail.com', 'moil', '01012345678', '$2a$10$TbR1IsZ0aRXlLSsNxQu1R.ZGtoTEpnt4nSRDN/2JXpo84tIzGtCEC', 0, null, '2023-07-05 12:55:59', '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoiaWxtb0BnbWFpbC5jb20iLCJpYXQiOjE2ODg1MjkzNTksImV4cCI6MTY4OTczODk1OX0.FcHp8VrXSKPWm95oOD8uUGhP-X_BP4iaU_j-Y_x5NaM');
+    VALUES (3, 'ilmo@gmail.com', 'moil', '01012345678', '$2a$10$TbR1IsZ0aRXlLSsNxQu1R.ZGtoTEpnt4nSRDN/2JXpo84tIzGtCEC', 0, false, '2023-07-05 12:55:59', '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoiaWxtb0BnbWFpbC5jb20iLCJpYXQiOjE2ODg1MjkzNTksImV4cCI6MTY4OTczODk1OX0.FcHp8VrXSKPWm95oOD8uUGhP-X_BP4iaU_j-Y_x5NaM');
 INSERT INTO user
     (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token)
-    VALUES (4, 'choi@gmail.com', 'choi', '01012345678', '$2a$10$4YhdTqcJf6oWcLX46lW6/uFJX7JGOHJVFJ30DRm6bJfFRubw/Hfka', 0, null, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null);
+    VALUES (4, 'choi@gmail.com', 'choi', '01012345678', '$2a$10$4YhdTqcJf6oWcLX46lW6/uFJX7JGOHJVFJ30DRm6bJfFRubw/Hfka', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null);
 
 INSERT INTO login_challenge (id, user_id, is_successful) VALUES
                                                              (1, 3, TRUE),

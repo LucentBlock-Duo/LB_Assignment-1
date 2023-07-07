@@ -161,19 +161,4 @@ public class AuthenticationService {
 
         return new PairOfToken(accessToken, refreshToken);
     }
-
-
-    //    @PostConstruct
-//    public void adminSetup() {
-//        User adminUser = User.builder()
-//                .name("moil")
-//                .email("admin@gmail.com")
-//                .password(passwordEncoder.encode("admin"))
-//                .phoneNumber("01012345678")
-//                .role(Role.ROLE_ADMIN)
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//
-//        userRepository.save(adminUser);
-//    }
 }
