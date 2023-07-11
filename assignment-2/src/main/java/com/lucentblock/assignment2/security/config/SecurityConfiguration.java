@@ -35,6 +35,7 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/api/register").permitAll();
                     auth.requestMatchers("/api/authenticate").permitAll();
                     auth.requestMatchers("/api/refresh").permitAll();
+                    auth.requestMatchers("/api/oauth2/authorization/**").permitAll();
                     auth.requestMatchers("/api/**").hasRole("USER");
                     auth.requestMatchers("/secured").hasRole("USER");
                     auth.requestMatchers("/open").permitAll();
