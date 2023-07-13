@@ -47,6 +47,9 @@ public class Reserve implements SoftDeletable{
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "is_payed")
+    private Boolean isPayed;
+
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
