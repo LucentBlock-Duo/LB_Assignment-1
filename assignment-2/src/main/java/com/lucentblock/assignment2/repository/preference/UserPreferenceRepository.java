@@ -11,5 +11,5 @@ import java.util.List;
 public interface UserPreferenceRepository extends JpaRepository<UserPreference, Long> {
     List<UserPreference> findAllByUser(User user);
     List<UserPreference> findAllByCarManufacturer(CarManufacturer carManufacturer);
-    List<UserPreference> findAllByMaintenanceItem(MaintenanceItem maintenanceItem);
+    List<UserPreference> findAllByMaintenanceItemAndDeletedAtIsNull(MaintenanceItem maintenanceItem);
 }

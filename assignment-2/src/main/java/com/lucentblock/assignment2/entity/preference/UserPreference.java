@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity @Table(name = "user_preference")
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class UserPreference {
@@ -26,5 +28,11 @@ public class UserPreference {
     @ManyToOne
     @JoinColumn(name = "maintenance_item_id")
     private MaintenanceItem maintenanceItem;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }
 

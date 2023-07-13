@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface RepairManPreferenceRepository extends JpaRepository<RepairManPreference, Long> {
-    List<RepairManPreference> findAllByRepairMan(RepairMan repairMan);
-    List<RepairManPreference> findAllByMaintenanceItem(MaintenanceItem maintenanceItem);
-    List<RepairManPreference> findAllByCarManufacturer(CarManufacturer carManufacturer);
+    List<RepairManPreference> findAllByRepairManAndDeletedAtIsNull(RepairMan repairMan);
+    List<RepairManPreference> findAllByMaintenanceItemAndDeletedAtIsNull(MaintenanceItem maintenanceItem);
+    List<RepairManPreference> findAllByCarManufacturerAndDeletedAtIsNull(CarManufacturer carManufacturer);
 }

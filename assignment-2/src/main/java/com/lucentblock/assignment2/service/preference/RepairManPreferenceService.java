@@ -15,14 +15,14 @@ public class RepairManPreferenceService {
     private final RepairManPreferenceRepository repository;
 
     public List<RepairManPreference> fetchPreferencesByRepairMan(RepairMan repairMan) {
-        return repository.findAllByRepairMan(repairMan);
+        return repository.findAllByRepairManAndDeletedAtIsNull(repairMan);
     }
 
     public List<RepairManPreference> fetchPreferencesByCarManufacturer(CarManufacturer carManufacturer) {
-        return repository.findAllByCarManufacturer(carManufacturer);
+        return repository.findAllByCarManufacturerAndDeletedAtIsNull(carManufacturer);
     }
 
     public List<RepairManPreference> fetchPreferencesByMaintenanceItem(MaintenanceItem maintenanceItem) {
-        return repository.findAllByMaintenanceItem(maintenanceItem);
+        return repository.findAllByMaintenanceItemAndDeletedAtIsNull(maintenanceItem);
     }
 }

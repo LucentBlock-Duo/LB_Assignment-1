@@ -23,6 +23,6 @@ public class UserPreferenceService {
     }
 
     public List<UserPreference> fetchPreferencesByMaintenanceItem(MaintenanceItem maintenanceItem) {
-        return repository.findAllByMaintenanceItem(maintenanceItem);
+        return repository.findAllByMaintenanceItemAndDeletedAtIsNull(maintenanceItem);
     }
 }
