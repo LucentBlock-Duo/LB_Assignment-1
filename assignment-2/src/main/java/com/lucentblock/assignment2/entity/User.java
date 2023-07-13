@@ -52,6 +52,9 @@ public class User implements SoftDeletable {
     @Column(name = "refresh_token")
     private String refreshToken;
 
+    @Column(name = "balance")
+    private Long balance;
+
     public User updateUserBasedOnUserInfoDTO(UpdateUserInfoRequestDTO updateUserInfoRequestDTO) {
         this.name = updateUserInfoRequestDTO.getUserName();
         this.phoneNumber = updateUserInfoRequestDTO.getPhoneNumber();
