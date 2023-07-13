@@ -2,7 +2,7 @@ package com.lucentblock.assignment2.model;
 
 
 import com.lucentblock.assignment2.entity.Car;
-import com.lucentblock.assignment2.entity.MaintenanceItem;
+import com.lucentblock.assignment2.entity.maintenanceItem.MaintenanceItem;
 import com.lucentblock.assignment2.entity.RepairMan;
 import com.lucentblock.assignment2.entity.RepairShop;
 import com.lucentblock.assignment2.exception.ReserveErrorCode;

@@ -1,10 +1,5 @@
 package com.lucentblock.assignment2.model;
 
-import com.lucentblock.assignment2.entity.Car;
-import com.lucentblock.assignment2.entity.MaintenanceItem;
-import com.lucentblock.assignment2.entity.RepairMan;
-import com.lucentblock.assignment2.entity.RepairShop;
-
 import java.time.LocalDateTime;
 
 public interface RequestReserveDTO {

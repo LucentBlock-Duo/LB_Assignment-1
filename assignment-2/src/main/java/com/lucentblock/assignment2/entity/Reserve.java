@@ -1,6 +1,6 @@
 package com.lucentblock.assignment2.entity;
 
-import com.lucentblock.assignment2.model.ResponseCode;
+import com.lucentblock.assignment2.entity.maintenanceItem.MaintenanceItem;
 import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import jakarta.persistence.*;
 import lombok.*;

@@ -2,6 +2,7 @@ package com.lucentblock.assignment2.service;
 
 
 import com.lucentblock.assignment2.entity.*;
+import com.lucentblock.assignment2.entity.maintenanceItem.MaintenanceItem;
 import com.lucentblock.assignment2.exception.*;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.repository.ReserveRepository;
