@@ -26,6 +26,9 @@ public class CountryLocation implements SoftDeletable {
     @Column
     private String city; // 시군구
 
+    @Column(name="road_address")
+    private String roadAddress; // 상세주소
+
     @Column(name="created_at")
     private LocalDateTime createdAt;
 

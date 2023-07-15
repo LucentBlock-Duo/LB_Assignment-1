@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,8 +22,10 @@ import java.util.List;
 @Slf4j
 public class ReserveService {
 
+    private final PreviousRepairService previousRepairService;
     private final EntityManager em;
     private final ReserveRepository reserveRepository;
+
 
     public List<Reserve> findReserveByCarId(long carId) {
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -78,18 +81,25 @@ public class ReserveService {
                                                 maintenanceItem(maintenanceItem).build();
     }
 
-    public ResponseReserveDTO createReserve(CreateRequestReserveDTO dto) throws RuntimeException {
-        ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
-        Reserve reserve = dto.toEntity(foreignKeySet);
-        checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
 
+    public List<ResponseReserveDTO> createReserve(List<CreateRequestReserveDTO> dtoList) throws RuntimeException {
+        List<Reserve> result=new ArrayList<>();
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!currentUsername.equals(foreignKeySet.getCar().getUser().getEmail())) {
-            log.info(currentUsername + " 이 " + foreignKeySet.getCar().getUser().getEmail() + " 으로 예약 생성을 시도하였습니다.");
-            throw new AccessDeniedException("허용되지 않은 접근");
+
+        for(CreateRequestReserveDTO dto : dtoList){
+            ForeignKeySetForReserve foreignKeySet=getForeignKeySet(dto);
+            Reserve reserve = dto.toEntity(foreignKeySet);
+            checkingValidationForReserve(reserve,foreignKeySet); // 예외상황 check
+
+            if (!currentUsername.equals(foreignKeySet.getCar().getUser().getEmail())) {
+                log.info(currentUsername + " 이 " + foreignKeySet.getCar().getUser().getEmail() + " 으로 예약 생성을 시도하였습니다.");
+                throw new AccessDeniedException("허용되지 않은 접근");
+            }
+
+            result.add(reserve);
         }
 
-        return reserveRepository.save(reserve).toDto();
+        return reserveRepository.saveAll(result).stream().map(Reserve::toDto).toList();
     }
 
     public void checkAbleToReserve(Reserve givenReserve) {
@@ -131,5 +141,39 @@ public class ReserveService {
         reserveRepository.save(reserve);
 
         return reserve;
+    }
+
+    public ResponseReserveDTO setStatus(Long reserveId,Integer status){
+        Reserve reserve=reserveRepository.findById(reserveId)
+                .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        reserve.setStatus(status);
+
+        if(RepairStatus.status(reserve.getStatus()).equals(RepairStatus.COMPLETED.status())){
+            reserve.setEndTime(LocalDateTime.now());
+            previousRepairService.createPreviousRepair(reserve.getId());
+        } // status == complete 라면 정비 기록에 남긴다.
+
+        return reserveRepository.save(reserve).toDto();
+    }
+
+    @Transactional
+    public RepairMan evaluate(RequestReserveReviewDTO dto){
+        RepairMan repairMan = em.find(RepairMan.class,dto.getRepair_man_id());
+        Reserve reserve =reserveRepository.findById(dto.getReserve_id())
+                .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        if(reserve.getIsReviewed()) throw new RuntimeException("이미 리뷰가 작성된 예약입니다.");
+
+        int num=repairMan.getEvaluatedNum();
+        double value=dto.getValue();
+        double grade=repairMan.getEvaluationGrade();
+
+        repairMan.setEvaluationGrade((grade*num+value)/(num+1));
+        repairMan.setEvaluatedNum(num+1);
+
+        reserve.setIsReviewed(true);
+
+        return em.merge(repairMan);
     }
 }

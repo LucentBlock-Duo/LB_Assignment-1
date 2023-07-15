@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class RepairMan implements SoftDeletable{
+public class RepairMan implements SoftDeletable {
 
     @Id
     private Long id;
@@ -21,19 +21,34 @@ public class RepairMan implements SoftDeletable{
     @Column
     private String name;
 
-    @Column(name="license_id")
+    @Column(name = "license_id")
     private Integer licenseId;
 
-    @Column(name="career_start_at")
+    @Column(name = "career_start_at")
     private LocalDateTime careerStartAt;
 
-    @Column(name="created_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name="deleted_at")
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "evaluated_num")
+    private Integer evaluatedNum;
+
+    @Column(name = "evaluation_grade")
+    private Double evaluationGrade;
+
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public void setEvaluatedNum(Integer evaluatedNum) {
+        this.evaluatedNum = evaluatedNum;
+    }
+
+    public void setEvaluationGrade(Double evaluationGrade) {
+        this.evaluationGrade = evaluationGrade;
     }
 }

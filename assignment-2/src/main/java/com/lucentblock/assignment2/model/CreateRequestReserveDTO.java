@@ -40,6 +40,7 @@ public class CreateRequestReserveDTO implements RequestReserveDTO {
                 repairMan(set.getRepairMan()).
                 repairShop(set.getRepairShop()).
                 maintenanceItem(set.getMaintenanceItem()).
-                createdAt(LocalDateTime.now()).build();
+                createdAt(LocalDateTime.now()).
+                status(0).build();
     }
 }

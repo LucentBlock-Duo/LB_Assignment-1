@@ -19,4 +19,5 @@ public class ResponseReserveDTO {
     String maintenance_item_name; // 정비항목
     LocalDateTime start_time; // 시작 시간
     LocalDateTime end_time; // 종료 시간
+    String status;
 }

@@ -1,6 +1,8 @@
 package com.lucentblock.assignment2.controller;
 
 
+import com.lucentblock.assignment2.entity.RepairMan;
+import com.lucentblock.assignment2.entity.RepairStatus;
 import com.lucentblock.assignment2.entity.Reserve;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.service.ReserveService;
@@ -8,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,7 +25,7 @@ public class ReserveController {
     }
 
     @PostMapping
-    private ResponseReserveDTO create(@Valid @RequestBody CreateRequestReserveDTO dto){
+    private List<ResponseReserveDTO> create(@Valid @RequestBody List<CreateRequestReserveDTO> dto){
         return reserveService.createReserve(dto);
     }
 
@@ -39,5 +42,16 @@ public class ReserveController {
     @DeleteMapping
     private Reserve delete(@RequestBody Long reserveId){
         return reserveService.deleteReserve(reserveId);
+    }
+
+
+    @PostMapping("/status")
+    private ResponseReserveDTO updateStatus(@RequestBody Long reserveId, @RequestBody Integer status){
+        return reserveService.setStatus(reserveId,status);
+    }
+
+    @PostMapping("/review")
+    private RepairMan review(@RequestBody RequestReserveReviewDTO dto){
+        return reserveService.evaluate(dto);
     }
 }

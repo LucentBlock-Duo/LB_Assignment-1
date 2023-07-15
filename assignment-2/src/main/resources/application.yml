@@ -11,3 +11,15 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/mysql/DBchangelog-mysql-master.xml
     enabled: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: choiyt3465@gmail.com
+    password: tlhghfjlyjxlqpnv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true

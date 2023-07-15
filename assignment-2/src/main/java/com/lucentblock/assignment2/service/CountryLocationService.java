@@ -28,45 +28,27 @@ public class CountryLocationService {
 
 
 
-    @Transactional
-    public boolean dataBuild() throws IOException {
+    public String dataBuild(String givenAddress) throws IOException {
         try {
             FileReader fileReader =
                     new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/src/main/resources/locationdata/대전광역시.txt");
             BufferedReader br = new BufferedReader(fileReader);
 
-            List<CountryLocation> database = new ArrayList<>();
-            HashMap<String, String> dataMap = new HashMap<>();
-
-            for (CountryLocation location : database) {
-                dataMap.put(location.getCity(), location.getProvince());
-            }
-
             String line = br.readLine(); // 1번째 줄 skip
 
             while ((line = br.readLine()) != null) {
                 String[] args = line.split("\\|");
-
-                if (dataMap.containsKey(args[3])) continue;
-
-                CountryLocation data =
-                        CountryLocation.builder()
-                                .province(args[1])
-                                .city(args[3])
-                                .createdAt(LocalDateTime.now())
-                                .build();
-
-                dataMap.put(args[3], args[1]);
-                countryLocationRepository.save(data);
+                String address=args[1]+args[3]+args[8]+args[11]; // 시, 구, 도로명, 건물번호 본번(대전 유성구 대학로159번길 6)
+                if(address.equals(givenAddress)) return args[0];
             }
         }catch (IOException e){
             log.error("File 불러오기 오류");
-            return false;
+            return null;
         }catch (Exception e){
             log.error("Data build 오류");
-            return false;
+            return null;
         }
 
-        return true;
+        return null;
     }
 }

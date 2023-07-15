@@ -26,6 +26,4 @@ public class RepairShopController {
     private boolean databuild() throws IOException {
         return repairShopService.makeLocationData();
     }
-
-
 }
