@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter @Setter
 @Entity
-@Table(name = "previous_reserve")
+@Table(name = "previous_repair")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

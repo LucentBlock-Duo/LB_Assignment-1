@@ -5,9 +5,11 @@ import com.lucentblock.assignment2.model.RepairShopSearchRequestDTO;
 import com.lucentblock.assignment2.model.ResponseRepairShopDTO;
 import com.lucentblock.assignment2.service.RepairShopService;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -23,7 +25,7 @@ public class RepairShopController {
     }
 
     @PostMapping("/api/kjj1299fsdhPZeCsnyroJ2jKaA100g2")
-    private boolean databuild() throws IOException {
-        return repairShopService.makeLocationData();
+    private boolean databuild() throws IOException, URISyntaxException, ParseException, InterruptedException {
+        return repairShopService.makeLocationDataV2();
     }
 }
