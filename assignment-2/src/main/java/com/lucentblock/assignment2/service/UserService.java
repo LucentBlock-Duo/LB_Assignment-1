@@ -35,4 +35,8 @@ public class UserService {
 
         return ResponseEntity.ok().build();
     }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByEmailAndDeletedAtIsNull(username).orElseThrow(() -> new RuntimeException(username));
+    }
 }

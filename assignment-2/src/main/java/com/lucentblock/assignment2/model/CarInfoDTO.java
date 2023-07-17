@@ -1,7 +1,7 @@
 package com.lucentblock.assignment2.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.lucentblock.assignment2.entity.Car;
+import com.lucentblock.assignment2.entity.car.Car;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

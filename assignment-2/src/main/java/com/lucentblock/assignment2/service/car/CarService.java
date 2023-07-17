@@ -1,13 +1,13 @@
-package com.lucentblock.assignment2.service;
+package com.lucentblock.assignment2.service.car;
 
-import com.lucentblock.assignment2.entity.Car;
-import com.lucentblock.assignment2.entity.CarManufacturer;
+import com.lucentblock.assignment2.entity.car.Car;
+import com.lucentblock.assignment2.entity.car.CarManufacturer;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.exception.CarDuplicateException;
 import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
 import com.lucentblock.assignment2.model.CarInfoDTO;
-import com.lucentblock.assignment2.repository.CarRepository;
+import com.lucentblock.assignment2.repository.car.CarRepository;
 import com.lucentblock.assignment2.exception.CarNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,5 +100,9 @@ public class CarService {
         return carRepository.findCarsByUserAndDeletedAtIsNull(user).stream()
                 .map( car -> CarInfoDTO.carToCarInfoDTO(car))
                 .collect(Collectors.toList());
+    }
+
+    public Car getCarById(Long id) {
+        return carRepository.findById(id).orElseThrow(() -> new CarNotFoundException(id.toString()));
     }
 }

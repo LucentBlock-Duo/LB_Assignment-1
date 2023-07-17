@@ -1,7 +1,7 @@
 package com.lucentblock.assignment2.service;
 
-import com.lucentblock.assignment2.entity.Car;
-import com.lucentblock.assignment2.entity.CarManufacturer;
+import com.lucentblock.assignment2.entity.car.Car;
+import com.lucentblock.assignment2.entity.car.CarManufacturer;
 import com.lucentblock.assignment2.entity.Role;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.exception.CarDuplicateException;
@@ -9,7 +9,8 @@ import com.lucentblock.assignment2.exception.CarNotFoundException;
 import com.lucentblock.assignment2.model.CarInfoDTO;
 import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
-import com.lucentblock.assignment2.repository.CarRepository;
+import com.lucentblock.assignment2.repository.car.CarRepository;
+import com.lucentblock.assignment2.service.car.CarService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

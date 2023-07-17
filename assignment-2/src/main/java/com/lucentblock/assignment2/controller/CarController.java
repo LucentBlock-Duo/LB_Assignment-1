@@ -1,14 +1,14 @@
 package com.lucentblock.assignment2.controller;
 
-import com.lucentblock.assignment2.entity.CarManufacturer;
+import com.lucentblock.assignment2.entity.car.CarManufacturer;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.exception.CarManufacturerNotFoundException;
 import com.lucentblock.assignment2.model.CarInfoDTO;
 import com.lucentblock.assignment2.model.CarInfoUpdateRequestDTO;
 import com.lucentblock.assignment2.model.CreateCarRequestDTO;
-import com.lucentblock.assignment2.repository.CarManufacturerRepository;
+import com.lucentblock.assignment2.repository.car.CarManufacturerRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
-import com.lucentblock.assignment2.service.CarService;
+import com.lucentblock.assignment2.service.car.CarService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @Slf4j

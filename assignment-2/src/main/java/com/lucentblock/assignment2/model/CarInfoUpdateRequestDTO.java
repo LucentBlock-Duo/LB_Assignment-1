@@ -12,10 +12,6 @@ import java.time.LocalDateTime;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class CarInfoUpdateRequestDTO {
-//    @JsonProperty(value = "user_email")
-//    @NotEmpty(message = "이메일은 필수 항목입니다.")
-//    private String userEmail;
-
     @JsonProperty(value = "license_plate_no")
     @NotNull(message = "차량번호는 필수 항목입니다.")
     private String licensePlateNo;
