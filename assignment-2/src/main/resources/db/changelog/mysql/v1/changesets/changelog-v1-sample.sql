@@ -15,42 +15,36 @@ DELETE from login_challenge;
 DELETE from user;
 
 INSERT INTO user
-    (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token)
-    VALUES (3, 'ilmo@gmail.com', 'moil', '01012345678', '$2a$10$TbR1IsZ0aRXlLSsNxQu1R.ZGtoTEpnt4nSRDN/2JXpo84tIzGtCEC', 0, false, '2023-07-05 12:55:59', '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoiaWxtb0BnbWFpbC5jb20iLCJpYXQiOjE2ODg1MjkzNTksImV4cCI6MTY4OTczODk1OX0.FcHp8VrXSKPWm95oOD8uUGhP-X_BP4iaU_j-Y_x5NaM');
+    (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token, balance)
+    VALUES (1, 'ilmo@gmail.com', 'moil', '01012345678', '$2a$10$TbR1IsZ0aRXlLSsNxQu1R.ZGtoTEpnt4nSRDN/2JXpo84tIzGtCEC', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null, 10000);
 INSERT INTO user
-    (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token)
-    VALUES (4, 'choi@gmail.com', 'choi', '01012345678', '$2a$10$4YhdTqcJf6oWcLX46lW6/uFJX7JGOHJVFJ30DRm6bJfFRubw/Hfka', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null);
-
-INSERT INTO login_challenge (id, user_id, is_successful) VALUES
-                                                             (1, 3, TRUE),
-                                                             (2, 4, TRUE);
-
-INSERT INTO signup_code_challenge (id, user_id, code, is_successful) VALUES
-                                                                         (1, 3, 'code1', TRUE),
-                                                                         (2, 4, 'code2', TRUE);
+    (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token, balance)
+    VALUES (2, 'choi@gmail.com', 'choi', '01012345678', '$2a$10$4YhdTqcJf6oWcLX46lW6/uFJX7JGOHJVFJ30DRm6bJfFRubw/Hfka', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null, 10000);
 
 INSERT INTO car_manufacturer (id, name) VALUES
-                                            (3, 'HYUNDAI'),
-                                            (4, 'KIA'),
-                                            (5, 'MERCEDES BENZ'),
-                                            (6, 'BMW'),
-                                            (7, 'AUDI'),
-                                            (8, 'CHEVROLET'),
-                                            (9, 'RENAULT');
+                                            (1, 'HYUNDAI'),
+                                            (2, 'KIA'),
+                                            (3, 'MERCEDES BENZ'),
+                                            (4, 'BMW'),
+                                            (5, 'AUDI'),
+                                            (6, 'CHEVROLET'),
+                                            (7, 'RENAULT');
 
 INSERT INTO car (id,license_plate_no, user_id, name, car_manufacturer_id, bought_at, created_at, deleted_at)
 VALUES
-    (3, '987가6543',3, 'ELANTRA', 3, TIMESTAMP('2023-07-05 10:00:00'), TIMESTAMP('2023-07-04 10:00:00'), null),
-    (5, '876가5432',4, 'S580', 5, TIMESTAMP('2023-07-06 00:00:00'), TIMESTAMP('2023-07-05 10:00:00'), null);
+    (1, '987가6543',1, 'ELANTRA', 1, TIMESTAMP('2023-07-05 10:00:00'), TIMESTAMP('2023-07-04 10:00:00'), null),
+    (2, '876가5432',2, 'S580', 3, TIMESTAMP('2023-07-06 00:00:00'), TIMESTAMP('2023-07-05 10:00:00'), null);
 
 INSERT INTO maintenance_item (id, name, required_license, required_time, created_at, deleted_at) VALUES
-                                                                                                     (7, '엔진 오일', 1, 30, TIMESTAMP(NOW()), null),
-                                                                                                     (8, '타이어 교환', 2, 40, TIMESTAMP(NOW()), null),
-                                                                                                     (9, '범퍼 교체', 3, 60, TIMESTAMP(now()), null);
+                                                                                                     (1, '엔진오일 교환', 1, 30, TIMESTAMP(NOW()), null),
+                                                                                                     (2, '판금도색', 2, 40, TIMESTAMP(NOW()), null),
+                                                                                                     (3, '파워트레인 교체', 3, 60, TIMESTAMP(now()), null),
+                                                                                                     (4, '타이어 교환', 3, 60, TIMESTAMP(now()), null),
+                                                                                                     (5, '차량용 소프트웨어 업데이트', 3, 60, TIMESTAMP(now()), null);
 
 INSERT INTO car_description (id, car_id, color, seats) VALUES
-                                                           (1, 3, 'Red', 4),
-                                                           (2, 5, 'Blue', 4);
+                                                           (1, 1, 'Red', 4),
+                                                           (2, 2, 'Blue', 4);
 
 INSERT INTO location(province, city) VALUES
                                          ('대전','대덕구'),
@@ -71,3 +65,37 @@ INSERT INTO repair_man (id, name, license_id) VALUES
                                                   (1, 'Repairman A', 1),
                                                   (2, 'Repairman B', 2),
                                                   (3, 'Repairman C', 3);
+
+INSERT INTO item_detail (id, maintenance_item_id, repair_man_id, price, created_at, deleted_at) VALUES
+                                                                                                    (1, 1, 1, 4000, TIMESTAMP(now()), null),
+                                                                                                    (2, 1, 2, 3000, TIMESTAMP(now()), null),
+                                                                                                    (3, 2, 1, 5000, TIMESTAMP(now()), null),
+                                                                                                    (4, 2, 3, 6000, TIMESTAMP(now()), null),
+                                                                                                    (5, 3, 2, 10000, TIMESTAMP(now()), null);
+
+INSERT INTO repair_man_car_manufacturer_preference (id, repair_man_id, car_manufacturer_id, created_at, deleted_at) VALUES
+                                                                                                                        (1, 1, 1, TIMESTAMP(now()), null),
+                                                                                                                        (2, 2, 2, TIMESTAMP(now()), null),
+                                                                                                                        (3, 3, 3, TIMESTAMP(now()), null),
+                                                                                                                        (4, 1, 4, TIMESTAMP(now()), null),
+                                                                                                                        (5, 2, 5, TIMESTAMP(now()), null),
+                                                                                                                        (6, 3, 6, TIMESTAMP(now()), null);
+
+INSERT INTO user_car_manufacturer_preference (id, user_id, car_manufacturer_id, created_at, deleted_at) VALUES
+                                                                                                            (1, 1, 1, TIMESTAMP(now()), null),
+                                                                                                            (2, 2, 2, TIMESTAMP(now()), null),
+                                                                                                            (3, 1, 3, TIMESTAMP(now()), null),
+                                                                                                            (4, 2, 4, TIMESTAMP(now()), null);
+
+INSERT INTO repair_man_maintenance_item_preference (id, repair_man_id, maintenance_item_id, created_at, deleted_at) VALUES
+                                                                                                                        (1, 1, 1, TIMESTAMP(now()), null),
+                                                                                                                        (2, 2, 2, TIMESTAMP(now()), null),
+                                                                                                                        (3, 3, 3, TIMESTAMP(now()), null),
+                                                                                                                        (4, 1, 4, TIMESTAMP(now()), null),
+                                                                                                                        (5, 2, 5, TIMESTAMP(now()), null);
+
+INSERT INTO user_maintenance_item_preference (id, user_id, maintenance_item_id, created_at, deleted_at) VALUES
+                                                                                                            (1, 1, 1, TIMESTAMP(now()), null),
+                                                                                                            (2, 2, 2, TIMESTAMP(now()), null),
+                                                                                                            (3, 1, 3, TIMESTAMP(now()), null),
+                                                                                                            (4, 2, 4, TIMESTAMP(now()), null);

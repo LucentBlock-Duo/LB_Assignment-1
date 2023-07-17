@@ -15,13 +15,4 @@ public class RepairManInfo {
     private String name;
     private Integer licenseId;
     private LocalDateTime careerStartAt;
-
-    public static RepairManInfo toDTO(RepairMan repairMan) {
-        return RepairManInfo.builder()
-                .id(repairMan.getId())
-                .name(repairMan.getName())
-                .licenseId(repairMan.getLicenseId())
-                .careerStartAt(repairMan.getCareerStartAt())
-                .build();
-    }
 }

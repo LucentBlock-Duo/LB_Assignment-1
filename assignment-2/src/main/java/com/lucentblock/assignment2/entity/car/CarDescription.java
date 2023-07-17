@@ -1,6 +1,7 @@
-package com.lucentblock.assignment2.entity;
+package com.lucentblock.assignment2.entity.car;
 
 
+import com.lucentblock.assignment2.entity.SoftDeletable;
 import jakarta.persistence.*;
 import lombok.*;
 

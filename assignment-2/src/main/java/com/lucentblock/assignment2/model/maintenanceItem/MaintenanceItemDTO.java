@@ -1,6 +1,5 @@
 package com.lucentblock.assignment2.model.maintenanceItem;
 
-import com.lucentblock.assignment2.entity.maintenanceItem.MaintenanceItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

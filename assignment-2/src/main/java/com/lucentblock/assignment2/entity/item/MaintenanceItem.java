@@ -1,4 +1,4 @@
-package com.lucentblock.assignment2.entity.maintenanceItem;
+package com.lucentblock.assignment2.entity.item;
 
 import com.lucentblock.assignment2.entity.SoftDeletable;
 import com.lucentblock.assignment2.model.maintenanceItem.MaintenanceItemDTO;

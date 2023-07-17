@@ -42,4 +42,8 @@ public class RepairShopService {
             return false;
         }
     }
+
+    public RepairShop getRepairShopById(Long id) {
+        return repairShopRepository.findById(id).orElseThrow(() -> new RepairShopNotFoundException(id.toString()));
+    }
 }

@@ -1,7 +1,7 @@
-package com.lucentblock.assignment2.entity.maintenanceItem;
+package com.lucentblock.assignment2.entity.item;
 
 import com.lucentblock.assignment2.entity.RepairMan;
-import com.lucentblock.assignment2.service.maintenanceItem.ItemDetailDTO;
+import com.lucentblock.assignment2.service.item.ItemDetailDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity @Table(name = "item_details")
+@Entity @Table(name = "item_detail")
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ItemDetail {
 
@@ -32,6 +32,7 @@ public class ItemDetail {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -39,7 +40,7 @@ public class ItemDetail {
         return ItemDetailDTO.builder()
                 .id(itemDetail.getId())
                 .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                .repairManId(itemDetail.getRepairMan().getId())
+                .repairManInfo(RepairMan.toDTO(itemDetail.getRepairMan()))
                 .price(itemDetail.getPrice())
                 .build();
     }
