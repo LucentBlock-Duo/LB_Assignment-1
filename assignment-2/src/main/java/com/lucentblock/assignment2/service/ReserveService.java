@@ -45,17 +45,6 @@ public class ReserveService {
         return reserveRepository.findReservesByUser(user);
     }
 
-//    public Reserve updateReserve(Long reserveId, RepairShop repairShop, LocalDate date, LocalTime startTime, ItemDetail item) {
-//        Reserve reserve = reserveRepository.findById(reserveId).orElseThrow(() -> new ReserveNotFoundException(ReserveErrorCode.ERROR_102));
-//
-//        if (reserve.getDate().isEqual(date) && reserve.getStartTime().equals(startTime)) {
-//            if (reserve.getEndTime().isBefore(startTime.plusMinutes(item.getMaintenanceItem().getRequiredTime()))) {
-//
-//            }
-//        }
-//        if (reserveRepository.findReservesByRepairManAndDeletedIsNull())
-//    }
-
     public List<Reserve> deleteReserves(List<Long> reserveIds, String username) {
         List<Reserve> reserves = reserveRepository.findAllById(reserveIds);
 

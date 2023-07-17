@@ -73,7 +73,7 @@ INSERT INTO item_detail (id, maintenance_item_id, repair_man_id, price, created_
                                                                                                     (4, 2, 3, 6000, TIMESTAMP(now()), null),
                                                                                                     (5, 3, 2, 10000, TIMESTAMP(now()), null);
 
-INSERT INTO repair_man_car_manufacturer_preference (id, repair_man_id, car_manufacturer_id, created_at, deleted_at) VALUES
+INSERT INTO repair_man_brand_preference (id, repair_man_id, car_manufacturer_id, created_at, deleted_at) VALUES
                                                                                                                         (1, 1, 1, TIMESTAMP(now()), null),
                                                                                                                         (2, 2, 2, TIMESTAMP(now()), null),
                                                                                                                         (3, 3, 3, TIMESTAMP(now()), null),
@@ -81,20 +81,20 @@ INSERT INTO repair_man_car_manufacturer_preference (id, repair_man_id, car_manuf
                                                                                                                         (5, 2, 5, TIMESTAMP(now()), null),
                                                                                                                         (6, 3, 6, TIMESTAMP(now()), null);
 
-INSERT INTO user_car_manufacturer_preference (id, user_id, car_manufacturer_id, created_at, deleted_at) VALUES
+INSERT INTO user_brand_preference (id, user_id, car_manufacturer_id, created_at, deleted_at) VALUES
                                                                                                             (1, 1, 1, TIMESTAMP(now()), null),
                                                                                                             (2, 2, 2, TIMESTAMP(now()), null),
                                                                                                             (3, 1, 3, TIMESTAMP(now()), null),
                                                                                                             (4, 2, 4, TIMESTAMP(now()), null);
 
-INSERT INTO repair_man_maintenance_item_preference (id, repair_man_id, maintenance_item_id, created_at, deleted_at) VALUES
+INSERT INTO repair_man_item_preference (id, repair_man_id, maintenance_item_id, created_at, deleted_at) VALUES
                                                                                                                         (1, 1, 1, TIMESTAMP(now()), null),
                                                                                                                         (2, 2, 2, TIMESTAMP(now()), null),
                                                                                                                         (3, 3, 3, TIMESTAMP(now()), null),
                                                                                                                         (4, 1, 4, TIMESTAMP(now()), null),
                                                                                                                         (5, 2, 5, TIMESTAMP(now()), null);
 
-INSERT INTO user_maintenance_item_preference (id, user_id, maintenance_item_id, created_at, deleted_at) VALUES
+INSERT INTO user_item_preference (id, user_id, maintenance_item_id, created_at, deleted_at) VALUES
                                                                                                             (1, 1, 1, TIMESTAMP(now()), null),
                                                                                                             (2, 2, 2, TIMESTAMP(now()), null),
                                                                                                             (3, 1, 3, TIMESTAMP(now()), null),
