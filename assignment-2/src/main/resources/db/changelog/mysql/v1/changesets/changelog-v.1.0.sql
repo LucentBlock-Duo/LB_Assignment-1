@@ -134,7 +134,7 @@ CREATE TABLE reserve (
 
 -- changeset 0tae:repair_man_car_manufacturer_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
-CREATE TABLE repair_man_car_manufacturer_preference (
+CREATE TABLE repair_man_brand_preference (
     id INT PRIMARY KEY AUTO_INCREMENT,
     repair_man_id INT NOT NULL,
     car_manufacturer_id INT NOT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE repair_man_car_manufacturer_preference (
 
 -- changeset 0tae:repair_man_maintenance_item_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
-CREATE TABLE repair_man_maintenance_item_preference (
+CREATE TABLE repair_man_item_preference (
                                        id INT PRIMARY KEY AUTO_INCREMENT,
                                        repair_man_id INT NOT NULL,
                                        maintenance_item_id INT NOT NULL,
@@ -158,7 +158,7 @@ CREATE TABLE repair_man_maintenance_item_preference (
 
 -- changeset 0tae:user_car_manufacturer_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
-CREATE TABLE user_car_manufacturer_preference (
+CREATE TABLE user_brand_preference (
                                        id INT PRIMARY KEY AUTO_INCREMENT,
                                        user_id INT NOT NULL,
                                        car_manufacturer_id INT NOT NULL,
@@ -170,7 +170,7 @@ CREATE TABLE user_car_manufacturer_preference (
 
 -- changeset 0tae:user_maintenance_item_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
-CREATE TABLE user_maintenance_item_preference (
+CREATE TABLE user_item_preference (
                                                   id INT PRIMARY KEY AUTO_INCREMENT,
                                                   user_id INT NOT NULL,
                                                   maintenance_item_id INT NOT NULL,
