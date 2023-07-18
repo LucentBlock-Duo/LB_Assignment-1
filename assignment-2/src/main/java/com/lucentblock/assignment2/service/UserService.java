@@ -37,6 +37,6 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByEmailAndDeletedAtIsNull(username).orElseThrow(() -> new RuntimeException(username));
+        return userRepository.findByEmailAndDeletedAtIsNull(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }
