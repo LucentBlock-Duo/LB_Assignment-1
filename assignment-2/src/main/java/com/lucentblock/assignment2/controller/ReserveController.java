@@ -44,8 +44,8 @@ public class ReserveController {
                     Car car = carService.getCarById(dto.getCar_id());
                     ItemDetail item = itemDetailService.getItemById(dto.getItem_detail_id());
 
-                    if (!car.getUser().getName().equals(user.getName())) {
-                        log.info(user.getName() + " 이 " + car.getUser().getName() + " 에 접근을 시도했습니다.");
+                    if (!car.getUser().getEmail().equals(user.getEmail())) {
+                        log.info(user.getEmail() + " 이 " + car.getUser().getEmail() + " 에 접근을 시도했습니다.");
                         throw new AccessDeniedException("잘못된 접근");
                     }
                     if (user.getBalance() >= item.getPrice()) {
@@ -67,11 +67,15 @@ public class ReserveController {
 
     @DeleteMapping
     @Transactional
-    public ResponseEntity deleteReserves(List<Long> ids) {
+    public ResponseEntity deleteReserves(@RequestParam("ids") List<Long> ids) {
         // get reservesById 로 레포지토리에서 꺼내온 다음
         // 요청한 Reserve 들이 모두 현재 로그인한 사용자와 맞는지 확인하고
         // 로그인한 사용자가 맞다면, deleted_at 을 채워넣고, 아니라면 Exception 을 발생시킨다.
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(reserveService.deleteReserves(ids, username));
+        return ResponseEntity.ok(
+                reserveService.deleteReserves(ids, username).stream()
+                        .map(reserve -> reserve.toDto())
+                        .toList()
+        );
     }
 }
