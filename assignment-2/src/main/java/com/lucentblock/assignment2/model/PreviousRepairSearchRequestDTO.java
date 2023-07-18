@@ -29,7 +29,6 @@ public class PreviousRepairSearchRequestDTO {
         Long car_id;
         Long repair_man_id;
         Long repair_shop_id;
-        Long maintenance_item_id;
+        Long item_detail_id;
     }
-
 }

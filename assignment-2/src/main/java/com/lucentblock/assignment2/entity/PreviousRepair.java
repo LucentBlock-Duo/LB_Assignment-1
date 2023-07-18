@@ -1,10 +1,15 @@
 package com.lucentblock.assignment2.entity;
 
+import com.lucentblock.assignment2.entity.car.Car;
+import com.lucentblock.assignment2.entity.item.ItemDetail;
+import com.lucentblock.assignment2.entity.item.MaintenanceItem;
 import com.lucentblock.assignment2.model.ResponsePreviousRepairDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 @Getter @Setter
@@ -19,11 +24,14 @@ public class PreviousRepair implements SoftDeletable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="repair_date")
+    private LocalDate repairDate;
+
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @ManyToOne
     @JoinColumn(name="user_id")
@@ -42,8 +50,8 @@ public class PreviousRepair implements SoftDeletable {
     private RepairShop repairShop;
 
     @ManyToOne
-    @JoinColumn(name = "maintenance_item_id")
-    private MaintenanceItem maintenanceItem;
+    @JoinColumn(name = "item_detail_id") // 컬럼 수정 요망
+    private ItemDetail itemDetail;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -60,11 +68,12 @@ public class PreviousRepair implements SoftDeletable {
 
     public ResponsePreviousRepairDTO toDto(){
         return ResponsePreviousRepairDTO.builder()
+                .repair_date(getRepairDate())
                 .car_name(car.getName())
                 .user_email(user.getEmail())
                 .repair_man_name(repairMan.getName())
                 .repair_shop_name(repairShop.getName())
-                .maintenance_item_name(maintenanceItem.getItemName())
+                .maintenance_item_name(itemDetail.getMaintenanceItem().getItemName())
                 .startTime(getStartTime())
                 .endTime(getEndTime())
                 .status(RepairStatus.status(getStatus()))

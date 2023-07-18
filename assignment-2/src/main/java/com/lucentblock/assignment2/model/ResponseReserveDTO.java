@@ -19,7 +19,8 @@ public class ResponseReserveDTO {
     String repair_shop_name; // 정비소
     String repair_man_id; // 정비공
     String maintenance_item_name; // 정비항목
-    LocalDateTime start_time; // 시작 시간
-    LocalDateTime end_time; // 종료 시간
+    LocalTime start_time; // 시작 시간
+    LocalTime end_time; // 종료 시간
     LocalDate date;
+    String status;
 }

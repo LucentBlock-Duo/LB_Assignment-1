@@ -7,7 +7,11 @@ import com.lucentblock.assignment2.entity.item.ItemDetail;
 import com.lucentblock.assignment2.exception.ReserveErrorCode;
 import com.lucentblock.assignment2.exception.ReserveNotFoundException;
 import com.lucentblock.assignment2.exception.ReserveTimeConflictException;
+import com.lucentblock.assignment2.model.RequestReserveReviewDTO;
+import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import com.lucentblock.assignment2.repository.ReserveRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,6 +29,7 @@ import java.util.List;
 public class ReserveService {
     private final PreviousRepairService previousRepairService;
     private final ReserveRepository reserveRepository;
+    private final EntityManager em;
 
     public Reserve createReserve(RepairShop repairShop, Car car, LocalDate date, LocalTime startTime, ItemDetail item) {
         if (reserveRepository.findReservesByRepairManAndDeletedAtIsNull(startTime.plusMinutes(item.getMaintenanceItem().getRequiredTime()), startTime, item.getRepairMan()).size() > 0
@@ -63,14 +68,14 @@ public class ReserveService {
         return reserves;
     }
 
-    public ResponseReserveDTO setStatus(Long reserveId,Integer status){
+    public ResponseReserveDTO setStatus(Long reserveId, Integer status){
         Reserve reserve=reserveRepository.findById(reserveId)
                 .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
 
         reserve.setStatus(status);
 
         if(RepairStatus.status(reserve.getStatus()).equals(RepairStatus.COMPLETED.status())){
-            reserve.setEndTime(LocalDateTime.now());
+            reserve.setEndTime(LocalTime.now());
             previousRepairService.createPreviousRepair(reserve.getId());
         } // status == complete 라면 정비 기록에 남긴다.
 

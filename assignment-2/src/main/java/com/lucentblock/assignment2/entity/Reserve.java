@@ -75,13 +75,14 @@ public class Reserve implements SoftDeletable{
 
     public PreviousRepair toPreviousRepairEntity(){
         return PreviousRepair.builder()
+                .repairDate(getDate())
                 .startTime(getStartTime())
                 .endTime(getEndTime())
                 .user(getCar().getUser())
                 .car(getCar())
                 .repairMan(getRepairMan())
                 .repairShop(getRepairShop())
-                .maintenanceItem(getMaintenanceItem())
+                .itemDetail(getItemDetail())
                 .status(getStatus())
                 .build();
     }

@@ -32,3 +32,7 @@ CREATE TABLE previous_repair (
                          FOREIGN KEY (maintenance_item_id) REFERENCES maintenance_item(id),
                          FOREIGN KEY (user_id) REFERENCES user(id)
 );
+
+-- changeset 0tae:previous_repair-2 labels:v2,1.2,repair_man_service
+-- comment: fix : 정비 날짜 컬럼 추가.
+ALTER TABLE previous_repair ADD COLUMN repair_date DATE NOT NULL;

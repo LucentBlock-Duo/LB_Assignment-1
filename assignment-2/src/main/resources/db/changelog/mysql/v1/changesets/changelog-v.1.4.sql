@@ -24,10 +24,8 @@ ALTER TABLE repair_shop ADD COLUMN post_num INT NOT NULL;
 ALTER TABLE repair_shop ADD COLUMN province VARCHAR(25) NOT NULL;
 ALTER TABLE repair_shop ADD COLUMN city VARCHAR(10) NOT NULL;
 
--- changeset 0tae:repair_shop-6 labels:v1,1.4,location_search_service
--- comment: fix : repair_shop Auto Increment 추가
-
-ALTER TABLE previous_repair DROP CONSTRAINT previous_repair_ibfk_3;
-ALTER TABLE repair_shop MODIFY COLUMN id INT AUTO_INCREMENT;
-ALTER TABLE reserve ADD FOREIGN KEY(repair_shop_id) REFERENCES repair_shop(id);
-ALTER TABLE previous_repair ADD FOREIGN KEY(repair_shop_id) REFERENCES repair_shop(id);
+-- changeset 0tae:user-3 labels:v1,1.4,location_search_service,gps_service
+-- comment: fix : user의 latitude, longitude 추가
+ALTER TABLE user ADD COLUMN latitude VARCHAR(255) NOT NULL;
+ALTER TABLE user ADD COLUMN longitude VARCHAR(255) NOT NULL;
+ALTER TABLE user ADD COLUMN gps_authorized BOOLEAN DEFAULT false;

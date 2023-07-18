@@ -5,15 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Builder
 @AllArgsConstructor
 public class ResponsePreviousRepairDTO {
     Long id;
-    LocalDateTime startTime;
-    LocalDateTime endTime;
+    LocalTime startTime;
+    LocalTime endTime;
+    LocalDate repair_date;
     String user_email;
     String car_name;
     String repair_man_name;

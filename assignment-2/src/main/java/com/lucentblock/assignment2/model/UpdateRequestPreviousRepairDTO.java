@@ -30,7 +30,7 @@ public class UpdateRequestPreviousRepairDTO implements RequestPreviousRepairDTO 
     Long repair_man_id; // 정비공
 
     @NotNull(message = "정비항목을 선택 해주세요.")
-    Long maintenance_item_id; // 정비항목
+    Long item_detail_id; // 정비항목
 
     @NotNull(message = "정비 시작 시간을 입력해주세요.")
     LocalDateTime start_time; // 예약시작
