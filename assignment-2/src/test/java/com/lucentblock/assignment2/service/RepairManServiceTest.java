@@ -59,7 +59,7 @@ public class RepairManServiceTest {
 
         // when
         Boolean[] timeSlot = repairManService.fetchRepairManScheduleByDate(1L, LocalDate.now());
-        
+
         // then
         Assertions.assertArrayEquals(booleans, timeSlot);
     }

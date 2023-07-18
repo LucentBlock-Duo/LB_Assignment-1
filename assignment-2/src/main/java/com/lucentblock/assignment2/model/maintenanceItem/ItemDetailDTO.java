@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ItemDetailDTO {
     private Long itemDetailId;
+    private Long maintenanceItemId;
     private String itemName;
     private Integer requiredLicense;
     private Integer requiredTime;

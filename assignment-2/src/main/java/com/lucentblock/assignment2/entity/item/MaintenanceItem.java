@@ -1,7 +1,6 @@
 package com.lucentblock.assignment2.entity.item;
 
 import com.lucentblock.assignment2.entity.SoftDeletable;
-import com.lucentblock.assignment2.model.maintenanceItem.ItemDetailDTO;
 import com.lucentblock.assignment2.model.maintenanceItem.MaintenanceItemDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

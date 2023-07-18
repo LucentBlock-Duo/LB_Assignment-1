@@ -48,6 +48,7 @@ public class RepairManService {
                                 .map(
                                         itemDetail -> ItemDetailDTO.builder()
                                                 .itemDetailId(itemDetail.getId())
+                                                .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
                                                 .itemName(itemDetail.getMaintenanceItem().getItemName())
                                                 .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
                                                 .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
@@ -76,6 +77,7 @@ public class RepairManService {
                             .map(
                                     itemDetail -> ItemDetailDTO.builder()
                                     .itemDetailId(itemDetail.getId())
+                                    .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
                                     .itemName(itemDetail.getMaintenanceItem().getItemName())
                                     .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
                                     .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
@@ -99,6 +101,7 @@ public class RepairManService {
                         .careerStartAt(itemDetail.getRepairMan().getCareerStartAt())
                         .availableItems(List.of(ItemDetailDTO.builder()
                                             .itemDetailId(itemDetail.getId())
+                                            .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
                                             .itemName(itemDetail.getMaintenanceItem().getItemName())
                                             .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
                                             .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
@@ -123,6 +126,7 @@ public class RepairManService {
                                 .map(
                                         itemDetail -> ItemDetailDTO.builder()
                                                 .itemDetailId(itemDetail.getId())
+                                                .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
                                                 .itemName(itemDetail.getMaintenanceItem().getItemName())
                                                 .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
                                                 .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())

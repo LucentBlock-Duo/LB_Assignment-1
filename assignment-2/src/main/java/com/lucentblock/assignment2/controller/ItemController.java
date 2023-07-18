@@ -1,7 +1,6 @@
 package com.lucentblock.assignment2.controller;
 
 import com.lucentblock.assignment2.entity.item.MaintenanceItem;
-import com.lucentblock.assignment2.model.maintenanceItem.ItemDetailDTO;
 import com.lucentblock.assignment2.model.maintenanceItem.MaintenanceItemDTO;
 import com.lucentblock.assignment2.service.RepairManService;
 import com.lucentblock.assignment2.service.item.ItemDetailService;
