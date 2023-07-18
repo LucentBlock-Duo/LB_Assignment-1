@@ -64,7 +64,7 @@ public class User implements SoftDeletable {
     @Column(name = "latitude")
     private BigDecimal latitude;
 
-    @Column(name = "logitude")
+    @Column(name = "longitude")
     private BigDecimal longitude;
 
     public User updateUserBasedOnUserInfoDTO(UpdateUserInfoRequestDTO updateUserInfoRequestDTO) {
