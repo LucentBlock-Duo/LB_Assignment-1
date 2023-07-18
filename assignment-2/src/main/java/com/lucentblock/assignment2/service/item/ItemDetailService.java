@@ -14,10 +14,6 @@ import java.util.stream.Collectors;
 @Service @RequiredArgsConstructor
 public class ItemDetailService {
     private final ItemDetailRepository itemDetailRepository;
-    public ItemDetail getItemByRepairManAndMaintenanceItem(RepairMan repairMan, MaintenanceItem maintenanceItem) {
-        return itemDetailRepository.findByRepairManAndMaintenanceItem(repairMan, maintenanceItem)
-                .orElseThrow(() -> new ItemDetailNotFoundException("Notfound"));
-    }
     public ItemDetail getItemById(Long id) {
         return itemDetailRepository.findById(id).orElseThrow(() -> new ItemDetailNotFoundException(id.toString()));
     }

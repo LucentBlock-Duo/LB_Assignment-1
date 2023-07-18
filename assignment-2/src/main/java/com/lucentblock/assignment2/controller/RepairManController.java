@@ -44,6 +44,11 @@ public class RepairManController {
         return repairManService.filterRepairMenByDateTime(date, startTime, ids);
     }
 
+    @GetMapping(value = "/available", params = {"maintenance_item_id", "repair_men_ids"})
+    public List<RepairManInfoDTO> filterRepairMenByItem(@RequestParam("maintenance_item_id")Long maintenanceItemId, @RequestParam("repair_man_ids")List<Long> ids) {
+        return repairManService.filterRepairMenByItem(maintenanceItemId, ids);
+    }
+
     @GetMapping(value = "/available", params = {"repair_man_id", "date"})
     public Boolean[] fetchRepairManScheduleByDate(@RequestParam("repair_man_id")Long repairManId, @RequestParam("date")LocalDate date) {
         return repairManService.fetchRepairManScheduleByDate(repairManId, date);

@@ -137,6 +137,30 @@ public class RepairManService {
                 .toList();
     }
 
+    public List<RepairManInfoDTO> filterRepairMenByItem(Long maintenanceItemId, List<Long> ids) {
+        List<RepairMan> repairMen = repairManRepository.findAllById(ids);
+        return repairMen.stream()
+                .filter(repairMan -> itemDetailRepository.findByRepairManAndMaintenanceItem_Id(repairMan, maintenanceItemId).isPresent())
+                .map(repairMan -> RepairManInfoDTO.builder()
+                        .id(repairMan.getId())
+                        .name(repairMan.getName())
+                        .licenseId(repairMan.getLicenseId())
+                        .careerStartAt(repairMan.getCareerStartAt())
+                        .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
+                                .map(
+                                        itemDetail -> ItemDetailDTO.builder()
+                                                .itemDetailId(itemDetail.getId())
+                                                .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
+                                                .itemName(itemDetail.getMaintenanceItem().getItemName())
+                                                .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
+                                                .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
+                                                .price(itemDetail.getPrice())
+                                                .build()
+                                ).toList()
+                        ).build())
+                .toList();
+    }
+
     public Boolean[] fetchRepairManScheduleByDate(Long repairManId, LocalDate date) {
         Boolean[] availableTimeSlot = new Boolean[18];
         Arrays.fill(availableTimeSlot, true);
