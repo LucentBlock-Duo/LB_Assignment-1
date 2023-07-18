@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -27,15 +28,9 @@ public interface ReserveRepository extends JpaRepository<Reserve,Long> {
             , nativeQuery = true)
     List<Reserve> findReservesByCarAndDeletedAtIsNull(LocalTime endTime, LocalTime startTime, Car car);
 
-//    /*
-//        예약 갱신 시, 수리공의 스케쥴만 비어있으면 예약을 허용
-//     */
-//    @Query(value = "select * from assignment.reserve where repair_man_id = :#{#repairMan.id} and (start_time < :endTime and end_time > :startTime)"
-//            , nativeQuery = true)
-//    List<Reserve> findReservesByRepairManAndDeletedIsNull(LocalTime endTime, LocalTime startTime, RepairMan repairMan);
-
-
-    @Query(value = "select reserve.id, reserve.start_time, reserve.end_time, reserve.date, reserve.car_id, reserve.repair_man_id, reserve.repair_shop_id, reserve.item_detail_id, reserve.created_at, reserve.deleted_at" +
-            "  from assignment.reserve join car on reserve.car_id = car.id where car.user_id = :#{#user.id}", nativeQuery = true)
-    List<Reserve> findReservesByUser(User user);
+    @Query(value = "SELECT reserve.id, reserve.start_time, reserve.end_time, reserve.date, reserve.car_id, reserve.repair_man_id, reserve.repair_shop_id, reserve.item_detail_id, reserve.created_at, reserve.deleted_at" +
+            "  FROM assignment.reserve JOIN car ON reserve.car_id = car.id WHERE car.user_id = :#{#user.id} AND reserve.deleted_at IS NULL", nativeQuery = true)
+    List<Reserve> findReservesByUserAndDeletedAtIsNull(User user);
+    List<Reserve> findReservesByRepairManAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndDeletedAtIsNull(RepairMan repairMan, LocalDate date, LocalTime newEndTime, LocalTime newStartTime);
+    List<Reserve> findReservesByRepairMan_IdAndDateAndDeletedAtIsNull(Long repairManId, LocalDate date);
 }

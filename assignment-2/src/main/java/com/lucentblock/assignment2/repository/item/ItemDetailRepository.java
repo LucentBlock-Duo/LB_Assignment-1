@@ -10,4 +10,6 @@ import java.util.Optional;
 
 public interface ItemDetailRepository extends JpaRepository<ItemDetail, Long> {
     Optional<ItemDetail> findByRepairManAndMaintenanceItem(RepairMan repairMan, MaintenanceItem maintenanceItem);
+    List<ItemDetail> findItemDetailByRepairManAndDeletedAtIsNull(RepairMan repairMan);
+    List<ItemDetail> findItemDetailsByMaintenanceItem_IdAndDeletedAtIsNull(Long maintenanceItemId);
 }

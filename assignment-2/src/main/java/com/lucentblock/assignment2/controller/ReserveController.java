@@ -8,6 +8,7 @@ import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.entity.car.Car;
 import com.lucentblock.assignment2.entity.RepairShop;
 import com.lucentblock.assignment2.entity.item.ItemDetail;
+import com.lucentblock.assignment2.exception.NotAllowedTimeException;
 import com.lucentblock.assignment2.model.CreateRequestReserveDTO;
 import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import com.lucentblock.assignment2.exception.BalanceNotEnoughException;
@@ -24,6 +25,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +51,10 @@ public class ReserveController {
                     Car car = carService.getCarById(dto.getCar_id());
                     ItemDetail item = itemDetailService.getItemById(dto.getItem_detail_id());
 
+                    if (dto.getStart_time().isBefore(LocalTime.of(9, 0)) || dto.getStart_time().isAfter(LocalTime.of(18,0))) {
+                        log.info(user.getEmail() + " 이 허용되지 않은 시간 " + dto.getStart_time() + " 으로 예약 생성을 시도하였습니다.");
+                        throw new NotAllowedTimeException(dto.getStart_time().toString());
+                    }
                     if (!car.getUser().getEmail().equals(user.getEmail())) {
                         log.info(user.getEmail() + " 이 " + car.getUser().getEmail() + " 에 접근을 시도했습니다.");
                         throw new AccessDeniedException("잘못된 접근");

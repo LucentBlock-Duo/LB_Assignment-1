@@ -40,7 +40,7 @@ public class ItemDetail {
         return ItemDetailDTO.builder()
                 .id(itemDetail.getId())
                 .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                .repairManInfo(RepairMan.toDTO(itemDetail.getRepairMan()))
+                .repairManInfoDTO(RepairMan.toDTO(itemDetail.getRepairMan()))
                 .price(itemDetail.getPrice())
                 .build();
     }

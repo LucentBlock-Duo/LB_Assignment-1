@@ -111,7 +111,7 @@ public class ReserveServiceTest {
         // given
         User mockUser = mock(User.class);
         Reserve mockReserve = mock(Reserve.class);
-        given(reserveRepository.findReservesByUser(mockUser)).willReturn(List.of(mockReserve));
+        given(reserveRepository.findReservesByUserAndDeletedAtIsNull(mockUser)).willReturn(List.of(mockReserve));
 
         // when & then
         assertEquals(service.getReservesByUser(mockUser), List.of(mockReserve));
