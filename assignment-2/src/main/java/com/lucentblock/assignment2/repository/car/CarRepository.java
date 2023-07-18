@@ -1,6 +1,6 @@
-package com.lucentblock.assignment2.repository;
+package com.lucentblock.assignment2.repository.car;
 
-import com.lucentblock.assignment2.entity.Car;
+import com.lucentblock.assignment2.entity.car.Car;
 import com.lucentblock.assignment2.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

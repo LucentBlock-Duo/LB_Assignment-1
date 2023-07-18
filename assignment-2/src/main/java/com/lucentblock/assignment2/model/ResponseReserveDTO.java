@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Builder
 @Getter
@@ -19,5 +21,5 @@ public class ResponseReserveDTO {
     String maintenance_item_name; // 정비항목
     LocalDateTime start_time; // 시작 시간
     LocalDateTime end_time; // 종료 시간
-    String status;
+    LocalDate date;
 }

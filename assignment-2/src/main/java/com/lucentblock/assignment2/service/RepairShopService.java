@@ -106,6 +106,7 @@ public class RepairShopService {
         }
     }
 
+
     public RepairShop findLocationById(Long id){
         return repairShopRepository.findById(id)
                 .orElseThrow(()->new LocationNotFoundException("해당하는 지역을 찾을 수 없습니다.")); // 찾는 지역 없으면 예외
@@ -231,6 +232,9 @@ public class RepairShopService {
 
     private String getJSONValue(JSONObject jsonObject, String key) {
         return String.valueOf(jsonObject.get(key));
+    }
+    public RepairShop getRepairShopById(Long id) {
+        return repairShopRepository.findById(id).orElseThrow(() -> new RepairShopNotFoundException(id.toString()));
     }
 }
 

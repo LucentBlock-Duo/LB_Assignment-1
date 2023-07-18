@@ -1,11 +1,10 @@
-package com.lucentblock.assignment2.repository;
+package com.lucentblock.assignment2.repository.car;
 
 
-import com.lucentblock.assignment2.entity.CarManufacturer;
+import com.lucentblock.assignment2.entity.car.CarManufacturer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository

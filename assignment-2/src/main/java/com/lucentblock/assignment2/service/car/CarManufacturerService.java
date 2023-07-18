@@ -1,9 +1,9 @@
-package com.lucentblock.assignment2.service;
+package com.lucentblock.assignment2.service.car;
 
 
-import com.lucentblock.assignment2.entity.CarManufacturer;
+import com.lucentblock.assignment2.entity.car.CarManufacturer;
 import com.lucentblock.assignment2.model.ResponseCarManufacturerDTO;
-import com.lucentblock.assignment2.repository.CarManufacturerRepository;
+import com.lucentblock.assignment2.repository.car.CarManufacturerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

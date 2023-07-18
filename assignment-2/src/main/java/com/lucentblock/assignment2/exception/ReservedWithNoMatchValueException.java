@@ -1,6 +1,5 @@
 package com.lucentblock.assignment2.exception;
 
-import com.lucentblock.assignment2.model.ForeignKeySetForReserve;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

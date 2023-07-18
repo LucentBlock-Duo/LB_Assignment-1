@@ -1,5 +1,6 @@
-package com.lucentblock.assignment2.entity;
+package com.lucentblock.assignment2.entity.car;
 
+import com.lucentblock.assignment2.entity.SoftDeletable;
 import com.lucentblock.assignment2.model.ResponseCarManufacturerDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "car_manufacturer")
 @ToString
-public class CarManufacturer implements SoftDeletable{
+public class CarManufacturer implements SoftDeletable {
 
     @Id
     private Long id;

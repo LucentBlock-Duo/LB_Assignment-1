@@ -2,6 +2,7 @@ package com.lucentblock.assignment2.security.authentication;
 
 import com.lucentblock.assignment2.exception.*;
 import com.lucentblock.assignment2.security.exception.*;
+import com.lucentblock.assignment2.exception.BalanceNotEnoughException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -127,7 +126,7 @@ public class GlobalExceptionHandler {
 
         error.put("message",e.getErrorCode().getMessage());
         error.put("repair_man_license",String.valueOf(e.getReserve().getRepairMan().getLicenseId()));
-        error.put("required",String.valueOf(e.getReserve().getMaintenanceItem().getRequiredLicense()));
+        error.put("required",String.valueOf(e.getReserve().getItemDetail().getMaintenanceItem().getRequiredLicense()));
 
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(error);
     }
@@ -189,5 +188,23 @@ public class GlobalExceptionHandler {
         error.put("message", e.getMessage());
 
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(MaintenanceItemNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleMaintenanceItemNotFoundException(MaintenanceItemNotFoundException e) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("message", e.getMessage() + "is not found");
+
+        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(BalanceNotEnoughException.class)
+    public ResponseEntity<Map<String, String>> handleBalanceNotEnoughException(BalanceNotEnoughException e) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("message", e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
     }
 }

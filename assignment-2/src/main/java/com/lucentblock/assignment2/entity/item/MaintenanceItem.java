@@ -1,5 +1,7 @@
-package com.lucentblock.assignment2.entity;
+package com.lucentblock.assignment2.entity.item;
 
+import com.lucentblock.assignment2.entity.SoftDeletable;
+import com.lucentblock.assignment2.model.maintenanceItem.MaintenanceItemDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -37,5 +39,14 @@ public class MaintenanceItem implements SoftDeletable {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public static MaintenanceItemDTO toDTO(MaintenanceItem maintenanceItem) {
+        return MaintenanceItemDTO.builder()
+                .id(maintenanceItem.getId())
+                .itemName(maintenanceItem.getItemName())
+                .requiredLicense(maintenanceItem.getRequiredLicense())
+                .requiredTime(maintenanceItem.getRequiredTime())
+                .build();
     }
 }

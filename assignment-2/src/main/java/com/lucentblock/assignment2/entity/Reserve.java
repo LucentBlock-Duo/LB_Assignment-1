@@ -1,11 +1,14 @@
 package com.lucentblock.assignment2.entity;
 
-import com.lucentblock.assignment2.model.ResponseCode;
+import com.lucentblock.assignment2.entity.car.Car;
+import com.lucentblock.assignment2.entity.item.ItemDetail;
 import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter @Setter
 @Entity
@@ -20,10 +23,13 @@ public class Reserve implements SoftDeletable{
     private Long id;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
+
+    @Column(name = "date")
+    private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "car_id")
@@ -38,8 +44,8 @@ public class Reserve implements SoftDeletable{
     private RepairShop repairShop;
 
     @ManyToOne
-    @JoinColumn(name = "maintenance_item_id")
-    private MaintenanceItem maintenanceItem;
+    @JoinColumn(name = "item_detail_id")
+    private ItemDetail itemDetail;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -53,7 +59,6 @@ public class Reserve implements SoftDeletable{
     @Column(name="is_reviewed") // 리뷰 여부 default : false
     private Boolean isReviewed;
 
-
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
@@ -61,7 +66,8 @@ public class Reserve implements SoftDeletable{
         return ResponseReserveDTO.builder().car_name(car.getName()).
                                             repair_man_id(repairMan.getName()).
                                             repair_shop_name(repairShop.getName()).
-                                            maintenance_item_name(maintenanceItem.getItemName()).
+                                            date(date).
+                                            maintenance_item_name(itemDetail.getMaintenanceItem().getItemName()).
                                             start_time(startTime).
                                             end_time(endTime).
                                             status(RepairStatus.NOT_STARTED.status()).build();

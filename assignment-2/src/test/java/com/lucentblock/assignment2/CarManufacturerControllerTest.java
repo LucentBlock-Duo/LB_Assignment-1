@@ -1,16 +1,12 @@
 package com.lucentblock.assignment2;
 
-import com.lucentblock.assignment2.repository.CarManufacturerRepository;
-import com.lucentblock.assignment2.service.CarManufacturerService;
+import com.lucentblock.assignment2.repository.car.CarManufacturerRepository;
+import com.lucentblock.assignment2.service.car.CarManufacturerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestComponent;
-import org.springframework.boot.test.context.TestConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
