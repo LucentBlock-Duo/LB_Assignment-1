@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ReserveService {
+    private final PreviousRepairService previousRepairService;
     private final ReserveRepository reserveRepository;
 
     public Reserve createReserve(RepairShop repairShop, Car car, LocalDate date, LocalTime startTime, ItemDetail item) {
@@ -59,5 +61,39 @@ public class ReserveService {
         }
 
         return reserves;
+    }
+
+    public ResponseReserveDTO setStatus(Long reserveId,Integer status){
+        Reserve reserve=reserveRepository.findById(reserveId)
+                .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        reserve.setStatus(status);
+
+        if(RepairStatus.status(reserve.getStatus()).equals(RepairStatus.COMPLETED.status())){
+            reserve.setEndTime(LocalDateTime.now());
+            previousRepairService.createPreviousRepair(reserve.getId());
+        } // status == complete 라면 정비 기록에 남긴다.
+
+        return reserveRepository.save(reserve).toDto();
+    }
+
+    @Transactional
+    public RepairMan evaluate(RequestReserveReviewDTO dto){
+        RepairMan repairMan = em.find(RepairMan.class,dto.getRepair_man_id());
+        Reserve reserve =reserveRepository.findById(dto.getReserve_id())
+                .orElseThrow(()->new ReserveNotFoundException(ReserveErrorCode.ERROR_103));
+
+        if(reserve.getIsReviewed()) throw new RuntimeException("이미 리뷰가 작성된 예약입니다.");
+
+        int num=repairMan.getEvaluatedNum();
+        double value=dto.getValue();
+        double grade=repairMan.getEvaluationGrade();
+
+        repairMan.setEvaluationGrade((grade*num+value)/(num+1));
+        repairMan.setEvaluatedNum(num+1);
+
+        reserve.setIsReviewed(true);
+
+        return em.merge(repairMan);
     }
 }

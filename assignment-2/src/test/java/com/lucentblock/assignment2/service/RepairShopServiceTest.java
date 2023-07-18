@@ -1,26 +1,14 @@
 package com.lucentblock.assignment2.service;
 
 
-import com.lucentblock.assignment2.entity.CountryLocation;
 import com.lucentblock.assignment2.exception.LocationNotFoundException;
-import com.lucentblock.assignment2.exception.UnsatisfiedLicenseException;
 import com.lucentblock.assignment2.model.RepairShopSearchRequestDTO;
-import com.lucentblock.assignment2.model.ResponseRepairShopDTO;
-import com.lucentblock.assignment2.repository.RepairShopRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.*;
-import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
