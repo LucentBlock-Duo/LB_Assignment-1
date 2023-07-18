@@ -1,5 +1,9 @@
 package com.lucentblock.assignment2.controller;
 
+import com.lucentblock.assignment2.entity.RepairMan;
+import com.lucentblock.assignment2.entity.RepairStatus;
+import com.lucentblock.assignment2.entity.Reserve;
+import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.entity.car.Car;
 import com.lucentblock.assignment2.entity.RepairShop;
@@ -22,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -83,5 +88,15 @@ public class ReserveController {
                         .map(reserve -> reserve.toDto())
                         .toList()
         );
+    }
+
+    @PostMapping("/status")
+    private ResponseReserveDTO updateStatus(@RequestBody Long reserveId, @RequestBody Integer status){
+        return reserveService.setStatus(reserveId,status);
+    }
+
+    @PostMapping("/review")
+    private RepairMan review(@RequestBody RequestReserveReviewDTO dto){
+        return reserveService.evaluate(dto);
     }
 }

@@ -21,8 +21,7 @@ CREATE TABLE user (
                       role VARCHAR(255) CHECK ( role in ('ROLE_USER', 'ROLE_ADMIN') ),
                       provider VARCHAR(255),
                       provider_id VARCHAR(255),
-                      refresh_token TEXT,
-                      balance INT DEFAULT 0
+                      refresh_token TEXT
 );
 
 -- changeset 0tae:car_manufacturer-1 labels:v1,1.0,init
@@ -97,7 +96,7 @@ CREATE TABLE repair_man (
 -- changeset 0tae:repair_shop-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
 CREATE TABLE repair_shop (
-                             id INT PRIMARY KEY,
+                             id INT PRIMARY KEY AUTO_INCREMENT,
                              name VARCHAR(255) NOT NULL,
                              location VARCHAR(255),
                              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -142,7 +141,7 @@ CREATE TABLE repair_man_brand_preference (
     deleted_at TIMESTAMP,
     FOREIGN KEY (repair_man_id) references repair_man(id),
     FOREIGN KEY (car_manufacturer_id) references car_manufacturer(id)
-)
+);
 
 -- changeset 0tae:repair_man_maintenance_item_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
@@ -154,7 +153,7 @@ CREATE TABLE repair_man_item_preference (
                                        deleted_at TIMESTAMP,
                                        FOREIGN KEY (repair_man_id) references repair_man(id),
                                        FOREIGN KEY (maintenance_item_id) references maintenance_item(id)
-)
+);
 
 -- changeset 0tae:user_car_manufacturer_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
@@ -166,7 +165,7 @@ CREATE TABLE user_brand_preference (
                                        deleted_at TIMESTAMP,
                                        FOREIGN KEY (user_id) references user(id),
                                        FOREIGN KEY (car_manufacturer_id) references car_manufacturer(id)
-)
+);
 
 -- changeset 0tae:user_maintenance_item_preference-1 labels:v1,1.0,init
 -- comment: init : 테이블 생성 및 제약조건 추가
@@ -178,21 +177,7 @@ CREATE TABLE user_item_preference (
                                                   deleted_at TIMESTAMP,
                                                   FOREIGN KEY (user_id) references user(id),
                                                   FOREIGN KEY (maintenance_item_id) references maintenance_item(id)
-)
-
--- changeset 0tae:item_detail-1 labels:v1,1.0,init
--- comment: init : 테이블 생성 및 제약조건 추가
-CREATE TABLE item_detail (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    maintenance_item_id INT NOT NULL,
-    repair_man_id INT NOT NULL,
-    price INT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
-    FOREIGN KEY (maintenance_item_id) references maintenance_item(id),
-    FOREIGN KEY (repair_man_id) references repair_man(id)
-)
-
+);
 
 -- changeset 0tae:maintenance_item-2 labels:v1,1.0,fix
 -- comment: fix : 누락 데이터 추가

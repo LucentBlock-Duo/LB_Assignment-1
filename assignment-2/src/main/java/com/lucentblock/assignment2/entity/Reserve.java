@@ -52,7 +52,13 @@ public class Reserve implements SoftDeletable{
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-    
+
+    @Column(name="status") // 상태 추가 default : 0
+    private Integer status;
+
+    @Column(name="is_reviewed") // 리뷰 여부 default : false
+    private Boolean isReviewed;
+
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
@@ -63,6 +69,21 @@ public class Reserve implements SoftDeletable{
                                             date(date).
                                             maintenance_item_name(itemDetail.getMaintenanceItem().getItemName()).
                                             start_time(startTime).
-                                            end_time(endTime).build();
+                                            end_time(endTime).
+                                            status(RepairStatus.NOT_STARTED.status()).build();
+    }
+
+    public PreviousRepair toPreviousRepairEntity(){
+        return PreviousRepair.builder()
+                .repairDate(getDate())
+                .startTime(getStartTime())
+                .endTime(getEndTime())
+                .user(getCar().getUser())
+                .car(getCar())
+                .repairMan(getRepairMan())
+                .repairShop(getRepairShop())
+                .itemDetail(getItemDetail())
+                .status(getStatus())
+                .build();
     }
 }
