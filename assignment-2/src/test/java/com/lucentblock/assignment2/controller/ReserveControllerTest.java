@@ -133,8 +133,8 @@ public class ReserveControllerTest {
 
         reserve = Reserve.builder()
                 .id(1L)
-                .startTime(LocalTime.now())
-                .endTime(LocalTime.now())
+                .startTime(LocalTime.of(9,0))
+                .endTime(LocalTime.of(9,30))
                 .date(LocalDate.now())
                 .car(car)
                 .repairMan(repairMan)

@@ -42,7 +42,7 @@ public class ReserveService {
     }
 
     public List<Reserve> getReservesByUser(User user) {
-        return reserveRepository.findReservesByUser(user);
+        return reserveRepository.findReservesByUserAndDeletedAtIsNull(user);
     }
 
     public List<Reserve> deleteReserves(List<Long> reserveIds, String username) {

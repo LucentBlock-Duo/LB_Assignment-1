@@ -6,9 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class MaintenanceItemDTO {
-    private Long id;
+public class ItemDetailDTO {
+    private Long itemDetailId;
     private String itemName;
     private Integer requiredLicense;
     private Integer requiredTime;
+    private Integer price;
 }

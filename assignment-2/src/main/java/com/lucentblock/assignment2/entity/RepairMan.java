@@ -1,7 +1,7 @@
 package com.lucentblock.assignment2.entity;
 
 
-import com.lucentblock.assignment2.model.RepairManInfo;
+import com.lucentblock.assignment2.model.RepairManInfoDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,8 +38,8 @@ public class RepairMan implements SoftDeletable{
         this.deletedAt = deletedAt;
     }
 
-    public static RepairManInfo toDTO(RepairMan repairMan) {
-        return RepairManInfo.builder()
+    public static RepairManInfoDTO toDTO(RepairMan repairMan) {
+        return RepairManInfoDTO.builder()
                 .id(repairMan.getId())
                 .name(repairMan.getName())
                 .licenseId(repairMan.getLicenseId())
