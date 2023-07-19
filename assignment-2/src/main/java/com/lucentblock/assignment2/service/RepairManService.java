@@ -45,6 +45,8 @@ public class RepairManService {
                         .name(repairMan.getName())
                         .licenseId(repairMan.getLicenseId())
                         .careerStartAt(repairMan.getCareerStartAt())
+                        .evaluatedNum(repairMan.getEvaluatedNum())
+                        .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
                                 .map(
                                         itemDetail -> ItemDetailDTO.builder()
