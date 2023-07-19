@@ -5,7 +5,6 @@
 
 DELETE from reserve;
 DELETE from repair_man;
-DELETE from repair_shop;
 DELETE from car_description;
 DELETE from maintenance_item;
 DELETE from car;
@@ -15,8 +14,8 @@ DELETE from login_challenge;
 DELETE from user;
 
 INSERT INTO user
-    (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token, balance)
-    VALUES (1, 'ilmo@gmail.com', 'moil', '01012345678', '$2a$10$TbR1IsZ0aRXlLSsNxQu1R.ZGtoTEpnt4nSRDN/2JXpo84tIzGtCEC', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null, 10000);
+    (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token, balance,longitude,latitude,gps_authorized)
+    VALUES (1, 'ilmo@gmail.com', 'moil', '01012345678', '$2a$10$TbR1IsZ0aRXlLSsNxQu1R.ZGtoTEpnt4nSRDN/2JXpo84tIzGtCEC', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null, 10000,'36.609766881839','127.29632832568',true);
 INSERT INTO user
     (id, email, name, phone_number, password, password_fail_count, is_email_verified, recent_login_at, created_at, deleted_at, role, provider, provider_id, refresh_token, balance)
     VALUES (2, 'choi@gmail.com', 'choi', '01012345678', '$2a$10$4YhdTqcJf6oWcLX46lW6/uFJX7JGOHJVFJ30DRm6bJfFRubw/Hfka', 0, false, null, '2023-07-05 12:53:45', null, 'ROLE_USER', null, null, null, 10000);
@@ -45,21 +44,6 @@ INSERT INTO maintenance_item (id, name, required_license, required_time, created
 INSERT INTO car_description (id, car_id, color, seats) VALUES
                                                            (1, 1, 'Red', 4),
                                                            (2, 2, 'Blue', 4);
-
-INSERT INTO location(province, city) VALUES
-                                         ('대전','대덕구'),
-                                         ('대전','동구'),
-                                         ('대전','서구'),
-                                         ('대전','유성구'),
-                                         ('대전','중구');
-
-
-INSERT INTO repair_shop (id, name, location_id) VALUES
-                                                 (1, '현대블루핸즈 봉명점', 4),
-                                                 (2, '현대블루핸즈 용전점', 2),
-                                                 (3, '현대블루핸즈 서대전점', 5),
-                                                 (4, '현대자동차블루핸즈 대덕현대서비스', 1),
-                                                 (5, '현대블루핸즈 둔산점', 3);
 
 INSERT INTO repair_man (id, name, license_id) VALUES
                                                   (1, 'Repairman A', 1),

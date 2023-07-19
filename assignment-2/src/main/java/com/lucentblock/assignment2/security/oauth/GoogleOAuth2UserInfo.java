@@ -12,6 +12,7 @@ public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
 
     private Map<String, Object> attributes;
 
+
     @Override
     public Map<String, Object> getAttributes() {
         return this.attributes;

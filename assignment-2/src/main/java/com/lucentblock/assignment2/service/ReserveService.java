@@ -74,10 +74,10 @@ public class ReserveService {
 
         reserve.setStatus(status);
 
-        if(RepairStatus.status(reserve.getStatus()).equals(RepairStatus.COMPLETED.status())){
+        if(!RepairStatus.status(reserve.getStatus()).equals(RepairStatus.REPAIRING.status())){
             reserve.setEndTime(LocalTime.now());
             previousRepairService.createPreviousRepair(reserve.getId());
-        } // status == complete 라면 정비 기록에 남긴다.
+        }
 
         return reserveRepository.save(reserve).toDto();
     }

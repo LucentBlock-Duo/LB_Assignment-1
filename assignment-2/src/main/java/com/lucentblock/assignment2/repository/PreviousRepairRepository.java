@@ -40,7 +40,8 @@ public interface PreviousRepairRepository extends JpaRepository<PreviousRepair,L
                 .filter(repair-> set.getCar() == null || repair.getCar().equals(set.getCar()))
                 .filter(repair-> set.getRepairShop() == null || repair.getRepairShop().equals(set.getRepairShop()))
                 .filter(repair-> set.getRepairMan() == null || repair.getRepairMan().equals(set.getRepairMan()))
-                .filter(repair-> set.getMaintenanceItem() == null || repair.getItemDetail().getMaintenanceItem().equals(set.getMaintenanceItem()))
+                .filter(repair-> set.getMaintenanceItem() == null ||
+                        repair.getItemDetail().getMaintenanceItem().equals(set.getMaintenanceItem()))
                 .filter(repair-> start == null ||
                         repair.getRepairDate().isAfter(start) ||
                         repair.getRepairDate().isEqual(start))

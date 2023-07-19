@@ -5,6 +5,7 @@ import com.lucentblock.assignment2.entity.item.ItemDetail;
 import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,9 +55,11 @@ public class Reserve implements SoftDeletable{
     private LocalDateTime deletedAt;
 
     @Column(name="status") // 상태 추가 default : 0
+    @ColumnDefault("0")
     private Integer status;
 
     @Column(name="is_reviewed") // 리뷰 여부 default : false
+    @ColumnDefault("false")
     private Boolean isReviewed;
 
     public void setDeletedAt(LocalDateTime deletedAt) {
