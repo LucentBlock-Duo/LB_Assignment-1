@@ -63,7 +63,7 @@ public class RepairShopService {
         BigDecimal longitude = gpsDto.getLongitude();
 
         List<RepairShopWithDistance> list=
-                repairShopRepository.findRepairShopInDistanceRangeWithoutProvince(latitude,longitude,distance); // 목록 뽑아오기
+                repairShopRepository.findRepairShopInDistanceRangeWithoutCity(latitude,longitude,distance); // 목록 뽑아오기
 
         return list.stream().map(RepairShopWithDistance::toDto).toList();
     }
@@ -77,7 +77,7 @@ public class RepairShopService {
         String province = gpsDto.getProvince();
 
         List<RepairShopWithDistance> list=
-                repairShopRepository.findRepairShopInDistanceRangeWithoutProvince(latitude,longitude,distance); // 목록 뽑아오기
+                repairShopRepository.findRepairShopInDistanceRangeWithoutCity(latitude,longitude,distance); // 목록 뽑아오기
 
         if(list.size()<1) throw new RepairShopNotFoundException("가까운 매장이 없습니다.");
 
