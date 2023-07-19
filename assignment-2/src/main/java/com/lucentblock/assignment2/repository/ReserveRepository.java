@@ -28,7 +28,7 @@ public interface ReserveRepository extends JpaRepository<Reserve,Long> {
             , nativeQuery = true)
     List<Reserve> findReservesByCarAndDeletedAtIsNull(LocalTime endTime, LocalTime startTime, Car car);
 
-    @Query(value = "SELECT reserve.id, reserve.start_time, reserve.end_time, reserve.date, reserve.car_id, reserve.repair_man_id, reserve.repair_shop_id, reserve.item_detail_id, reserve.created_at, reserve.deleted_at" +
+    @Query(value = "SELECT reserve.*" +
             "  FROM assignment.reserve JOIN car ON reserve.car_id = car.id WHERE car.user_id = :#{#user.id} AND reserve.deleted_at IS NULL", nativeQuery = true)
     List<Reserve> findReservesByUserAndDeletedAtIsNull(User user);
     List<Reserve> findReservesByRepairManAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndDeletedAtIsNull(RepairMan repairMan, LocalDate date, LocalTime newEndTime, LocalTime newStartTime);
