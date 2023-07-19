@@ -1,14 +1,11 @@
 package com.lucentblock.assignment2.model;
 
 
-import com.lucentblock.assignment2.entity.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 
 public class PreviousRepairSearchRequestDTO {
     @Getter

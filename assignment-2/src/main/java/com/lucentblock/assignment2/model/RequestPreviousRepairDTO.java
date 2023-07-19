@@ -1,7 +1,5 @@
 package com.lucentblock.assignment2.model;
 
-import java.time.LocalDateTime;
-
 public interface RequestPreviousRepairDTO {
 
     Long getUser_id();
