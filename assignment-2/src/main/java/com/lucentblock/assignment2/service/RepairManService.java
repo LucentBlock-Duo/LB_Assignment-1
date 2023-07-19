@@ -172,7 +172,7 @@ public class RepairManService {
                         .careerStartAt(repairMan.getCareerStartAt())
                         .evaluatedNum(repairMan.getEvaluatedNum())
                         .evaluationGrade(repairMan.getEvaluationGrade())
-                        .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
+                        .availableItems(itemDetailRepository.findByRepairManAndMaintenanceItem_Id(repairMan, maintenanceItemId).stream()
                                 .map(
                                         itemDetail -> ItemDetailDTO.builder()
                                                 .itemDetailId(itemDetail.getId())
