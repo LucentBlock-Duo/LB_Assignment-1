@@ -3,8 +3,6 @@ package com.lucentblock.assignment2.controller;
 
 import com.lucentblock.assignment2.entity.PreviousRepair;
 import com.lucentblock.assignment2.model.ResponsePreviousRepairDTO;
-import com.lucentblock.assignment2.model.UpdateRequestPreviousRepairDTO;
-import com.lucentblock.assignment2.model.UpdateRequestReserveDTO;
 import com.lucentblock.assignment2.service.PreviousRepairService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

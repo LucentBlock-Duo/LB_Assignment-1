@@ -2,7 +2,6 @@ package com.lucentblock.assignment2.entity;
 
 import com.lucentblock.assignment2.entity.car.Car;
 import com.lucentblock.assignment2.entity.item.ItemDetail;
-import com.lucentblock.assignment2.entity.item.MaintenanceItem;
 import com.lucentblock.assignment2.model.ResponsePreviousRepairDTO;
 import jakarta.persistence.*;
 import lombok.*;

@@ -31,9 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -92,10 +90,9 @@ public class RepairShopService {
 
     public GPSRequestDTO makeRequestDTO(Long userId,BigDecimal latitude, BigDecimal longitude,boolean userLocMode){
         User user = em.find(User.class, userId); // User 정보 가져오기
-
-        if(userLocMode && user.getGpsAuthorized()){ // 위도, 경도로 구하기
-            BigDecimal userLatitude=user.getLatitude();
-            BigDecimal userLongitude=user.getLongitude();
+        if(userLocMode && true){ // 위도, 경도로 구하기
+            BigDecimal userLatitude=null;
+            BigDecimal userLongitude=null;
 
             return GPSRequestDTO.builder()
                     .latitude(userLatitude)
@@ -132,8 +129,8 @@ public class RepairShopService {
     public String[] dataBuild(String givenAddress) throws IOException {
         try {
             FileReader fileReader =
-                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/" +
-                            "src/main/resources/locationdata/세종특별자치시.txt");
+//                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/src/main/resources/locationdata/세종특별자치시.txt");
+                    new FileReader("./src/main/resources/locationdata/세종특별자치시.txt");
             BufferedReader br = new BufferedReader(fileReader);
 
             String line = br.readLine(); // 1번째 줄 skip

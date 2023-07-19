@@ -24,14 +24,4 @@ public class ItemController {
     public List<MaintenanceItemDTO> fetchMaintenanceItemList() {
         return maintenanceItemService.getAllItems().stream().map(item -> MaintenanceItem.toDTO(item)).toList();
     }
-
-//    @GetMapping("/details")
-//    public List<ItemDetailDTO> fetchItemDetails(@Valid @RequestBody List<ItemDetailQueryDTO> itemDetailQueryDTOs) {
-//        return itemDetailQueryDTOs.stream()
-//                .map( dto -> {
-//                    MaintenanceItem maintenanceItem = maintenanceItemService.getItemById(dto.getMaintenanceItemId());
-//                    RepairMan repairMan = repairManService.getRepairManById(dto.getRepairManId());
-//                    return ItemDetail.toDTO(itemDetailService.getItemByRepairManAndMaintenanceItem(repairMan, maintenanceItem));
-//                }).toList();
-//    }
 }

@@ -45,7 +45,7 @@ public class RepairManController {
     }
 
     @GetMapping(value = "/available", params = {"maintenance_item_id", "repair_men_ids"})
-    public List<RepairManInfoDTO> filterRepairMenByItem(@RequestParam("maintenance_item_id")Long maintenanceItemId, @RequestParam("repair_man_ids")List<Long> ids) {
+    public List<RepairManInfoDTO> filterRepairMenByItem(@RequestParam("maintenance_item_id")Long maintenanceItemId, @RequestParam("repair_men_ids")List<Long> ids) {
         return repairManService.filterRepairMenByItem(maintenanceItemId, ids);
     }
 

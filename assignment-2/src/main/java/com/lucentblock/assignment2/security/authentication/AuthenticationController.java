@@ -1,7 +1,6 @@
 package com.lucentblock.assignment2.security.authentication;
 
 import com.lucentblock.assignment2.security.model.*;
-import com.lucentblock.assignment2.service.SignupCodeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

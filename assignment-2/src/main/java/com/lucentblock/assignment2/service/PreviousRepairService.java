@@ -6,15 +6,11 @@ import com.lucentblock.assignment2.entity.car.Car;
 import com.lucentblock.assignment2.entity.item.ItemDetail;
 import com.lucentblock.assignment2.entity.item.MaintenanceItem;
 import com.lucentblock.assignment2.exception.PreviousRepairNotFoundException;
-import com.lucentblock.assignment2.exception.ReserveErrorCode;
-import com.lucentblock.assignment2.exception.ReserveNotFoundException;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.repository.PreviousRepairRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

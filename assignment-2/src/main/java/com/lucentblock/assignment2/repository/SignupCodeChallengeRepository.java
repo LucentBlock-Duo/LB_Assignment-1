@@ -1,7 +1,6 @@
 package com.lucentblock.assignment2.repository;
 
 import com.lucentblock.assignment2.entity.SignupCodeChallenge;
-import com.lucentblock.assignment2.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -2,7 +2,6 @@ package com.lucentblock.assignment2.repository.item;
 
 import com.lucentblock.assignment2.entity.RepairMan;
 import com.lucentblock.assignment2.entity.item.ItemDetail;
-import com.lucentblock.assignment2.entity.item.MaintenanceItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,8 +1,6 @@
 package com.lucentblock.assignment2.controller;
 
 import com.lucentblock.assignment2.entity.RepairMan;
-import com.lucentblock.assignment2.entity.RepairStatus;
-import com.lucentblock.assignment2.entity.Reserve;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.entity.car.Car;

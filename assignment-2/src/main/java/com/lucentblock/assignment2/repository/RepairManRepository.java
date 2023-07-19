@@ -2,15 +2,12 @@ package com.lucentblock.assignment2.repository;
 
 import com.lucentblock.assignment2.entity.RepairMan;
 import com.lucentblock.assignment2.entity.User;
-import com.lucentblock.assignment2.entity.item.MaintenanceItem;
-import com.lucentblock.assignment2.exception.RepairManNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public interface RepairManRepository extends JpaRepository<RepairMan, Long> {
