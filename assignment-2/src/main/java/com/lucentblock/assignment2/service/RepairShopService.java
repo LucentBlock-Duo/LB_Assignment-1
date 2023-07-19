@@ -131,7 +131,8 @@ public class RepairShopService {
     public String[] dataBuild(String givenAddress) throws IOException {
         try {
             FileReader fileReader =
-                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/src/main/resources/locationdata/세종특별자치시.txt");
+//                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/src/main/resources/locationdata/세종특별자치시.txt");
+                    new FileReader("./src/main/resources/locationdata/세종특별자치시.txt");
             BufferedReader br = new BufferedReader(fileReader);
 
             String line = br.readLine(); // 1번째 줄 skip
