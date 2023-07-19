@@ -48,7 +48,7 @@ INSERT INTO car_description (id, car_id, color, seats) VALUES
 
 INSERT INTO repair_man (id, name, license_id, evaluated_num, evaluation_grade) VALUES
                                                   (1, 'Repairman A', 1, 10, 4.0),
-                                                  (2, 'Repairman B', 2, 11, 3.8),
+                                                  (2, 'Repairman B', 2, 11, 4.0),
                                                   (3, 'Repairman C', 3, 12, 4.2);
 
 INSERT INTO item_detail (id, maintenance_item_id, repair_man_id, price, created_at, deleted_at) VALUES

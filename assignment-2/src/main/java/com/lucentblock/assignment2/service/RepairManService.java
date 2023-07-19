@@ -88,7 +88,11 @@ public class RepairManService {
                                     .build()
                             ).toList()
                 ).build())
-                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
+                        .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
+                                .mapToInt(ItemDetailDTO::getPrice)
+                                .min()
+                                .orElse(0))))
                 .toList();
     }
 
@@ -115,7 +119,11 @@ public class RepairManService {
                                             .build()
                                 )
                         ).build())
-                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
+                        .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
+                                .mapToInt(ItemDetailDTO::getPrice)
+                                .min()
+                                .orElse(0))))
                 .toList();
     }
 
@@ -143,7 +151,11 @@ public class RepairManService {
                                                 .build()
                                 ).toList()
                         ).build())
-                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
+                        .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
+                                .mapToInt(ItemDetailDTO::getPrice)
+                                .min()
+                                .orElse(0))))
                 .toList();
     }
 
@@ -170,7 +182,11 @@ public class RepairManService {
                                                 .build()
                                 ).toList()
                         ).build())
-                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
+                        .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
+                                .mapToInt(ItemDetailDTO::getPrice)
+                                .min()
+                                .orElse(0))))
                 .toList();
     }
 
