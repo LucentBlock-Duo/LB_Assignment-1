@@ -1,8 +1,6 @@
 package com.lucentblock.assignment2.model;
 
 
-import com.lucentblock.assignment2.entity.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

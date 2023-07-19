@@ -31,9 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -106,6 +104,7 @@ public class RepairShopService {
         }
     }
 
+
     public RepairShop findLocationById(Long id){
         return repairShopRepository.findById(id)
                 .orElseThrow(()->new LocationNotFoundException("해당하는 지역을 찾을 수 없습니다.")); // 찾는 지역 없으면 예외
@@ -130,7 +129,8 @@ public class RepairShopService {
     public String[] dataBuild(String givenAddress) throws IOException {
         try {
             FileReader fileReader =
-                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/src/main/resources/locationdata/세종특별자치시.txt");
+//                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2/src/main/resources/locationdata/세종특별자치시.txt");
+                    new FileReader("./src/main/resources/locationdata/세종특별자치시.txt");
             BufferedReader br = new BufferedReader(fileReader);
 
             String line = br.readLine(); // 1번째 줄 skip
@@ -231,6 +231,9 @@ public class RepairShopService {
 
     private String getJSONValue(JSONObject jsonObject, String key) {
         return String.valueOf(jsonObject.get(key));
+    }
+    public RepairShop getRepairShopById(Long id) {
+        return repairShopRepository.findById(id).orElseThrow(() -> new RepairShopNotFoundException(id.toString()));
     }
 }
 

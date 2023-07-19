@@ -1,12 +1,9 @@
 package com.lucentblock.assignment2.exception;
 
 
-import jakarta.servlet.http.HttpServlet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-
-import java.util.*;
 
 
 @Getter

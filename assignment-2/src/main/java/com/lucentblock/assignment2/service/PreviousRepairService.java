@@ -2,16 +2,15 @@ package com.lucentblock.assignment2.service;
 
 
 import com.lucentblock.assignment2.entity.*;
+import com.lucentblock.assignment2.entity.car.Car;
+import com.lucentblock.assignment2.entity.item.ItemDetail;
+import com.lucentblock.assignment2.entity.item.MaintenanceItem;
 import com.lucentblock.assignment2.exception.PreviousRepairNotFoundException;
-import com.lucentblock.assignment2.exception.ReserveErrorCode;
-import com.lucentblock.assignment2.exception.ReserveNotFoundException;
 import com.lucentblock.assignment2.model.*;
 import com.lucentblock.assignment2.repository.PreviousRepairRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public class PreviousRepairService {
         Car car = em.find(Car.class, dto.getCar_id());
         RepairMan repairMan = em.find(RepairMan.class, dto.getRepair_man_id());
         RepairShop repairShop = em.find(RepairShop.class, dto.getRepair_shop_id());
-        MaintenanceItem maintenanceItem = em.find(MaintenanceItem.class, dto.getMaintenance_item_id());
+        MaintenanceItem maintenanceItem = em.find(ItemDetail.class, dto.getItem_detail_id()).getMaintenanceItem();
 
         return ForeignKeySetForPreviousRepair.builder()
                 .user(user)

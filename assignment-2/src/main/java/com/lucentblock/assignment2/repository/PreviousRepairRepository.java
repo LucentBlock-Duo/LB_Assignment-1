@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -40,13 +39,13 @@ public interface PreviousRepairRepository extends JpaRepository<PreviousRepair,L
                 .filter(repair-> set.getCar() == null || repair.getCar().equals(set.getCar()))
                 .filter(repair-> set.getRepairShop() == null || repair.getRepairShop().equals(set.getRepairShop()))
                 .filter(repair-> set.getRepairMan() == null || repair.getRepairMan().equals(set.getRepairMan()))
-                .filter(repair-> set.getMaintenanceItem() == null || repair.getMaintenanceItem().equals(set.getMaintenanceItem()))
+                .filter(repair-> set.getMaintenanceItem() == null || repair.getItemDetail().getMaintenanceItem().equals(set.getMaintenanceItem()))
                 .filter(repair-> start == null ||
-                        repair.getStartTime().toLocalDate().isAfter(start) ||
-                        repair.getStartTime().toLocalDate().isEqual(start))
+                        repair.getRepairDate().isAfter(start) ||
+                        repair.getRepairDate().isEqual(start))
                 .filter(repair -> end == null ||
-                        repair.getStartTime().toLocalDate().isBefore(end) ||
-                        repair.getStartTime().toLocalDate().isEqual(end)).toList();
+                        repair.getRepairDate().isBefore(end) ||
+                        repair.getRepairDate().isEqual(end)).toList();
     }
 
 }

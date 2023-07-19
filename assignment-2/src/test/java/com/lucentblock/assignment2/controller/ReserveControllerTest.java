@@ -9,8 +9,6 @@ import com.lucentblock.assignment2.entity.User;
 import com.lucentblock.assignment2.entity.car.Car;
 import com.lucentblock.assignment2.entity.item.ItemDetail;
 import com.lucentblock.assignment2.entity.item.MaintenanceItem;
-import com.lucentblock.assignment2.model.CreateRequestReserveDTO;
-import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import com.lucentblock.assignment2.repository.LoginChallengeRepository;
 import com.lucentblock.assignment2.repository.SignupCodeChallengeRepository;
 import com.lucentblock.assignment2.repository.UserRepository;
@@ -36,19 +34,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.BDDMockito.*;
@@ -133,8 +126,8 @@ public class ReserveControllerTest {
 
         reserve = Reserve.builder()
                 .id(1L)
-                .startTime(LocalTime.now())
-                .endTime(LocalTime.now())
+                .startTime(LocalTime.of(9,0))
+                .endTime(LocalTime.of(9,30))
                 .date(LocalDate.now())
                 .car(car)
                 .repairMan(repairMan)

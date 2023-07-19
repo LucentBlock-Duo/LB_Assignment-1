@@ -207,4 +207,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(NotAllowedTimeException.class)
+    public ResponseEntity<Map<String, String>> handleNotAllowedTimeException(NotAllowedTimeException e) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("This time is Not Allowed", e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
+    }
 }

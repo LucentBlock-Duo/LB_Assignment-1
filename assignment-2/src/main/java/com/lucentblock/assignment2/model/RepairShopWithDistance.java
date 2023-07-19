@@ -1,7 +1,5 @@
 package com.lucentblock.assignment2.model;
 
-import lombok.ToString;
-
 import java.math.BigDecimal;
 
 public interface RepairShopWithDistance {

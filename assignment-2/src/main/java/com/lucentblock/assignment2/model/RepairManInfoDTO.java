@@ -1,18 +1,22 @@
 package com.lucentblock.assignment2.model;
 
-import com.lucentblock.assignment2.entity.RepairMan;
+import com.lucentblock.assignment2.model.maintenanceItem.ItemDetailDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder @NoArgsConstructor @AllArgsConstructor
-public class RepairManInfo {
+public class RepairManInfoDTO {
     private Long id;
     private String name;
     private Integer licenseId;
     private LocalDateTime careerStartAt;
+    private Integer evaluatedNum;
+    private Double evaluationGrade;
+    private List<ItemDetailDTO> availableItems;
 }

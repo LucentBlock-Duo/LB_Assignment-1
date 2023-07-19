@@ -3,7 +3,9 @@ package com.lucentblock.assignment2.entity;
 import com.lucentblock.assignment2.security.model.UpdateUserInfoRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter @Setter @Builder
@@ -54,6 +56,16 @@ public class User implements SoftDeletable {
 
     @Column(name = "balance")
     private Long balance;
+
+    @Column(name="gps_authorized")
+    @ColumnDefault(value="false")
+    private Boolean gpsAuthorized;
+
+    @Column(name = "latitude")
+    private BigDecimal latitude;
+
+    @Column(name = "longitude")
+    private BigDecimal longitude;
 
     public User updateUserBasedOnUserInfoDTO(UpdateUserInfoRequestDTO updateUserInfoRequestDTO) {
         this.name = updateUserInfoRequestDTO.getUserName();

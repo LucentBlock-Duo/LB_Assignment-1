@@ -1,8 +1,5 @@
 package com.lucentblock.assignment2.entity;
 
-
-import lombok.Getter;
-
 public enum RepairStatus {
     NOT_STARTED("Not Started"),
     REPAIRING("Repairing"),
