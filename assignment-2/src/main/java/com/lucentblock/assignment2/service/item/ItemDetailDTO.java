@@ -7,23 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class ItemDetailDTO implements Comparable {
+public class ItemDetailDTO {
     private Long id;
     private Long maintenanceItemId;
     private RepairManInfoDTO repairManInfoDTO;
     private Integer price;
-
-    @Override
-    public int compareTo(Object o) {
-        if (this == o) {
-            return 0;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return -1; // 또는 다른 비교 결과를 반환할 수 있습니다.
-        }
-
-        ItemDetailDTO other = (ItemDetailDTO) o;
-        return this.getPrice().compareTo(other.getPrice());
-    }
 }
