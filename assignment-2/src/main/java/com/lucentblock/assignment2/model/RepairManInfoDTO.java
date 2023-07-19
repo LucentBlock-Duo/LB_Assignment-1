@@ -16,5 +16,7 @@ public class RepairManInfoDTO {
     private String name;
     private Integer licenseId;
     private LocalDateTime careerStartAt;
+    private Integer evaluatedNum;
+    private Double evaluationGrade;
     private List<ItemDetailDTO> availableItems;
 }

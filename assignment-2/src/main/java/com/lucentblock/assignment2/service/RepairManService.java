@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -73,6 +74,8 @@ public class RepairManService {
                         .name(repairMan.getName())
                         .licenseId(repairMan.getLicenseId())
                         .careerStartAt(repairMan.getCareerStartAt())
+                        .evaluatedNum(repairMan.getEvaluatedNum())
+                        .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
                             .map(
                                     itemDetail -> ItemDetailDTO.builder()
@@ -85,6 +88,7 @@ public class RepairManService {
                                     .build()
                             ).toList()
                 ).build())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
                 .toList();
     }
 
@@ -99,6 +103,8 @@ public class RepairManService {
                         .name(itemDetail.getRepairMan().getName())
                         .licenseId(itemDetail.getRepairMan().getLicenseId())
                         .careerStartAt(itemDetail.getRepairMan().getCareerStartAt())
+                        .evaluatedNum(itemDetail.getRepairMan().getEvaluatedNum())
+                        .evaluationGrade(itemDetail.getRepairMan().getEvaluationGrade())
                         .availableItems(List.of(ItemDetailDTO.builder()
                                             .itemDetailId(itemDetail.getId())
                                             .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
@@ -109,6 +115,7 @@ public class RepairManService {
                                             .build()
                                 )
                         ).build())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
                 .toList();
     }
 
@@ -122,6 +129,8 @@ public class RepairManService {
                         .name(repairMan.getName())
                         .licenseId(repairMan.getLicenseId())
                         .careerStartAt(repairMan.getCareerStartAt())
+                        .evaluatedNum(repairMan.getEvaluatedNum())
+                        .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
                                 .map(
                                         itemDetail -> ItemDetailDTO.builder()
@@ -134,6 +143,7 @@ public class RepairManService {
                                                 .build()
                                 ).toList()
                         ).build())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
                 .toList();
     }
 
@@ -146,6 +156,8 @@ public class RepairManService {
                         .name(repairMan.getName())
                         .licenseId(repairMan.getLicenseId())
                         .careerStartAt(repairMan.getCareerStartAt())
+                        .evaluatedNum(repairMan.getEvaluatedNum())
+                        .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
                                 .map(
                                         itemDetail -> ItemDetailDTO.builder()
@@ -158,6 +170,7 @@ public class RepairManService {
                                                 .build()
                                 ).toList()
                         ).build())
+                .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed())
                 .toList();
     }
 
