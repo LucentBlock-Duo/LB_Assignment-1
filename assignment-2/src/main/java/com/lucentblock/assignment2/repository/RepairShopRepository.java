@@ -19,16 +19,16 @@ public interface RepairShopRepository extends JpaRepository<RepairShop,Long> {
             "(ST_DISTANCE_SPHERE(POINT(r.longitude, r.latitude),POINT(?2, ?1))) as distance " +
             "FROM repair_shop r " +
             "HAVING distance<=?3 ",nativeQuery = true)
-    List<RepairShopWithDistance> findRepairShopInDistanceRangeWithoutProvince
+    List<RepairShopWithDistance> findRepairShopInDistanceRangeWithoutCity
             (BigDecimal givenLatitude, BigDecimal givenLongitude, BigDecimal distance);
 
     @Query( value = "SELECT r.id, r.latitude, r.longitude, r.province, r.city, r.address, r.name, r.postNum, " +
             "ST_DISTANCE_SPHERE(POINT(r.longitude, r.latitude),POINT(?2, ?1)) as distance " +
             "FROM repair_shop r " +
-            "HAVING r.province=?4 " +
+            "HAVING r.city=?4 " +
             "AND distance<=?3 ",nativeQuery = true)
     List<RepairShopWithDistance> findRepairShopInDistanceRange
-            (BigDecimal givenLatitude, BigDecimal givenLongitude, BigDecimal distance, String province);
+            (BigDecimal givenLatitude, BigDecimal givenLongitude, BigDecimal distance, String city);
 
 
     default List<RepairShop> findByLocationAndKeyword(String province, String city,String keyword) {

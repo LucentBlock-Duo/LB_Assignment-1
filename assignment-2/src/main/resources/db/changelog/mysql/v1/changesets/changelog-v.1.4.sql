@@ -29,3 +29,8 @@ ALTER TABLE repair_shop ADD COLUMN city VARCHAR(10) NOT NULL;
 ALTER TABLE user ADD COLUMN latitude VARCHAR(255) NOT NULL;
 ALTER TABLE user ADD COLUMN longitude VARCHAR(255) NOT NULL;
 ALTER TABLE user ADD COLUMN gps_authorized BOOLEAN DEFAULT false;
+
+-- changeset 0tae:user-4 labels:v1,1.4,location_search_service,gps_service
+-- comment: fix : user 수정
+ALTER TABLE user MODIFY COLUMN latitude VARCHAR(255);
+ALTER TABLE user MODIFY COLUMN longitude VARCHAR(255);
