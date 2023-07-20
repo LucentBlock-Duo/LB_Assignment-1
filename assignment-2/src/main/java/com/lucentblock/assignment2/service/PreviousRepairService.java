@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import static com.lucentblock.assignment2.model.PreviousRepairSearchRequestDTO.*;
 
@@ -21,7 +22,18 @@ import static com.lucentblock.assignment2.model.PreviousRepairSearchRequestDTO.*
 public class PreviousRepairService {
 
     private final PreviousRepairRepository previousRepairRepository;
+    private final RepairManService repairManService;
     private final EntityManager em;
+
+    public List<ResponsePreviousRepairDTO> repairManSearch(String name){
+        List<PreviousRepair> result=new ArrayList<>();
+
+        repairManService.getRepairMenByName(name).
+                forEach(repairMan ->
+                        result.addAll(previousRepairRepository.findAllByRepairManAndDeletedAtIsNotNull(repairMan)));
+
+        return result.stream().map(PreviousRepair::toDto).toList();
+    }
 
     public PreviousRepair createPreviousRepair(Long reserveId) {
         Reserve reserve = em.find(Reserve.class, reserveId);
