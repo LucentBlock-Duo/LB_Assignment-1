@@ -21,7 +21,7 @@ import com.lucentblock.assignment2.security.config.CustomEntryPoint;
 import com.lucentblock.assignment2.security.config.SecurityConfiguration;
 import com.lucentblock.assignment2.security.oauth.OAuth2SuccessHandler;
 import com.lucentblock.assignment2.security.oauth.PrincipalOAuth2UserService;
-import com.lucentblock.assignment2.service.RepairShopService;
+import com.lucentblock.assignment2.service.repair_shop.RepairShopService;
 import com.lucentblock.assignment2.service.ReserveService;
 import com.lucentblock.assignment2.service.UserService;
 import com.lucentblock.assignment2.service.car.CarService;

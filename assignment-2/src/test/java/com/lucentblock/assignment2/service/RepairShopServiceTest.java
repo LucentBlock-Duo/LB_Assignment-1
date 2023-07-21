@@ -3,6 +3,7 @@ package com.lucentblock.assignment2.service;
 
 import com.lucentblock.assignment2.exception.LocationNotFoundException;
 import com.lucentblock.assignment2.model.RepairShopSearchRequestDTO;
+import com.lucentblock.assignment2.service.repair_shop.RepairShopService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
