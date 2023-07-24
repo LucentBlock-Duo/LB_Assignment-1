@@ -208,4 +208,8 @@ public class RepairManService {
 
         return availableTimeSlot;
     }
+
+    public List<RepairMan> getRepairMenByName(String name){
+        return repairManRepository.findByNameContainingAndDeletedAtIsNull(name);
+    }
 }

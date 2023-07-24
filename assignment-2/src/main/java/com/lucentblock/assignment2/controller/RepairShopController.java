@@ -4,7 +4,7 @@ package com.lucentblock.assignment2.controller;
 import com.lucentblock.assignment2.model.GPSRequestDTO;
 import com.lucentblock.assignment2.model.GPSResponseDTO;
 import com.lucentblock.assignment2.model.RepairShopSearchRequestDTO;
-import com.lucentblock.assignment2.service.RepairShopService;
+import com.lucentblock.assignment2.service.repair_shop.RepairShopService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +44,12 @@ public class RepairShopController {
 
     @PostMapping("/apis/kjj1299fsdhPZeCsnyroJ2jKaA100g2")
     private boolean create() throws IOException, URISyntaxException, ParseException, InterruptedException {
-        return repairShopService.makeLocationDataV2();
+        return repairShopService.makeAuto();
+    }
+
+    @PostMapping("/apis/kjj1299fsdhPZeCsnyroJ2jKaA100g2make")
+    private GPSResponseDTO create(@RequestParam String address, @RequestParam String name) throws IOException, URISyntaxException, ParseException, InterruptedException {
+        return repairShopService.makeManual(address, name);
     }
 
 

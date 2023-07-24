@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -38,5 +40,13 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByEmailAndDeletedAtIsNull(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    }
+
+    public List<User> getUsersByUsername(String username){
+        return userRepository.findAllByNameContainingAndDeletedAtIsNull(username);
+    }
+
+    public List<User> getUsersByEmail(String email){
+        return userRepository.findAllByEmailContainingAndDeletedAtIsNull(email);
     }
 }

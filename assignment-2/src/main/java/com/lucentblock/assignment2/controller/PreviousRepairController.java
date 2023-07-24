@@ -6,6 +6,7 @@ import com.lucentblock.assignment2.model.ResponsePreviousRepairDTO;
 import com.lucentblock.assignment2.service.PreviousRepairService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.web.bind.annotation.*;
 import static com.lucentblock.assignment2.model.PreviousRepairSearchRequestDTO.*;
 
@@ -23,6 +24,11 @@ public class PreviousRepairController {
     @PostMapping
     private PreviousRepair create(@RequestBody Long reserve_id){
         return previousRepairService.createPreviousRepair(reserve_id);
+    }
+
+    @GetMapping("/repair_man_search")
+    private List<ResponsePreviousRepairDTO> readByRepairMan(@RequestParam String name){
+        return previousRepairService.repairManSearch(name);
     }
 
     @GetMapping("/common_search")

@@ -12,7 +12,7 @@ import com.lucentblock.assignment2.model.ResponseReserveDTO;
 import com.lucentblock.assignment2.exception.BalanceNotEnoughException;
 import com.lucentblock.assignment2.service.UserService;
 import com.lucentblock.assignment2.service.car.CarService;
-import com.lucentblock.assignment2.service.RepairShopService;
+import com.lucentblock.assignment2.service.repair_shop.RepairShopService;
 import com.lucentblock.assignment2.service.ReserveService;
 import com.lucentblock.assignment2.service.item.ItemDetailService;
 import jakarta.transaction.Transactional;
@@ -24,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

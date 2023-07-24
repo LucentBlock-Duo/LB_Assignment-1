@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import static com.lucentblock.assignment2.model.PreviousRepairSearchRequestDTO.*;
 
@@ -21,13 +22,43 @@ import static com.lucentblock.assignment2.model.PreviousRepairSearchRequestDTO.*
 public class PreviousRepairService {
 
     private final PreviousRepairRepository previousRepairRepository;
+    private final RepairManService repairManService;
+    private final UserService userService;
     private final EntityManager em;
+
+
 
     public PreviousRepair createPreviousRepair(Long reserveId) {
         Reserve reserve = em.find(Reserve.class, reserveId);
         PreviousRepair previousRepair = reserve.toPreviousRepairEntity();
 
         return previousRepairRepository.save(previousRepair);
+    }
+
+    public List<ResponsePreviousRepairDTO> userSearch(int mode,String param){
+        List<PreviousRepair> result=new ArrayList<>();
+        List<User> userList=switch (mode){ //
+            case 0 -> userService.getUsersByEmail(param);// email
+            case 1 -> userService.getUsersByUsername(param);// name
+            default -> null;
+        };
+
+        assert userList != null;
+
+        userList.forEach(user ->
+                result.addAll(previousRepairRepository.findAllByUserAndDeletedAtIsNotNull(user)));
+
+        return result.stream().map(PreviousRepair::toDto).toList();
+    }
+
+    public List<ResponsePreviousRepairDTO> repairManSearch(String name){
+        List<PreviousRepair> result=new ArrayList<>();
+
+        repairManService.getRepairMenByName(name).
+                forEach(repairMan ->
+                        result.addAll(previousRepairRepository.findAllByRepairManAndDeletedAtIsNotNull(repairMan)));
+
+        return result.stream().map(PreviousRepair::toDto).toList();
     }
 
     public List<ResponsePreviousRepairDTO> commonSearch(Common dto){

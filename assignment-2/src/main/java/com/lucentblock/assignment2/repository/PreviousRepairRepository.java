@@ -13,7 +13,7 @@ import java.util.List;
 public interface PreviousRepairRepository extends JpaRepository<PreviousRepair,Long> {
 
     List<PreviousRepair> findAllByUserAndDeletedAtIsNotNull(User user);
-    List<PreviousRepair> findAllByRepairManAndDeletedAtIsNotNull(RepairMan user);
+    List<PreviousRepair> findAllByRepairManAndDeletedAtIsNotNull(RepairMan repairMan);
 
     List<PreviousRepair> findAllByUserAndRepairManAndDeletedAtIsNotNull(User user, RepairMan repairMan);
 
