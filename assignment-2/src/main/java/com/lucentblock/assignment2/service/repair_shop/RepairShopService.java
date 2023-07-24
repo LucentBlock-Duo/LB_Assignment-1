@@ -100,13 +100,13 @@ public class RepairShopService {
     }
 
 
-    public boolean makeAuto() throws IOException, URISyntaxException, ParseException, InterruptedException {
-        repairShopRepository.saveAll(repairShopMaker.makeLocationDataV2());
-        return true;
+    public List<GPSResponseDTO> makeAuto(String keyword) throws IOException, URISyntaxException, ParseException, InterruptedException {
+        return repairShopRepository.saveAll(repairShopMaker.makeLocationDataV2(keyword))
+                .stream().map(RepairShop::toDto).toList();
     }
 
     public GPSResponseDTO makeManual(String address, String name) throws URISyntaxException, IOException, ParseException, InterruptedException {
-        return repairShopMaker.makeLocationDataV1(address,name).toDto();
+        return repairShopRepository.save(repairShopMaker.makeLocationDataV1(address,name)).toDto();
     }
 }
 
