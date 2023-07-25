@@ -27,23 +27,8 @@ public class RepairShopService {
     private final RepairShopMaker repairShopMaker;
     private final EntityManager em;
 
-    public List<GPSResponseDTO> searchResult(RepairShopSearchRequestDTO requestDto) {
-        RepairShop location = repairShopRepository.findById(requestDto.getLocation_id())
-                .orElseThrow(()-> new RepairShopNotFoundException("매장을 찾을 수 없습니다."));
-
-        List<RepairShop> result = repairShopRepository.
-                        findByLocationAndKeyword(location.getProvince(),location.getCity(),requestDto.getKeyword());
-
-
-
-        if (result.size() < 1)
-            throw new RepairShopNotFoundException("매장을 찾을 수 없습니다."); // 검색결과가 없다면 예외발생
-
-        return result.stream().map(RepairShop::toDto).toList();
-    }
-
     public List<GPSResponseDTO> searchByAroundRepairShop(GPSRequestDTO gpsDto){
-        BigDecimal distance=new BigDecimal("5000.0"); // 기준을 어떻게 세울 것인가...............................
+        BigDecimal distance=new BigDecimal("5000.0"); //
 
         BigDecimal latitude = gpsDto.getLatitude();
         BigDecimal longitude = gpsDto.getLongitude();
@@ -75,15 +60,15 @@ public class RepairShopService {
 
 
     public GPSRequestDTO makeRequestDTO(Long userId,BigDecimal latitude, BigDecimal longitude,boolean userLocMode){
-        User user = em.find(User.class, userId); // User 정보 가져오기
-        if(userLocMode && user.getGpsAuthorized()){ // 위도, 경도로 구하기
-            BigDecimal userLatitude=null;
-            BigDecimal userLongitude=null;
+        User user = em.find(User.class, userId);
+        if(userLocMode && user.getGpsAuthorized()){ // user Location search mode && user's GPS Authorization check
+            BigDecimal userLatitude=user.getLatitude();
+            BigDecimal userLongitude=user.getLongitude();
             return GPSRequestDTO.builder()
                     .latitude(userLatitude)
                     .latitude(userLongitude).build();
         }else{
-            return GPSRequestDTO.builder()
+            return GPSRequestDTO.builder() // else, Default Or input location-value selected
                     .latitude(latitude)
                     .longitude(longitude).build();
         }

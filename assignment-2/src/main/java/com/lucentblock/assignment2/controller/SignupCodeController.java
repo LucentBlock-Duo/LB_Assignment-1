@@ -21,7 +21,7 @@ public class SignupCodeController {
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
         if (currentUser == null || currentUser.isEmpty()) {
             log.info("인증 정보가 비어있습니다.");
-            throw new AccessDeniedException("잚못된 접근");
+            throw new AccessDeniedException("잘못된 접근");
         }
         return signupCodeService.generateSignupCode(currentUser);
     }

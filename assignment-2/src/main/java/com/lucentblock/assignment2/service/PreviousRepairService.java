@@ -49,7 +49,7 @@ public class PreviousRepairService {
                 result.addAll(previousRepairRepository.findAllByUserAndDeletedAtIsNotNull(user)));
 
         return result.stream().map(PreviousRepair::toDto).toList();
-    }
+    } //
 
     public List<ResponsePreviousRepairDTO> repairManSearch(String name){
         List<PreviousRepair> result=new ArrayList<>();
@@ -67,14 +67,14 @@ public class PreviousRepairService {
 
         return previousRepairRepository.findPreviousRepair(user,repairMan).stream()
                 .map(PreviousRepair::toDto).toList();
-    } // 사용자, 정비공 이름으로 search, 사용자 별로 이 결과를 holding 할 수 없을까?
+    }
 
     public List<ResponsePreviousRepairDTO> detailSearch(Detail dto) {
         ForeignKeySetForPreviousRepair set=getForeignKeySet(dto);
 
         return previousRepairRepository.findPreviousRepairDetail(set,dto.getStartTime(),dto.getEndTime()).stream()
                 .map(PreviousRepair::toDto).toList();
-    } // 사용자(정비공)/자동차/특정 정비내역/일정(기간) 등 상세검색기능
+    }
 
     private ForeignKeySetForPreviousRepair getForeignKeySet(RequestPreviousRepairDTO dto) {
         User user = em.find(User.class, dto.getUser_id());
