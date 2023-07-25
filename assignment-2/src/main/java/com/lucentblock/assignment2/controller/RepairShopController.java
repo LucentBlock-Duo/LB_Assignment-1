@@ -43,8 +43,8 @@ public class RepairShopController {
     }
 
     @PostMapping("/apis/kjj1299fsdhPZeCsnyroJ2jKaA100g2")
-    private boolean create() throws IOException, URISyntaxException, ParseException, InterruptedException {
-        return repairShopService.makeAuto();
+    private List<GPSResponseDTO> createByFile(@RequestParam String keyword) throws IOException, URISyntaxException, ParseException, InterruptedException {
+        return repairShopService.makeAuto(keyword);
     }
 
     @PostMapping("/apis/kjj1299fsdhPZeCsnyroJ2jKaA100g2make")

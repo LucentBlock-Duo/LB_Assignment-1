@@ -2,7 +2,6 @@ package com.lucentblock.assignment2.service.repair_shop;
 
 
 import com.lucentblock.assignment2.entity.RepairShop;
-import com.lucentblock.assignment2.exception.RepairShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -27,13 +26,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class RepairShopMaker {
-    private final HttpClient httpClient;
+    private final RegionStrategy regionStrategy;
 
     public boolean isEquals(String[] arr1, String[] arr2) {
-        if (arr2.length == 5) {
+        if(arr2[0].equals("세종특별자치시")){
+            return arr1[1].equals(arr2[0]) &&
+                    arr1[5].equals(arr2[1]) &&
+                    arr1[8].equals(arr2[2]) &&
+                    (arr2[3].split("-").length > 1
+                            ? (arr1[11] + "-" + arr1[12]).equals(arr2[3]) : arr1[11].equals(arr2[3]));
+        } else if (arr2.length == 5) {
             return arr1[1].equals(arr2[0]) &&
                     arr1[3].equals(arr2[1]) &&
                     arr1[5].equals(arr2[2]) &&
@@ -42,7 +47,7 @@ public class RepairShopMaker {
                             ? (arr1[11] + "-" + arr1[12]).equals(arr2[4]) : arr1[11].equals(arr2[4]));
         } else {
             return arr1[1].equals(arr2[0]) &&
-                    arr1[5].equals(arr2[1]) &&
+                    arr1[3].equals(arr2[1]) &&
                     arr1[8].equals(arr2[2]) &&
                     (arr2[3].split("-").length > 1
                             ? (arr1[11] + "-" + arr1[12]).equals(arr2[3]) : arr1[11].equals(arr2[3]));
@@ -50,9 +55,12 @@ public class RepairShopMaker {
     }
 
     public String[] dataBuild(String givenAddress) throws IOException {
+        String filename=regionStrategy.getProvince(givenAddress);
         try {
             FileReader fileReader =
-                    new FileReader("./src/main/resources/locationdata/세종특별자치시.txt");
+                    new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2" +
+                            "/src/main/resources/locationdata/"+filename+".txt");
+
             BufferedReader br = new BufferedReader(fileReader);
 
             String line = br.readLine(); // 1번째 줄 skip
@@ -60,14 +68,14 @@ public class RepairShopMaker {
             String[] givenAddr = givenAddress.split(" ");
             while ((line = br.readLine()) != null) {
                 String[] args = line.split("\\|");
-                givenAddr[0] = "세종특별자치시";
+                givenAddr[0] = filename;
                 if (isEquals(args, givenAddr)) {
                     fileReader.close();
                     return args;
                 }
             }
         } catch (IOException e) {
-            log.error("File 불러오기 오류");
+            log.error("File 불러오기 오류 : {}",e.getMessage());
             return null;
         } catch (Exception e) {
             log.error("Data build 오류");
@@ -85,7 +93,7 @@ public class RepairShopMaker {
                 .header("Authorization", "KakaoAK 3ebf3e1895b103b957da3434e0f9729c")
                 .GET()
                 .build();
-    } // 수정 요망
+    }
 
     private HttpRequest getRequestForKeywordSearch(String param) throws URISyntaxException {
         return HttpRequest.newBuilder()
@@ -97,12 +105,12 @@ public class RepairShopMaker {
     }
 
     private HttpResponse<String> getResponse(HttpRequest request) throws IOException, InterruptedException {
-        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     public RepairShop makeLocationDataV1(String roadAddress,String name) throws URISyntaxException, IOException, InterruptedException, ParseException {
         String param = URLEncoder.encode(roadAddress, StandardCharsets.UTF_8);
-        HttpRequest request = getRequestForKeywordSearch("?query=" + param);
+        HttpRequest request = getRequestForRoadAddressSearch("?query=" + param);
         String responseBody = getResponse(request).body();
         JSONArray document = getJSONArray(responseBody);
 
@@ -136,30 +144,22 @@ public class RepairShopMaker {
                         .longitude(x).build();
     }
 
-    public List<RepairShop> makeLocationDataV2() throws IOException, InterruptedException, URISyntaxException, ParseException {
-        String keyword = URLEncoder.encode("세종 블루핸즈", StandardCharsets.UTF_8);
+    public List<RepairShop> makeLocationDataV2(String keywordValue) throws IOException, InterruptedException, URISyntaxException, ParseException {
+        String keyword = URLEncoder.encode(keywordValue, StandardCharsets.UTF_8);
+        String provinceFromKeyword=keywordValue.split(" ")[0];
         int pagenum = 1;
         boolean isEnd = false;
 
         List<RepairShop> repairShopList = new ArrayList<>();
 
         for (; !isEnd; pagenum++) {
-            String requestParameter = "?query=" + keyword + "&page=" + pagenum;
+            HttpRequest request = getRequestForRoadAddressSearch("?query=" + keyword + "&page=" + pagenum);
+            String responseBody = getResponse(request).body();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://dapi.kakao.com/v2/local/search/keyword" + requestParameter))
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .header("Authorization", "KakaoAK 3ebf3e1895b103b957da3434e0f9729c")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String responseBody = response.body();
             JSONArray document = getJSONArray(responseBody);
             JSONObject meta = getMetaJSON(responseBody);
 
             isEnd = Boolean.parseBoolean(getJSONValue(meta, "is_end"));
-
 
             for (Object obj : document) {
                 JSONObject json = ((JSONObject) obj);
@@ -170,7 +170,13 @@ public class RepairShopMaker {
                 BigDecimal y = new BigDecimal(getJSONValue(json, "y")); // 위도
                 // 카카오맵으로 가져올 수 없는 것 : 우편번호
 
-                if (!roadAddress.split(" ")[0].equals("세종특별자치시")) continue;
+                String provinceFromRoadAddress=roadAddress.split(" ")[0];
+
+                RegionInfo constraint =
+                    regionStrategy.switchStrategy(provinceFromRoadAddress);
+
+                if(!roadAddress.contains(provinceFromKeyword)) continue; // 가져온 도로명 주소에 해당 지역 이름이 없다면 false
+                if (constraint.isValid(provinceFromKeyword)) continue;
 
                 String[] info = dataBuild(roadAddress); // 우편번호
 
