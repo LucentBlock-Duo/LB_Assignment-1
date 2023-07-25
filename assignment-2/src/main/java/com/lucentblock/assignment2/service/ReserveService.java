@@ -73,6 +73,8 @@ public class ReserveService {
 
         reserve.setStatus(status);
 
+        // If status set to not Repairing, Reserve will be deleted.
+        // Then, PreviousRepair Entity will be saved
         if(!RepairStatus.status(reserve.getStatus()).equals(RepairStatus.REPAIRING.status())){
             reserve.setEndTime(LocalTime.now());
             previousRepairService.createPreviousRepair(reserve.getId());
@@ -94,10 +96,10 @@ public class ReserveService {
         double grade=repairMan.getEvaluationGrade();
 
         repairMan.setEvaluationGrade((grade*num+value)/(num+1));
-        repairMan.setEvaluatedNum(num+1);
+        repairMan.setEvaluatedNum(num+1); // set total-num and average
 
         reserve.setIsReviewed(true);
 
         return em.merge(repairMan);
-    }
+    } // Review Service
 }

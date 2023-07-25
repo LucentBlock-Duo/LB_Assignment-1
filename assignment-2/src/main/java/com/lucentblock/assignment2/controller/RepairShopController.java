@@ -21,18 +21,13 @@ public class RepairShopController {
 
     private final RepairShopService repairShopService;
 
-    @GetMapping("/api/repair_shop") // previous ver.
-    private List<GPSResponseDTO> read(@RequestParam String keyword, @RequestParam Long location_id){
-        return repairShopService.searchResult(new RepairShopSearchRequestDTO(keyword,location_id));
-    }
-
     @GetMapping("/apis/repair_shop_search")
     private List<GPSResponseDTO> readByAroundLoc
             (@RequestParam Long userId,@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude){
 
         GPSRequestDTO gpsRequestDTO = repairShopService.makeRequestDTO(userId,latitude, longitude,false);
         return repairShopService.searchByAroundRepairShop(gpsRequestDTO);
-    }
+    } // Static searching : by selected GPS Info
 
     @GetMapping("/apis/repair_shop_proximate")
     private GPSResponseDTO readByCurrentLoc
@@ -40,17 +35,17 @@ public class RepairShopController {
 
         GPSRequestDTO gpsRequestDTO = repairShopService.makeRequestDTO(userId, latitude, longitude,true);
         return repairShopService.searchProximateRepairShop(gpsRequestDTO);
-    }
+    } // Around searching : by User's GPS Info
 
     @PostMapping("/apis/kjj1299fsdhPZeCsnyroJ2jKaA100g2")
-    private List<GPSResponseDTO> createByFile(@RequestParam String keyword) throws IOException, URISyntaxException, ParseException, InterruptedException {
+    private List<GPSResponseDTO> createByExistData(@RequestParam String keyword) throws IOException, URISyntaxException, ParseException, InterruptedException {
         return repairShopService.makeAuto(keyword);
-    }
+    } // Build Repair_shop data from exist data
 
     @PostMapping("/apis/kjj1299fsdhPZeCsnyroJ2jKaA100g2make")
-    private GPSResponseDTO create(@RequestParam String address, @RequestParam String name) throws IOException, URISyntaxException, ParseException, InterruptedException {
+    private GPSResponseDTO createByDeveloper(@RequestParam String address, @RequestParam String name) throws IOException, URISyntaxException, ParseException, InterruptedException {
         return repairShopService.makeManual(address, name);
-    }
+    } // Build Repair_shop data By developer
 
 
 }

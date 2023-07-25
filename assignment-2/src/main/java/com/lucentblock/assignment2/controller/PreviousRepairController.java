@@ -20,7 +20,6 @@ public class PreviousRepairController {
 
     private final PreviousRepairService previousRepairService;
 
-
     @PostMapping
     private PreviousRepair create(@RequestBody Long reserve_id){
         return previousRepairService.createPreviousRepair(reserve_id);

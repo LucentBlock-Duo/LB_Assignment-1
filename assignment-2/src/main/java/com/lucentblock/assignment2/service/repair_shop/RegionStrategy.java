@@ -19,15 +19,18 @@ public class RegionStrategy {
     public RegionInfo switchStrategy(String keyword){
         RegionInfo region=
             regions.stream().filter(regionInfo -> regionInfo.isValid(keyword)).findAny().orElse(null);
+        // find valid-region for keyword, or returns null
 
         if(region!=null) setRegion(region);
+        // if region exists, switch to selected region found by keyword
+        // else, Finally returns current region
 
         return getRegion();
     }
 
     public String getProvince(String keyword){
         return switchStrategy(keyword).regionParse(keyword);
-    }
+    } // switch to corresponding region and convert to province
 
     private RegionInfo getRegion(){
         return this.currentRegion;

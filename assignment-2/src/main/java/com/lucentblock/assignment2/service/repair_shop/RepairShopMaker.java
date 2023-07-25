@@ -10,20 +10,15 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
+import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -32,30 +27,30 @@ public class RepairShopMaker {
     private final RegionStrategy regionStrategy;
 
     public boolean isEquals(String[] arr1, String[] arr2) {
-        if(arr2[0].equals("세종특별자치시")){
-            return arr1[1].equals(arr2[0]) &&
-                    arr1[5].equals(arr2[1]) &&
-                    arr1[8].equals(arr2[2]) &&
-                    (arr2[3].split("-").length > 1
+        if(arr2[0].equals("세종특별자치시")){ // This suit for "Sejong"
+            return arr1[1].equals(arr2[0]) && // compare province
+                    arr1[5].equals(arr2[1]) && // compare town or village
+                    arr1[8].equals(arr2[2]) && // compare roadAddress
+                    (arr2[3].split("-").length > 1 // compare building-number, and find whether high-pon exists
                             ? (arr1[11] + "-" + arr1[12]).equals(arr2[3]) : arr1[11].equals(arr2[3]));
-        } else if (arr2.length == 5) {
-            return arr1[1].equals(arr2[0]) &&
-                    arr1[3].equals(arr2[1]) &&
-                    arr1[5].equals(arr2[2]) &&
-                    arr1[8].equals(arr2[3]) &&
-                    (arr2[4].split("-").length > 1
+        } else if (arr2.length == 5) {  // This suit for "ChungCheongNamDo"
+            return arr1[1].equals(arr2[0]) && // compare province
+                    arr1[3].equals(arr2[1]) && // compare city
+                    arr1[5].equals(arr2[2]) && // compare town or village
+                    arr1[8].equals(arr2[3]) && // compare roadAddress
+                    (arr2[4].split("-").length > 1 // compare building-number, and find whether high-pon exists
                             ? (arr1[11] + "-" + arr1[12]).equals(arr2[4]) : arr1[11].equals(arr2[4]));
-        } else {
-            return arr1[1].equals(arr2[0]) &&
-                    arr1[3].equals(arr2[1]) &&
-                    arr1[8].equals(arr2[2]) &&
-                    (arr2[3].split("-").length > 1
+        } else {                         // This suit for "Daejeon"
+            return arr1[1].equals(arr2[0]) && // compare province
+                    arr1[3].equals(arr2[1]) &&// compare city
+                    arr1[8].equals(arr2[3]) && // compare roadAddress
+                    (arr2[3].split("-").length > 1 // compare building-number, and find whether high-pon exists
                             ? (arr1[11] + "-" + arr1[12]).equals(arr2[3]) : arr1[11].equals(arr2[3]));
         }
     }
 
     public String[] dataBuild(String givenAddress) throws IOException {
-        String filename=regionStrategy.getProvince(givenAddress);
+        String filename=regionStrategy.getProvince(givenAddress); // Get ${province}.txt file name
         try {
             FileReader fileReader =
                     new FileReader("/Users/0tae1/IdeaProjects/LB_Assignment-2/assignment-2" +
@@ -63,12 +58,14 @@ public class RepairShopMaker {
 
             BufferedReader br = new BufferedReader(fileReader);
 
-            String line = br.readLine(); // 1번째 줄 skip
+            String line = br.readLine(); // Skip for first line
 
-            String[] givenAddr = givenAddress.split(" ");
+            String[] givenAddr = givenAddress.split(" "); // Convert parameter string to string-array
             while ((line = br.readLine()) != null) {
                 String[] args = line.split("\\|");
-                givenAddr[0] = filename;
+
+                givenAddr[0] = filename; // Equalize province parameter to filename
+
                 if (isEquals(args, givenAddr)) {
                     fileReader.close();
                     return args;
@@ -93,7 +90,7 @@ public class RepairShopMaker {
                 .header("Authorization", "KakaoAK 3ebf3e1895b103b957da3434e0f9729c")
                 .GET()
                 .build();
-    }
+    } // KaKao Map REST API Request By RoadAddress
 
     private HttpRequest getRequestForKeywordSearch(String param) throws URISyntaxException {
         return HttpRequest.newBuilder()
@@ -102,14 +99,17 @@ public class RepairShopMaker {
                 .header("Authorization", "KakaoAK 3ebf3e1895b103b957da3434e0f9729c")
                 .GET()
                 .build();
-    }
+    } // KaKao Map REST API Request By Keyword
 
     private HttpResponse<String> getResponse(HttpRequest request) throws IOException, InterruptedException {
         return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-    }
+    } // Get client and Send request from localhost, and get response
 
+
+    // Use for create a repair-shop entity
+    // Require CORRECT roadAddress and repair-shop's name for add
     public RepairShop makeLocationDataV1(String roadAddress,String name) throws URISyntaxException, IOException, InterruptedException, ParseException {
-        String param = URLEncoder.encode(roadAddress, StandardCharsets.UTF_8);
+        String param = URLEncoder.encode(roadAddress, StandardCharsets.UTF_8); // Encoding URL For Korean language
         HttpRequest request = getRequestForRoadAddressSearch("?query=" + param);
         String responseBody = getResponse(request).body();
         JSONArray document = getJSONArray(responseBody);
@@ -121,11 +121,10 @@ public class RepairShopMaker {
 
         JSONObject json=(JSONObject) document.get(0);
 
-        BigDecimal x = new BigDecimal(getJSONValue(json, "x")); // 경도
-        BigDecimal y = new BigDecimal(getJSONValue(json, "y")); // 위도
-        // 카카오맵으로 가져올 수 없는 것 : 우편번호
+        BigDecimal x = new BigDecimal(getJSONValue(json, "x")); // longitude
+        BigDecimal y = new BigDecimal(getJSONValue(json, "y")); // latitude
 
-        String[] info = dataBuild(roadAddress); // 우편번호
+        String[] info = dataBuild(roadAddress); // Get Specific Address From DB.txt, Input : roadAddress
 
         int postNum = Integer.parseInt(info[0]);
         String province = info[1];
@@ -144,6 +143,9 @@ public class RepairShopMaker {
                         .longitude(x).build();
     }
 
+
+    // Use for create All repair-shop entities in the region
+    // Require a keyword only
     public List<RepairShop> makeLocationDataV2(String keywordValue) throws IOException, InterruptedException, URISyntaxException, ParseException {
         String keyword = URLEncoder.encode(keywordValue, StandardCharsets.UTF_8);
         String provinceFromKeyword=keywordValue.split(" ")[0];
@@ -164,21 +166,20 @@ public class RepairShopMaker {
             for (Object obj : document) {
                 JSONObject json = ((JSONObject) obj);
 
-                String name = getJSONValue(json, "place_name"); // 현대자동차 블루핸즈 자명점
-                String roadAddress = getJSONValue(json, "road_address_name"); // 대전 유성구 유성대로1184번길 71
-                BigDecimal x = new BigDecimal(getJSONValue(json, "x")); // 경도
-                BigDecimal y = new BigDecimal(getJSONValue(json, "y")); // 위도
-                // 카카오맵으로 가져올 수 없는 것 : 우편번호
+                String name = getJSONValue(json, "place_name");
+                String roadAddress = getJSONValue(json, "road_address_name");
+                BigDecimal x = new BigDecimal(getJSONValue(json, "x"));
+                BigDecimal y = new BigDecimal(getJSONValue(json, "y"));
 
                 String provinceFromRoadAddress=roadAddress.split(" ")[0];
 
                 RegionInfo constraint =
                     regionStrategy.switchStrategy(provinceFromRoadAddress);
 
-                if(!roadAddress.contains(provinceFromKeyword)) continue; // 가져온 도로명 주소에 해당 지역 이름이 없다면 false
+                if (!roadAddress.contains(provinceFromKeyword)) continue;
                 if (constraint.isValid(provinceFromKeyword)) continue;
 
-                String[] info = dataBuild(roadAddress); // 우편번호
+                String[] info = dataBuild(roadAddress);
 
                 int postNum = Integer.parseInt(info[0]);
 
@@ -207,13 +208,13 @@ public class RepairShopMaker {
 
     private JSONObject getMetaJSON(String src) throws ParseException {
         JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(src); // JSON String을 JSON으로 변환
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(src);
         return (JSONObject) jsonObject.get("meta");
     }
 
     private JSONArray getJSONArray(String src) throws ParseException {
-        JSONObject jsonObject = (JSONObject) (new JSONParser().parse(src)); // JSON String을 JSON으로 변환
-        return (JSONArray) jsonObject.get("documents"); // "RESULT" 부분만 추려냄
+        JSONObject jsonObject = (JSONObject) (new JSONParser().parse(src));
+        return (JSONArray) jsonObject.get("documents");
     }
 
     private String getJSONValue(JSONObject jsonObject, String key) {

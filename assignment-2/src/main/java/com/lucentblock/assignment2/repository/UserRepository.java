@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
     
-    List<User> findAllByEmailContainingAndDeletedAtIsNull(String email);
-    List<User> findAllByNameContainingAndDeletedAtIsNull(String username);
+    List<User> findAllByEmailContainingAndDeletedAtIsNull(String email); // Find users by email
+    List<User> findAllByNameContainingAndDeletedAtIsNull(String username); // Find users by username
 }

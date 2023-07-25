@@ -8,7 +8,6 @@ pipeline {
         DOCKER_HUB_USERNAME = credentials('DOCKER_HUB_USERNAME')
         DOCKER_HUB_ACCESS_TOKEN = credentials('DOCKER_HUB_ACCESS_TOKEN')
         AMD64_DOCKER_IMAGE_TAG = credentials('AMD64_DOCKER_IMAGE_TAG')
-        ARM64_DOCKER_IMAGE_TAG = credentials('ARM64_DOCKER_IMAGE_TAG')
         DOCKER_IMAGE_TAG = credentials('DOCKER_IMAGE_TAG')
     }
 
