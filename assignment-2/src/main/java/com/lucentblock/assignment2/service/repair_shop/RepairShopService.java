@@ -59,16 +59,28 @@ public class RepairShopService {
     }
 
 
+
+    /*
+    * Make RequestDTO about GPSInfo, varies by search mode.
+    *
+    * Mode 1 : User-Surrounding-Location-Search, using users current latitude and longitude.
+    * When Mode 1 is enabled, then userLocMode is true.
+    *
+    * Mode 2 : Static-Location-Search, using input latitude and longitude.
+    * When Mode 2 is enabled, then userLocMode is false.
+    *
+    * Default latitude & longitude value are already set
+    */
     public GPSRequestDTO makeRequestDTO(Long userId,BigDecimal latitude, BigDecimal longitude,boolean userLocMode){
         User user = em.find(User.class, userId);
-        if(userLocMode && user.getGpsAuthorized()){ // user Location search mode && user's GPS Authorization check
+        if(userLocMode && user.getGpsAuthorized()){
             BigDecimal userLatitude=user.getLatitude();
             BigDecimal userLongitude=user.getLongitude();
             return GPSRequestDTO.builder()
                     .latitude(userLatitude)
                     .latitude(userLongitude).build();
         }else{
-            return GPSRequestDTO.builder() // else, Default Or input location-value selected
+            return GPSRequestDTO.builder()
                     .latitude(latitude)
                     .longitude(longitude).build();
         }
@@ -85,11 +97,17 @@ public class RepairShopService {
     }
 
 
+    /*
+    * For add list of repair-shops location info to DB, already exists in reality
+    */
     public List<GPSResponseDTO> makeAuto(String keyword) throws IOException, URISyntaxException, ParseException, InterruptedException {
         return repairShopRepository.saveAll(repairShopMaker.makeLocationDataV2(keyword))
                 .stream().map(RepairShop::toDto).toList();
     }
 
+    /*
+     * For add repair-shop location info to DB, will be added by administrator
+     */
     public GPSResponseDTO makeManual(String address, String name) throws URISyntaxException, IOException, ParseException, InterruptedException {
         return repairShopRepository.save(repairShopMaker.makeLocationDataV1(address,name)).toDto();
     }

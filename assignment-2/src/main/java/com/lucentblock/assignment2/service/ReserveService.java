@@ -73,7 +73,7 @@ public class ReserveService {
 
         reserve.setStatus(status);
 
-        // If status set to not Repairing, Reserve will be deleted.
+        // If status is set to NOT Repairing, Reserve will be ended.
         // Then, PreviousRepair Entity will be saved
         if(!RepairStatus.status(reserve.getStatus()).equals(RepairStatus.REPAIRING.status())){
             reserve.setEndTime(LocalTime.now());
@@ -83,6 +83,8 @@ public class ReserveService {
         return reserveRepository.save(reserve).toDto();
     }
 
+
+    // Review service about Repair-Man
     @Transactional
     public RepairMan evaluate(RequestReserveReviewDTO dto){
         RepairMan repairMan = em.find(RepairMan.class,dto.getRepair_man_id());
@@ -95,11 +97,12 @@ public class ReserveService {
         double value=dto.getValue();
         double grade=repairMan.getEvaluationGrade();
 
+        // Set total-num and average
         repairMan.setEvaluationGrade((grade*num+value)/(num+1));
-        repairMan.setEvaluatedNum(num+1); // set total-num and average
+        repairMan.setEvaluatedNum(num+1);
 
         reserve.setIsReviewed(true);
 
         return em.merge(repairMan);
-    } // Review Service
+    }
 }

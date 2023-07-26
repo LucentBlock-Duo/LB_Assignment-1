@@ -1,7 +1,7 @@
 package com.lucentblock.assignment2.entity.item;
 
 import com.lucentblock.assignment2.entity.RepairMan;
-import com.lucentblock.assignment2.service.item.ItemDetailDTO;
+import com.lucentblock.assignment2.model.maintenanceItem.ItemDetailDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,9 +38,11 @@ public class ItemDetail {
 
     public static ItemDetailDTO toDTO(ItemDetail itemDetail) {
         return ItemDetailDTO.builder()
-                .id(itemDetail.getId())
+                .itemDetailId(itemDetail.getId())
                 .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                .repairManInfoDTO(RepairMan.toDTO(itemDetail.getRepairMan()))
+                .itemName(itemDetail.getMaintenanceItem().getItemName())
+                .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
+                .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
                 .price(itemDetail.getPrice())
                 .build();
     }

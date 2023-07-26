@@ -26,26 +26,45 @@ import java.util.*;
 public class RepairShopMaker {
     private final RegionStrategy regionStrategy;
 
-    public boolean isEquals(String[] arr1, String[] arr2) {
-        if(arr2[0].equals("세종특별자치시")){ // This suit for "Sejong"
-            return arr1[1].equals(arr2[0]) && // compare province
-                    arr1[5].equals(arr2[1]) && // compare town or village
-                    arr1[8].equals(arr2[2]) && // compare roadAddress
-                    (arr2[3].split("-").length > 1 // compare building-number, and find whether high-pon exists
-                            ? (arr1[11] + "-" + arr1[12]).equals(arr2[3]) : arr1[11].equals(arr2[3]));
-        } else if (arr2.length == 5) {  // This suit for "ChungCheongNamDo"
-            return arr1[1].equals(arr2[0]) && // compare province
-                    arr1[3].equals(arr2[1]) && // compare city
-                    arr1[5].equals(arr2[2]) && // compare town or village
-                    arr1[8].equals(arr2[3]) && // compare roadAddress
-                    (arr2[4].split("-").length > 1 // compare building-number, and find whether high-pon exists
-                            ? (arr1[11] + "-" + arr1[12]).equals(arr2[4]) : arr1[11].equals(arr2[4]));
+    /*
+    * Compare input road-address to DB-full-address
+    *
+    * roadAddress[0] : province
+    * roadAddress[1] : city or town, village
+    * roadAddress[2] : roadAddress
+    * roadAddress[3] : building-number, containing hyphen
+    *                   OR roadAddressName (having 5 argument roadAddress, last letter is "Do")
+    * roadAddress[4] : building-number (Only having 5 argument roadAddress, last letter is "Do")
+    *
+    * DBArgs[1] : province
+    * DBArgs[3] : city
+    * DBArgs[5] : town or village
+    * DBArgs[8] : roadAddressName
+    * DBArgs[11] : building number
+    * DBArgs[12] : building number-second
+    *
+    * others in DBArgs elements not be considered
+    */
+    public boolean isEquals(String[] DBArgs, String[] roadAddress) {
+        if(roadAddress[0].equals("세종특별자치시")){ // This suit for "Sejong"
+            return DBArgs[1].equals(roadAddress[0]) &&
+                    DBArgs[5].equals(roadAddress[1]) &&
+                    DBArgs[8].equals(roadAddress[2]) &&
+                    (roadAddress[3].split("-").length > 1 // Compare building-number, and find whether hyphen exists
+                            ? (DBArgs[11] + "-" + DBArgs[12]).equals(roadAddress[3]) : DBArgs[11].equals(roadAddress[3]));
+        } else if (roadAddress.length == 5) {  // This suit for "ChungCheongNamDo"
+            return DBArgs[1].equals(roadAddress[0]) &&
+                    DBArgs[3].equals(roadAddress[1]) &&
+                    DBArgs[5].equals(roadAddress[2]) &&
+                    DBArgs[8].equals(roadAddress[3]) &&
+                    (roadAddress[4].split("-").length > 1
+                            ? (DBArgs[11] + "-" + DBArgs[12]).equals(roadAddress[4]) : DBArgs[11].equals(roadAddress[4]));
         } else {                         // This suit for "Daejeon"
-            return arr1[1].equals(arr2[0]) && // compare province
-                    arr1[3].equals(arr2[1]) &&// compare city
-                    arr1[8].equals(arr2[3]) && // compare roadAddress
-                    (arr2[3].split("-").length > 1 // compare building-number, and find whether high-pon exists
-                            ? (arr1[11] + "-" + arr1[12]).equals(arr2[3]) : arr1[11].equals(arr2[3]));
+            return DBArgs[1].equals(roadAddress[0]) &&
+                    DBArgs[3].equals(roadAddress[1]) &&
+                    DBArgs[8].equals(roadAddress[2]) &&
+                    (roadAddress[3].split("-").length > 1
+                            ? (DBArgs[11] + "-" + DBArgs[12]).equals(roadAddress[3]) : DBArgs[11].equals(roadAddress[3]));
         }
     }
 
@@ -61,10 +80,10 @@ public class RepairShopMaker {
             String line = br.readLine(); // Skip for first line
 
             String[] givenAddr = givenAddress.split(" "); // Convert parameter string to string-array
+            givenAddr[0] = filename; // Equalize province parameter to filename
+
             while ((line = br.readLine()) != null) {
                 String[] args = line.split("\\|");
-
-                givenAddr[0] = filename; // Equalize province parameter to filename
 
                 if (isEquals(args, givenAddr)) {
                     fileReader.close();
@@ -106,8 +125,10 @@ public class RepairShopMaker {
     } // Get client and Send request from localhost, and get response
 
 
-    // Use for create a repair-shop entity
-    // Require CORRECT roadAddress and repair-shop's name for add
+    /*
+     * Use for create a repair-shop entity
+     * Require CORRECT roadAddress and repair-shop's name for add
+     */
     public RepairShop makeLocationDataV1(String roadAddress,String name) throws URISyntaxException, IOException, InterruptedException, ParseException {
         String param = URLEncoder.encode(roadAddress, StandardCharsets.UTF_8); // Encoding URL For Korean language
         HttpRequest request = getRequestForRoadAddressSearch("?query=" + param);
@@ -124,7 +145,9 @@ public class RepairShopMaker {
         BigDecimal x = new BigDecimal(getJSONValue(json, "x")); // longitude
         BigDecimal y = new BigDecimal(getJSONValue(json, "y")); // latitude
 
-        String[] info = dataBuild(roadAddress); // Get Specific Address From DB.txt, Input : roadAddress
+        // Get Specific Address From DB file, ${province}.txt
+        // Input : roadAddress
+        String[] info = dataBuild(roadAddress);
 
         int postNum = Integer.parseInt(info[0]);
         String province = info[1];
@@ -147,15 +170,15 @@ public class RepairShopMaker {
     // Use for create All repair-shop entities in the region
     // Require a keyword only
     public List<RepairShop> makeLocationDataV2(String keywordValue) throws IOException, InterruptedException, URISyntaxException, ParseException {
-        String keyword = URLEncoder.encode(keywordValue, StandardCharsets.UTF_8);
-        String provinceFromKeyword=keywordValue.split(" ")[0];
+
         int pagenum = 1;
         boolean isEnd = false;
 
         List<RepairShop> repairShopList = new ArrayList<>();
-
+        HashSet<String> repairShopSet=new HashSet<>();
         for (; !isEnd; pagenum++) {
-            HttpRequest request = getRequestForRoadAddressSearch("?query=" + keyword + "&page=" + pagenum);
+            String param = URLEncoder.encode(keywordValue, StandardCharsets.UTF_8); // Encoding URL For Korean language
+            HttpRequest request = getRequestForKeywordSearch("?query=" + param + "&page=" + pagenum);
             String responseBody = getResponse(request).body();
 
             JSONArray document = getJSONArray(responseBody);
@@ -173,18 +196,18 @@ public class RepairShopMaker {
 
                 String provinceFromRoadAddress=roadAddress.split(" ")[0];
 
-                RegionInfo constraint =
+                RegionInfo regionInfo =
                     regionStrategy.switchStrategy(provinceFromRoadAddress);
 
-                if (!roadAddress.contains(provinceFromKeyword)) continue;
-                if (constraint.isValid(provinceFromKeyword)) continue;
+                // Check whether JSON-data is correct value.
+                if (regionInfo.isValid(provinceFromRoadAddress)) continue;
 
                 String[] info = dataBuild(roadAddress);
 
                 int postNum = Integer.parseInt(info[0]);
 
+                String province = info[1];
                 String city = info[3];
-                String province = info[1]; // 대전광역시에서 대전을 추출하기 위함
                 String roadAdd = info[8];
 
                 RepairShop repairShop =
@@ -199,7 +222,10 @@ public class RepairShopMaker {
                                 .createdAt(LocalDateTime.now())
                                 .longitude(x).build();
 
-                repairShopList.add(repairShop);
+                if(!repairShopSet.contains(roadAddress)){
+                    repairShopSet.add(roadAddress);
+                    repairShopList.add(repairShop);
+                }
             }
         }
 
@@ -207,8 +233,7 @@ public class RepairShopMaker {
     }
 
     private JSONObject getMetaJSON(String src) throws ParseException {
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(src);
+        JSONObject jsonObject = (JSONObject) (new JSONParser().parse(src));
         return (JSONObject) jsonObject.get("meta");
     }
 

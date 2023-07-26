@@ -48,16 +48,7 @@ public class RepairManService {
                         .evaluatedNum(repairMan.getEvaluatedNum())
                         .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
-                                .map(
-                                        itemDetail -> ItemDetailDTO.builder()
-                                                .itemDetailId(itemDetail.getId())
-                                                .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                                                .itemName(itemDetail.getMaintenanceItem().getItemName())
-                                                .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
-                                                .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
-                                                .price(itemDetail.getPrice())
-                                                .build()
-                                ).toList()
+                                .map(ItemDetail::toDTO).toList()
                         ).build())
                 .toList();
     }
@@ -69,8 +60,8 @@ public class RepairManService {
         List<RepairMan> repairMen = repairManRepository.findAll();
         return repairMen.stream()
                 .filter(repairMan -> reserveRepository.
-                    findReservesByRepairManAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndDeletedAtIsNull(
-                            repairMan, date, startTime.plusMinutes(30), startTime).size() == 0)
+                        findReservesByRepairManAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndDeletedAtIsNull(
+                                repairMan, date, startTime.plusMinutes(30), startTime).size() == 0)
                 .map(repairMan -> RepairManInfoDTO.builder()
                         .id(repairMan.getId())
                         .name(repairMan.getName())
@@ -79,17 +70,8 @@ public class RepairManService {
                         .evaluatedNum(repairMan.getEvaluatedNum())
                         .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
-                            .map(
-                                    itemDetail -> ItemDetailDTO.builder()
-                                    .itemDetailId(itemDetail.getId())
-                                    .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                                    .itemName(itemDetail.getMaintenanceItem().getItemName())
-                                    .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
-                                    .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
-                                    .price(itemDetail.getPrice())
-                                    .build()
-                            ).toList()
-                ).build())
+                                .map(ItemDetail::toDTO).toList()
+                        ).build())
                 .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
                         .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
                                 .mapToInt(ItemDetailDTO::getPrice)
@@ -112,13 +94,13 @@ public class RepairManService {
                         .evaluatedNum(itemDetail.getRepairMan().getEvaluatedNum())
                         .evaluationGrade(itemDetail.getRepairMan().getEvaluationGrade())
                         .availableItems(List.of(ItemDetailDTO.builder()
-                                            .itemDetailId(itemDetail.getId())
-                                            .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                                            .itemName(itemDetail.getMaintenanceItem().getItemName())
-                                            .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
-                                            .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
-                                            .price(itemDetail.getPrice())
-                                            .build()
+                                        .itemDetailId(itemDetail.getId())
+                                        .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
+                                        .itemName(itemDetail.getMaintenanceItem().getItemName())
+                                        .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
+                                        .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
+                                        .price(itemDetail.getPrice())
+                                        .build()
                                 )
                         ).build())
                 .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
@@ -142,19 +124,11 @@ public class RepairManService {
                         .evaluatedNum(repairMan.getEvaluatedNum())
                         .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findItemDetailByRepairManAndDeletedAtIsNull(repairMan).stream()
-                                .map(
-                                        itemDetail -> ItemDetailDTO.builder()
-                                                .itemDetailId(itemDetail.getId())
-                                                .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                                                .itemName(itemDetail.getMaintenanceItem().getItemName())
-                                                .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
-                                                .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
-                                                .price(itemDetail.getPrice())
-                                                .build()
-                                ).toList()
+                                .map(ItemDetail::toDTO).toList()
                         ).build())
                 .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
-                        .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
+                        .thenComparing(Comparator.comparingInt(
+                                r -> r.getAvailableItems().stream()
                                 .mapToInt(ItemDetailDTO::getPrice)
                                 .min()
                                 .orElse(0))))
@@ -173,16 +147,7 @@ public class RepairManService {
                         .evaluatedNum(repairMan.getEvaluatedNum())
                         .evaluationGrade(repairMan.getEvaluationGrade())
                         .availableItems(itemDetailRepository.findByRepairManAndMaintenanceItem_Id(repairMan, maintenanceItemId).stream()
-                                .map(
-                                        itemDetail -> ItemDetailDTO.builder()
-                                                .itemDetailId(itemDetail.getId())
-                                                .maintenanceItemId(itemDetail.getMaintenanceItem().getId())
-                                                .itemName(itemDetail.getMaintenanceItem().getItemName())
-                                                .requiredLicense(itemDetail.getMaintenanceItem().getRequiredLicense())
-                                                .requiredTime(itemDetail.getMaintenanceItem().getRequiredTime())
-                                                .price(itemDetail.getPrice())
-                                                .build()
-                                ).toList()
+                                .map(ItemDetail::toDTO).toList()
                         ).build())
                 .sorted(Comparator.comparingDouble(RepairManInfoDTO::getEvaluationGrade).reversed()
                         .thenComparing(Comparator.comparingInt(r -> r.getAvailableItems().stream()
@@ -209,7 +174,7 @@ public class RepairManService {
         return availableTimeSlot;
     }
 
-    public List<RepairMan> getRepairMenByName(String name){
+    public List<RepairMan> getRepairMenByName(String name) {
         return repairManRepository.findByNameContainingAndDeletedAtIsNull(name);
     }
 }

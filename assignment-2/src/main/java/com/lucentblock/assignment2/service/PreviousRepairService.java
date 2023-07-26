@@ -26,8 +26,6 @@ public class PreviousRepairService {
     private final UserService userService;
     private final EntityManager em;
 
-
-
     public PreviousRepair createPreviousRepair(Long reserveId) {
         Reserve reserve = em.find(Reserve.class, reserveId);
         PreviousRepair previousRepair = reserve.toPreviousRepairEntity();
