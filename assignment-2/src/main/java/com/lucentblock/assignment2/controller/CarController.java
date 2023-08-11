@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CarController {
 
+
     private final UserRepository userRepository;
     private final CarManufacturerRepository carManufacturerRepository;
     private final CarService carService;
