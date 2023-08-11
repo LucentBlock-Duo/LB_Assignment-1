@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lcb-was
+  namespace: yongtae
+  labels:
+    app: lcb-was
+spec:
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: lcb-was
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+

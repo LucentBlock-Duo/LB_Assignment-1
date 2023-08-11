@@ -60,21 +60,21 @@ pipeline {
 
         stage('Apply Deployments') {
             steps {
-                sh 'kubectl apply -f ./kubernetes/lb-api.yml'
-                sh 'kubectl apply -f ./kubernetes/lb-mysql.yml'
+                sh 'kubectl apply -f ./kubernetes/lcb-was-deploy.yaml'
+                sh 'kubectl apply -f ./kubernetes/mysql-deploy.yaml'
             }
         }
 
         stage('Apply Services') {
             steps {
-                sh 'kubectl apply -f ./kubernetes/lb-api-service.yml'
-                sh 'kubectl apply -f ./kubernetes/lb-mysql-service.yml'
+                sh 'kubectl apply -f ./kubernetes/lcb-was-service.yaml'
+                sh 'kubectl apply -f ./kubernetes/mysql-service.yaml'
             }
         }
 
         stage('Rollout deployment') {
             steps {
-                sh 'kubectl rollout restart deployment lb-api-deployment'
+                sh 'kubectl rollout restart deployment lcb-was-deployment'
             }
         }
     }
