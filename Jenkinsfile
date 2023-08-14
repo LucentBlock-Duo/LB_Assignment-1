@@ -58,15 +58,15 @@ pipeline {
 
         stage('Apply Deployments') {
             steps {
-                sh 'kubectl apply -f ./kubernetes/lcb-was-deploy.yaml'
-                sh 'kubectl apply -f ./kubernetes/mysql-deploy.yaml'
+                sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/lcb-was-deploy.yaml'
+                sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/mysql-deploy.yaml'
             }
         }
 
         stage('Apply Services') {
             steps {
-                sh 'kubectl apply -f ./kubernetes/lcb-was-service.yaml'
-                sh 'kubectl apply -f ./kubernetes/mysql-service.yaml'
+                sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/lcb-was-service.yaml'
+                sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/mysql-service.yaml'
             }
         }
 
