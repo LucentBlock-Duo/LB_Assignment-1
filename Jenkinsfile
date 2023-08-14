@@ -4,7 +4,6 @@ pipeline {
     environment {
         APPLICATION_YAML = credentials('APPLICATION')
         APPLICATION_SECURITY_YAML = credentials('APPLICATION_SECURITY')
-        APPLICATION_MAIL_YAML = credentials('APPLICATION_MAIL')
         DOCKER_HUB_USERNAME = credentials('DOCKER_HUB_USERNAME')
         DOCKER_HUB_ACCESS_TOKEN = credentials('DOCKER_HUB_ACCESS_TOKEN')
         AMD64_DOCKER_IMAGE_TAG = credentials('AMD64_DOCKER_IMAGE_TAG')
@@ -35,7 +34,6 @@ pipeline {
             steps {
                 sh 'cat $APPLICATION_YAML > ./assignment-2/src/main/resources/application.yml'
                 sh 'cat $APPLICATION_SECURITY_YAML > ./assignment-2/src/main/resources/application-security.yml'
-                sh 'cat $APPLICATION_MAIL_YAML > ./assignment-2/src/main/resources/application-mail.yml'
             }
         }
 
