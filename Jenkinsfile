@@ -74,7 +74,7 @@ pipeline {
 
         stage('Rollout deployment') {
             steps {
-                sh 'kubectl rollout restart deployment lcb-was-deployment'
+                sh 'kubectl rollout restart deployment lcb-was'
             }
         }
     }
