@@ -8,6 +8,7 @@ pipeline {
         DOCKER_HUB_ACCESS_TOKEN = credentials('DOCKER_HUB_ACCESS_TOKEN')
         AMD64_DOCKER_IMAGE_TAG = credentials('AMD64_DOCKER_IMAGE_TAG')
         DOCKER_IMAGE_TAG = credentials('DOCKER_IMAGE_TAG')
+        KUBECONFIG=credentials('KUBECONFIG')
     }
 
     stages {
@@ -58,9 +59,7 @@ pipeline {
 
         stage('Apply Deployments') {
             steps {
-                sh 'cd /home/kube-config/'
-                sh 'ls'
-                sh 'export KUBECONFIG=/home/kube-config/kubeconfig-yongtae'
+                sh 'cat $KUBECONFIG > ./kubernetes/KUBECONFIG.txt'
                 sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/lcb-was-deploy.yaml'
                 sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/mysql-deploy.yaml'
             }
