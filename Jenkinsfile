@@ -58,9 +58,7 @@ pipeline {
 
         stage('Apply Deployments') {
             steps {
-                sh 'ls'
-                sh 'pwd'
-                sh 'cd ./home'
+                sh 'cd /home/kube-config/'
                 sh 'ls'
                 sh 'export KUBECONFIG=/home/kube-config/kubeconfig-yongtae'
                 sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/lcb-was-deploy.yaml'
