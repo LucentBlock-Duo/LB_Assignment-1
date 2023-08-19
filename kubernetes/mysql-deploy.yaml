@@ -20,5 +20,7 @@ spec:
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: lucentblock
+        - name: MYSQL_DATABASE
+          value: assignment
         ports:
           - containerPort: 3306
