@@ -24,4 +24,5 @@ spring:
             enable: true
             required: true
 app:
-  env: ${APP_ENV}
+  env1: ${APP_ENV1}
+  env2: ${APP_ENV2}
