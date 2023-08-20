@@ -20,10 +20,6 @@ spec:
       containers:
         - name: lcb-was
           image: docker.io/0tae/lcb-was:latest
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          imagePullPolicy: Always
           env:
           - name: APP_ENV1
             valueFrom:
