@@ -23,3 +23,5 @@ spring:
           starttls:
             enable: true
             required: true
+app:
+  env: ${APP_ENV}

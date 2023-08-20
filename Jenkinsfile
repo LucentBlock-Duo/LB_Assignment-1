@@ -59,6 +59,7 @@ pipeline {
 
         stage('Apply Deployments') {
             steps {
+                sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/lcb-was-configmap.yaml'
                 sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/lcb-was-deploy.yaml'
                 sh 'kubectl apply -f /var/jenkins_home/workspace/lcb/kubernetes/mysql-deploy.yaml'
             }
