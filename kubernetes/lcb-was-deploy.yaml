@@ -24,5 +24,7 @@ spec:
           - name: APP_ENV1
             valueFrom:
               configMapKeyRef:
-                name: lcb-was-configmap
+              - name: lcb-was-configmap
                 key: env1
+              - name: lcb-was-configmap
+                key: env2
