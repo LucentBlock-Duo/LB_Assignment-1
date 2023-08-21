@@ -76,6 +76,7 @@ pipeline {
         stage('Rollout deployment') {
             steps {
                 sh 'kubectl rollout restart deployment lcb-was'
+                sh 'kubectl rollout restart deployment mysql'
             }
         }
     }
