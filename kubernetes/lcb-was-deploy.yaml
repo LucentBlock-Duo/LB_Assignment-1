@@ -1,30 +1,33 @@
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: lcb-was
-  namespace: yongtae
-  labels:
-    app: lcb-was
-  annotations:
-    deployment.kubernetes.io/revision: '1'
-spec:
-  selector:
-    matchLabels:
+  kind: Deployment
+  apiVersion: apps/v1
+  metadata:
+    name: lcb-was
+    namespace: yongtae
+    labels:
       app: lcb-was
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
+    annotations:
+      deployment.kubernetes.io/revision: '1'
+  spec:
+    selector:
+      matchLabels:
         app: lcb-was
-    spec:
-      containers:
-        - name: lcb-was
-          image: docker.io/0tae/lcb-was:latest
-          env:
-          - name: APP_ENV1
-            valueFrom:
-              configMapKeyRef:
-              - name: lcb-was-configmap
-                key: env1
-              - name: lcb-was-configmap
-                key: env2
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: lcb-was
+      spec:
+        containers:
+          - name: lcb-was
+            image: docker.io/0tae/lcb-was:latest
+            env:
+              - name: APP_ENV1
+                valueFrom:
+                  configMapKeyRef:
+                    name: lcb-was-configmap
+                    key: env1
+              - name: APP_ENV2
+                valueFrom:
+                  configMapKeyRef:
+                    name: lcb-was-configmap
+                    key: env2
