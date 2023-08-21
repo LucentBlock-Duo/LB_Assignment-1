@@ -33,7 +33,6 @@ pipeline {
 
         stage('Generate required YAML files') {
             steps {
-                sh 'cat $APPLICATION_YAML > ./assignment-2/src/main/resources/application.yml'
                 sh 'cat $APPLICATION_SECURITY_YAML > ./assignment-2/src/main/resources/application-security.yml'
             }
         }
