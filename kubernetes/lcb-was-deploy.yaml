@@ -41,5 +41,5 @@ spec:
               key: env2
       volumes:
       - name: lcb-was-ps
-        configmap:
+        configMap:
           name: application.yml
