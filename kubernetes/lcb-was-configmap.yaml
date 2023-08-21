@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: lcb-was-configmap
-data:
-  env1: lcb # 실제 사용할 Config
-  env2: lucent

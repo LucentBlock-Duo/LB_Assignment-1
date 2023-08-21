@@ -1,33 +1,45 @@
-  kind: Deployment
-  apiVersion: apps/v1
-  metadata:
-    name: lcb-was
-    namespace: yongtae
-    labels:
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: lcb-was
+  namespace: yongtae
+  labels:
+    app: lcb-was
+  annotations:
+    deployment.kubernetes.io/revision: '1'
+spec:
+  selector:
+    matchLabels:
       app: lcb-was
-    annotations:
-      deployment.kubernetes.io/revision: '1'
-  spec:
-    selector:
-      matchLabels:
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
         app: lcb-was
-    template:
-      metadata:
-        creationTimestamp: null
-        labels:
-          app: lcb-was
-      spec:
-        containers:
-          - name: lcb-was
-            image: docker.io/0tae/lcb-was:latest
-            env:
-              - name: APP_ENV1
-                valueFrom:
-                  configMapKeyRef:
-                    name: lcb-was-configmap
-                    key: env1
-              - name: APP_ENV2
-                valueFrom:
-                  configMapKeyRef:
-                    name: lcb-was-configmap
-                    key: env2
+    spec:
+      containers:
+        - name: lcb-was
+          image: docker.io/0tae/lcb-was:latest
+          resources: { }
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      env:
+        - name: APP_ENV1
+          valueFrom:
+            configMapKeyRef:
+              name: lcb-was-configmap
+              key: env1
+        - name: APP_ENV2
+          valueFrom:
+            configMapKeyRef:
+              name: lcb-was-configmap
+              key: env2
+      volumeMounts:
+        - name: lcb-was-ps
+          readOnly: true
+          mountPath: /lb-assignment/src/main/resources
+    volumes:
+      - name: lcb-was-ps
+        configmap:
+          name: application.yml
