@@ -28,17 +28,17 @@ spec:
           - name: lcb-was-ps
             readOnly: true
             mountPath: /lb-assignment/src/main/resources
-      env:
-        - name: APP_ENV1
-          valueFrom:
-            configMapKeyRef:
-              name: lcb-was-configmap
-              key: env1
-        - name: APP_ENV2
-          valueFrom:
-            configMapKeyRef:
-              name: lcb-was-configmap
-              key: env2
+          env:
+          - name: APP_ENV1
+            valueFrom:
+              configMapKeyRef:
+                name: lcb-was-configmap
+                key: env1
+          - name: APP_ENV2
+            valueFrom:
+              configMapKeyRef:
+                name: lcb-was-configmap
+                key: env2
       volumes:
       - name: lcb-was-ps
         configMap:
