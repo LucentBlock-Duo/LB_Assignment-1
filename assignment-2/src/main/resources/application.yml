@@ -26,3 +26,4 @@ spring:
 app:
   env1: ${APP_ENV1}
   env2: ${APP_ENV2}
+  env3: 1
